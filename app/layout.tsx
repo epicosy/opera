@@ -1,6 +1,7 @@
 import "../styles/globals.css"
 import Sidebar from "../components/Sidebar.js";
 import Footer from "./footer";
+import {PageProvider} from "../context/vulnerabilities";
 
 export default function RootLayout({
   children,

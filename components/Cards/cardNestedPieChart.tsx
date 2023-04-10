@@ -3,16 +3,26 @@
 import React from "react";
 import { Chart } from "react-google-charts";
 
-export const options = {
-    pieHole: 0.40,
-    is3D: false,
+export const options={
+    pieSliceText: 'value',
+    sliceVisibilityThreshold: 0,
+    tooltip: {
+        isHtml: true
+    },
+    chartArea: {
+        width: '80%',
+        height: '80%'
+    },
 };
 
-export default function CardAssignersPieChart({data}) {
-    const assigners_counts = data.map((el) => {
-        return [el.key, el.value]
-    })
-    assigners_counts.unshift(["Assigner", "Count"]);
+export default function CardNestedPieChart({data, fields, title} : {data: { key: string; values: { key: string; value: number }[] }[], fields: any, title: string}) {
+    const chartData = [fields];
+
+    data.forEach((count) => {
+        const vulnerableCount = count.values.find(({ key }) => key === 'vulnerable')?.value || 0;
+        const nonVulnerableCount = count.values.find(({ key }) => key === 'non-vulnerable')?.value || 0;
+        chartData.push([count.key, vulnerableCount, nonVulnerableCount]);
+    });
 
     return (
         <>
@@ -21,10 +31,10 @@ export default function CardAssignersPieChart({data}) {
                     <div className="flex flex-wrap items-center">
                         <div className="relative w-full max-w-full flex-grow flex-1">
                             <h6 className="uppercase text-gray-400 mb-1 text-xs font-semibold">
-                                Stats
+                                Nested Pie Chart
                             </h6>
                             <h2 className="text-gray-700 text-xl font-semibold">
-                                Assigners Distribution
+                                {title}
                             </h2>
                         </div>
                     </div>
@@ -32,7 +42,7 @@ export default function CardAssignersPieChart({data}) {
                 <div className="p-4 flex-auto">
                     {/* Chart */}
                     <div className="relative h-350-px">
-                        <Chart chartType="PieChart" width="100%" height="100%" data={assigners_counts} options={options}/>
+                        <Chart chartType="PieChart" width="100%" height="100%" data={chartData} options={options}/>
                     </div>
                 </div>
             </div>

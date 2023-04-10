@@ -1,39 +1,32 @@
+"use client"
+
 import React from "react";
-
-// components
-
 import CardStats from "../components/Cards/CardStats.js";
+import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 
-
-import {ApolloClient, gql, InMemoryCache} from "@apollo/client";
-
-const fetchStats = async () => {
-
-  const client = new ApolloClient({
-    uri: `http://localhost:3001/graphql`,
-    cache: new InMemoryCache()
-  });
-
-  const { data } = await client.query({
-    query: gql`
-      query {
+const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
+const STATS_QUERY = gql`
+    query {
         stats {
-          total
-          labeled
-          references
+            total
+            labeled
+            references
+            commits
         }
-      }
-    `
-  })
-
-  await data
-
-  return data.stats
-}
+    }
+`
 
 
-export default async function Stats() {
-  const stats = await fetchStats()
+export default function Stats() {
+  const stats_query = useQuery(STATS_QUERY, {client});
+
+  if (stats_query.loading) return <p>Loading Stats...</p>;
+
+  if (stats_query.error){
+    return <p>Error: Could not fetch Stats :(</p>;
+  }
+
+  const stats = stats_query.data?.stats;
 
 
   return (
@@ -48,10 +41,6 @@ export default async function Stats() {
                 <CardStats
                   statSubtitle="TOTAL"
                   statTitle={stats.total}
-                  statArrow="up"
-                  statPercent="3.48"
-                  statPercentColor="text-emerald-500"
-                  statDescripiron="Since last month"
                   statIconName="far fa-database"
                   statIconColor="bg-red-500"
                 />
@@ -60,10 +49,6 @@ export default async function Stats() {
                 <CardStats
                   statSubtitle="LABELED"
                   statTitle={stats.labeled}
-                  statArrow="down"
-                  statPercent="3.48"
-                  statPercentColor="text-red-500"
-                  statDescripiron="Since last week"
                   statIconName="fas fa-tag"
                   statIconColor="bg-orange-500"
                 />
@@ -72,23 +57,15 @@ export default async function Stats() {
                 <CardStats
                   statSubtitle="REFERENCES"
                   statTitle={stats.references}
-                  statArrow="down"
-                  statPercent="1.10"
-                  statPercentColor="text-orange-500"
-                  statDescripiron="Since yesterday"
                   statIconName="fas fa-link"
                   statIconColor="bg-yellow-500"
                 />
               </div>
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="PERFORMANCE"
-                  statTitle="49,65%"
-                  statArrow="up"
-                  statPercent="12"
-                  statPercentColor="text-emerald-500"
-                  statDescripiron="Since last month"
-                  statIconName="fas fa-percent"
+                  statSubtitle="COMMITS"
+                  statTitle={stats.commits}
+                  statIconName="fas fa-code-commit"
                   statIconColor="bg-sky-500"
                 />
               </div>

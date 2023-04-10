@@ -13,7 +13,7 @@ const fetchLatestVulnerabilities = async () => {
   const { data } = await client.query({
     query: gql`
       query {
-        vulnerabilities(last: 10) {
+        vulnerabilities(first: 10) {
           id
           severity
           exploitability
@@ -45,7 +45,7 @@ export default async function CardLatestVulnerabilities() {
           <div className="flex flex-wrap items-center">
             <div className="relative w-full px-4 max-w-full flex-grow flex-1">
               <h3 className="font-semibold text-base text-blueGray-700">
-                Vulnerabilities
+                Latest Vulnerabilities
               </h3>
             </div>
             <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">

@@ -1,13 +1,12 @@
 'use client';
 import React from "react";
 
-import "@fortawesome/fontawesome-free/css/all.min.css";
 import "styles/tailwind.css";
+import {ProductsPageProvider, useProductsPage} from "../../context/products";
 import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {useVulnerabilityPage, VulnerabilityPageProvider} from "../../context/vulnerabilities";
 
-function VulnerabilityTable() {
-    const { headers, rows, currentPage, setPage, pagination } = useVulnerabilityPage();
+function ProductsTable() {
+    const { headers, rows, currentPage, setPage, pagination } = useProductsPage();
 
     return (
         <CardFilterPaginationTable
@@ -20,14 +19,14 @@ function VulnerabilityTable() {
     );
 }
 
-export default function Vulnerabilities() {
+export default function Products() {
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <VulnerabilityPageProvider>
-                        <VulnerabilityTable />
-                    </VulnerabilityPageProvider>
+                    <ProductsPageProvider>
+                        <ProductsTable/>
+                    </ProductsPageProvider>
                 </div>
             </div>
         </>

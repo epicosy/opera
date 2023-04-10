@@ -76,9 +76,7 @@ export default function Sidebar() {
             {/* Divider */}
             <hr className="my-4 md:min-w-full" />
             {/* Heading */}
-            <h6 className="md:min-w-full text-gray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-              Admin Layout Pages
-            </h6>
+
             {/* Navigation */}
 
             <ul className="md:flex-col md:min-w-full flex flex-col list-none">
@@ -118,6 +116,106 @@ export default function Sidebar() {
                       }
                     ></i>{" "}
                     Vulnerabilities
+                </Link>
+              </li>
+              <li className="items-center">
+                <Link href="/repositories"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/repositories") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-doutone fa-folders mr-2 text-sm " +
+                          (pathname.indexOf("/repositories") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Repositories
+                </Link>
+              </li>
+              <li className="items-center">
+                <Link href="/commits"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/commits") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-duotone fa-code-commit mr-2 text-sm " +
+                          (pathname.indexOf("/commits") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Commits
+                </Link>
+              </li>
+              <li className="items-center">
+                <Link href="/configurations"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/configurations") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-solid fa-sliders mr-2 text-sm " +
+                          (pathname.indexOf("/configurations") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Configurations
+                </Link>
+              </li>
+              <li className="items-center">
+                <Link href="/vendors"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/vendors") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-solid fa-sliders mr-2 text-sm " +
+                          (pathname.indexOf("/vendors") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Vendors
+                </Link>
+              </li>
+              <li className="items-center">
+                <Link href="/products"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/products") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-solid fa-sliders mr-2 text-sm " +
+                          (pathname.indexOf("/products") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Products
                 </Link>
               </li>
             </ul>
