@@ -218,6 +218,46 @@ export default function Sidebar() {
                   Products
                 </Link>
               </li>
+              <li className="items-center">
+                <Link href="/files"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/files") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-solid fa-file mr-2 text-sm " +
+                          (pathname.indexOf("/files") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Files
+                </Link>
+              </li>
+              <li className="items-center">
+                <Link href="/datasets"
+                      className={
+                          "text-xs uppercase py-3 font-bold block " +
+                          (pathname.indexOf("/datasets") !== -1
+                              ? "text-sky-500 hover:text-sky-600"
+                              : "text-gray-700 hover:text-gray-500")
+                      }
+                >
+                  <i
+                      className={
+                          "fa-sharp fa-solid fa-database mr-2 text-sm " +
+                          (pathname.indexOf("/datasets") !== -1
+                              ? "opacity-75"
+                              : "text-gray-300")
+                      }
+                  ></i>{" "}
+                  Datasets
+                </Link>
+              </li>
             </ul>
 
             {/* Divider */}

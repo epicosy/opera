@@ -12,7 +12,7 @@ const CheckboxMenuItem = ({ value, checked, onChange }) => {
                 checked={checked}
                 onChange={onChange}
             />
-            <span>{value}</span>
+            <span>{value === null ? "Null" : value.toString()}</span>
             {checked && <CheckIcon className="w-5 h-5 text-indigo-600" />}
         </label>
     );

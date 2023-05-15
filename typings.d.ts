@@ -42,6 +42,14 @@ export type Vulnerability = {
 export type Commit = {
     id: string
     url: string
+    kind: string
+    available: boolean
+    state: string
+    changes: number
+    additions: number
+    deletions: number
+    filesCount: number
+    parentsCount: number
     vulnerabilityId: string
     repositoryId: string
 }
@@ -60,7 +68,11 @@ export type Repository = {
     id: string
     name: string
     owner: string
+    language: string
+    description: string
+    available: boolean
     commits: Array<Commit>
+    topics: Array<string>
     commitsCount: number
 }
 
@@ -94,9 +106,30 @@ export type Vendor = {
 export type Product = {
     id: string
     name: string
+    swType: string
     configurations: Array<Configuration>
     configurationsCount: number
     vulnerabilitiesCount: number
+}
+
+export type File = {
+    id: string
+    filename: string
+    extension: string
+    changes: number
+    additions: number
+    deletions: number
+    status: string
+    patch: string
+    rawUrl: string
+    commitId: string
+}
+
+export type Dataset = {
+    id: number
+    name: string
+    description: string
+    vulnerabilities: Array<Vulnerability>
 }
 
 export type VulnerabilityPagination = Pagination & {
@@ -117,4 +150,12 @@ export type ConfigurationsPagination = Pagination & {
 
 export type VendorsPagination = Pagination & {
     elements: Array<Vendor>
+}
+
+export type ProductsPagination = Pagination & {
+    elements: Array<Product>
+}
+
+export type FilesPagination = Pagination & {
+    elements: Array<File>
 }

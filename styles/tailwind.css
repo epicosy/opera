@@ -2130,6 +2130,18 @@ select {
   height: 600px;
 }
 
+.h-800-px {
+  height: 800px;
+}
+
+.h-830-px {
+  height: 830px;
+}
+
+.h-850-px {
+  height: 850px;
+}
+
 .text-55 {
   font-size: 55rem;
 }

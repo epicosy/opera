@@ -12,9 +12,34 @@ const TableHeader: FC<{children: ReactNode}> = ({children}) => {
 )
 }
 
+
+type TableRow = Array<any>;
+type TableRows = Array<TableRow>;
+
+interface Props {
+  rows: TableRows;
+}
+
+const TableBody: React.FC<Props> = ({ rows }) => {
+  return (
+      <tbody>
+      {rows.map((row, rowIndex) => (
+          <tr key={rowIndex} className="hover:bg-gray-100">
+            {row.map((cell, cellIndex) => (
+                <TableCell key={cellIndex}>
+                  {cell}
+                </TableCell>
+            ))}
+          </tr>
+      ))}
+      </tbody>
+  );
+};
+
+
 const TableCell: FC<{children: ReactNode}> = ({children}) => {
   return (
-      <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+      <td className="border-t-0 flex-nowrap w-4 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
         {children}
       </td>
   )
@@ -24,29 +49,20 @@ export default function CardFilterPaginationTable({headers, rows, currentPage, s
 
   return (
     <>
-
-      <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white">
+      <div className="relative flex flex-col min-w-0 max-w-100 break-words w-full mb-6 shadow-lg rounded bg-white">
         <PageChange currentPage={currentPage} setPage={setPage} pagination={pagination} />
 
         <div className="block w-full overflow-x-auto">
           {/* Projects table */}
           <table className="items-center w-full bg-transparent border-collapse">
-            <thead>
-              <tr>
+            <thead className="bg-blueGray-50">
+              <tr className="text-blueGray-500 border-blueGray-100">
                 {headers.map((header) => (
                     <TableHeader>{header}</TableHeader>
                 ))}
               </tr>
             </thead>
-            <tbody>
-            {rows.map((row ) => (
-                <tr>
-                    {row.map((cell) => (
-                        <TableCell>{cell?.toString()}</TableCell>
-                    ))}
-                </tr>
-            ))}
-            </tbody>
+            <TableBody rows={rows}/>
           </table>
         </div>
       </div>

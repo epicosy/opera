@@ -1,28 +1,38 @@
 'use client'
 
 import React from "react";
-import { Chart } from "react-google-charts";
+import { Pie } from 'react-chartjs-2';
 
-export const options={
-    pieSliceText: 'value',
-    sliceVisibilityThreshold: 0,
-    tooltip: {
-        isHtml: true
-    },
-    chartArea: {
-        width: '80%',
-        height: '80%'
-    },
-};
 
-export default function CardNestedPieChart({data, fields, title} : {data: { key: string; values: { key: string; value: number }[] }[], fields: any, title: string}) {
-    const chartData = [fields];
+export default function CardNestedPieChart({ data, fields, title }: { data: { key: string; values: { key: string; value: number }[] }[], fields: any, title: string }) {
+    const chartData = {
+        labels: data.map(count => count.key),
+        datasets: [{
+            label: 'Part',
+            data: data.map(part =>
+                part.values.reduce((acc, value) => acc + value.value, 0)),
+            backgroundColor: ["#0A4D68", "#2A2F4F", "#A75D5D"]
+        }, {
+            label: 'Vulnerable',
+            data: data.flatMap(part =>
+                part.values.filter(value => value.key === 'vulnerable').map(value => value.value)
+            ),
+            backgroundColor: ["#088395", "#917FB3", "#D3756B"]
+        }, {
+            label: 'Non-Vulnerable',
+            data: data.flatMap(part =>
+                part.values.filter(value => value.key === 'non-vulnerable').map(value => value.value)
+            ),
+            backgroundColor: ["#05BFDB", "#E5BEEC", "#F0997D"]
+        }]
+    };
 
-    data.forEach((count) => {
-        const vulnerableCount = count.values.find(({ key }) => key === 'vulnerable')?.value || 0;
-        const nonVulnerableCount = count.values.find(({ key }) => key === 'non-vulnerable')?.value || 0;
-        chartData.push([count.key, vulnerableCount, nonVulnerableCount]);
-    });
+    const options = {
+        title: {
+            display: true,
+            text: title
+        }
+    };
 
     return (
         <>
@@ -42,7 +52,7 @@ export default function CardNestedPieChart({data, fields, title} : {data: { key:
                 <div className="p-4 flex-auto">
                     {/* Chart */}
                     <div className="relative h-350-px">
-                        <Chart chartType="PieChart" width="100%" height="100%" data={chartData} options={options}/>
+                        <Pie data={chartData} options={options} />
                     </div>
                 </div>
             </div>

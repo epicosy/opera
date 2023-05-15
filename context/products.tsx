@@ -1,7 +1,7 @@
 'use client'
 
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
-import {VendorsPagination} from "../typings";
+import {ProductsPagination} from "../typings";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 import Dict = NodeJS.Dict;
 
@@ -21,6 +21,7 @@ const PRODUCTS_LIST = gql`
             elements{
                 id
                 name
+                swType
                 configurationsCount
                 vulnerabilitiesCount
             }
@@ -30,7 +31,7 @@ const PRODUCTS_LIST = gql`
 interface ProductsPageContextProps {
     currentPage: number;
     setPage: Dispatch<SetStateAction<number>>;
-    pagination: VendorsPagination;
+    pagination: ProductsPagination;
     headers: string[];
     rows: string[][];
 }
@@ -54,13 +55,14 @@ export const ProductsPageProvider: FC<{children: ReactNode}> = ({children}) => {
         return <p>Error loading products :(</p>;
     }
 
-    const pagination: VendorsPagination = productsPageQuery.data?.productsPage;
-    const headers = ["Id", "Name", "Configurations Count", "Vulnerabilities Count"];
+    const pagination: ProductsPagination = productsPageQuery.data?.productsPage;
+    const headers = ["Id", "Name", "Product Type", "Configurations Count", "Vulnerabilities Count"];
 
     const rows = pagination.elements.map((product: Dict<string>) => {
         return [
             product.id,
             product.name,
+            product.swType,
             product.configurationsCount,
             product.vulnerabilitiesCount,
         ];

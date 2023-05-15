@@ -4,6 +4,7 @@ import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC
 import {CWE, VulnerabilityPagination} from "../typings";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 import DropdownWithCheckboxes from "../components/Dropdowns/CheckboxDropdown";
+import Link from "next/link";
 
 const PAGE_SIZE = 15;
 const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
@@ -119,7 +120,9 @@ export const VulnerabilityPageProvider: FC<{children: ReactNode}> = ({children})
             vuln.cweIds.map((cwe: any) => cwe.bfClasses.map((bf: any) => bf.name).join(", ")).join("|"),
             vuln.cweIds.map((cwe: any) => cwe.operations.map((op: any) => op.name).join(", ")).join("|"),
             vuln.cweIds.map((cwe: any) => cwe.phases.map((ph: any) => ph.name).join(", ")).join("|"),
-            vuln.severity, vuln.exploitability, vuln.impact, vuln.id];
+            vuln.severity, vuln.exploitability, vuln.impact,
+            <Link href={`http://localhost:3005/vulnerabilities/${vuln.id}/`} target="_blank"
+                  className="text-blue-600 dark:text-blue-500 hover:underline" >{vuln.id}</Link>];
     });
 
     return (

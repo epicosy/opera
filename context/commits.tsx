@@ -3,7 +3,6 @@
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {CommitsPagination} from "../typings";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Dict = NodeJS.Dict;
 
 const PAGE_SIZE = 15;
 const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
@@ -23,18 +22,16 @@ const LIST_COMMITS = gql`
                 id
                 url
                 kind
+                available
+                state
+                changes
+                additions
+                deletions
+                filesCount
+                parentsCount
                 vulnerabilityId
                 repositoryId
             }
-        }
-    }
-`;
-
-const COUNT_COMMIT_KINDS = gql`
-    query {
-        commitKindCount{
-            key
-            value
         }
     }
 `;
@@ -48,7 +45,6 @@ interface CommitsPageContextProps {
     severity: string[];
     headers: string[];
     rows: string[][];
-    kindCounts: Dict<string>;
 }
 
 const CommitPageContext = createContext<CommitsPageContextProps>({
@@ -57,7 +53,6 @@ const CommitPageContext = createContext<CommitsPageContextProps>({
     pagination: {},
     headers: [],
     rows: [],
-    kindCounts: {},
 } as CommitsPageContextProps);
 
 export const CommitPageProvider: FC<{children: ReactNode}> = ({children}) => {
@@ -65,7 +60,6 @@ export const CommitPageProvider: FC<{children: ReactNode}> = ({children}) => {
     const commitsPageQuery = useQuery(LIST_COMMITS,
         {client, variables: {page: currentPage, per_page: PAGE_SIZE}}
     );
-    const kindCountsQuery = useQuery(COUNT_COMMIT_KINDS, {client});
 
     if (commitsPageQuery.loading) return <p>Loading commits...</p>;
     if (commitsPageQuery.error){
@@ -73,20 +67,16 @@ export const CommitPageProvider: FC<{children: ReactNode}> = ({children}) => {
     }
 
     const pagination: CommitsPagination = commitsPageQuery.data?.commitsPage;
-    const headers = ["Hash", "URL", "Kind", "Vulnerability Id", "RepositoryId"];
+    const headers = ["URL", "Kind", "Available", "State", "Changes", "Additions", "Deletions", "#Files", "#Parents",
+        "Vulnerability Id", "Repository Id"];
 
     const rows = pagination.elements.map((commit: any) => {
-        return [commit.id, commit.url, commit.kind, commit.vulnerabilityId, commit.repositoryId]
+        return [commit.url, commit.kind, commit.available, commit.state, commit.changes, commit.additions,
+            commit.deletions, commit.filesCount, commit.parentsCount, commit.vulnerabilityId, commit.repositoryId]
     });
 
-    if (kindCountsQuery.loading) return <p>Loading commit kinds...</p>;
-    if (kindCountsQuery.error){
-        return <p>Error loading commit kinds :(</p>;
-    }
-    const kindCounts = kindCountsQuery.data?.commitKindCount;
-
     return (
-        <CommitPageContext.Provider value={{currentPage, setPage, headers, rows, pagination, kindCounts}}>
+        <CommitPageContext.Provider value={{currentPage, setPage, headers, rows, pagination}}>
             {children}
         </CommitPageContext.Provider>
     )

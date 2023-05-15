@@ -8,18 +8,6 @@ import Dict = NodeJS.Dict;
 const PAGE_SIZE = 15;
 const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
 
-const PART_COUNTS = gql`
-    query {
-        partCount{
-            key
-            values {
-                key
-                value
-            }
-        }
-    }
-`;
-
 const LIST_CONFIGURATIONS = gql`
     query configurationsPage($page: Int!, $per_page: Int!) {
         configurationsPage(page: $page, perPage: $per_page){
@@ -73,8 +61,6 @@ export const ConfigurationsPageProvider: FC<{children: ReactNode}> = ({children}
     const configurationsPageQuery = useQuery(LIST_CONFIGURATIONS,
         {client, variables: {page: currentPage, per_page: PAGE_SIZE}}
     );
-    const partCountsQuery = useQuery(PART_COUNTS, {client});
-
 
     if (configurationsPageQuery.loading) return <p>Loading configurations...</p>;
     if (configurationsPageQuery.error){
@@ -91,14 +77,8 @@ export const ConfigurationsPageProvider: FC<{children: ReactNode}> = ({children}
             config.vulnerabilityId]
     });
 
-    if (partCountsQuery.loading) return <p>Loading part counts...</p>;
-    if (partCountsQuery.error){
-        return <p>Error loading part counts :(</p>;
-    }
-    const partCounts = partCountsQuery.data?.partCount;
-
     return (
-        <ConfigurationsPageContext.Provider value={{currentPage, setPage, headers, rows, pagination, partCounts}}>
+        <ConfigurationsPageContext.Provider value={{currentPage, setPage, headers, rows, pagination}}>
             {children}
         </ConfigurationsPageContext.Provider>
     )
