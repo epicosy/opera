@@ -142,6 +142,7 @@ export type File = {
     patch: string
     rawUrl: string
     commitId: string
+    content: string
 }
 
 export type Dataset = {
