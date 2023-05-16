@@ -93,6 +93,9 @@ export type Repository = {
     commits: Array<Commit>
     topics: Array<string>
     commitsCount: number
+    softwareType: string
+    vulnerabilityProfile: Dict
+    vulnerabilityCount: number
 }
 
 export type Configuration = {
@@ -142,6 +145,7 @@ export type File = {
     patch: string
     rawUrl: string
     commitId: string
+    content: string
 }
 
 export type Dataset = {

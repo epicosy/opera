@@ -24,8 +24,8 @@ function RepositoriesTable() {
 }
 
 function RepositoriesCharts() {
-    const { repositoriesAvailability, repositoriesCommitsFrequency, repositoriesLanguageCount,
-        topicsCount, langProductLinksCount } = useRepositoriesCharts();
+    const { repositoriesAvailability, repositoriesCommitsFrequency, repositoriesLanguageCount, topicsCount,
+        langProductLinksCount, repositoriesSoftwareTypeCount } = useRepositoriesCharts();
 
     return (
         <div className="flex flex-row">
@@ -60,6 +60,15 @@ function RepositoriesCharts() {
                             data={topicsCount}
                             title="Topics distribution"
                             fields={['Topic', 'Count']}
+                        />
+                    </div>
+                </div>
+                <div className="flex flex-row">
+                    <div className="flex-col w-1/2">
+                        <CardPieChart
+                            data={repositoriesSoftwareTypeCount}
+                            title="Repos software type distribution"
+                            fields={['SW Type', 'Count']}
                         />
                     </div>
                 </div>

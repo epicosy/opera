@@ -8,10 +8,12 @@ export const options = {
     is3D: false,
 };
 
-export default function CardPieChart({data, fields, title}) {
+export default function CardPieChart({ data, fields, title, height }) {
+    const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
+
     const counts = data.map((el) => {
-        return [el.key, el.value]
-    })
+        return [el.key, el.value];
+    });
     counts.unshift(fields);
 
     return (
@@ -31,8 +33,8 @@ export default function CardPieChart({data, fields, title}) {
                 </div>
                 <div className="p-4 flex-auto">
                     {/* Chart */}
-                    <div className="relative h-350-px">
-                        <Chart chartType="PieChart" width="100%" height="100%" data={counts} options={options}/>
+                    <div className="relative" style={{ height: `${chartHeight}px` }}>
+                        <Chart chartType="PieChart" width="100%" height="100%" data={counts} options={options} />
                     </div>
                 </div>
             </div>

@@ -29,6 +29,10 @@ const REPOS_CHARTS_DATA = gql`
             at
             to
             count
+        },
+        repositoriesSoftwareTypeCount{
+            key
+            value
         }
     }
 `;
@@ -38,7 +42,8 @@ interface RepositoriesChartsContextProps {
     repositoriesCommitsFrequency: Dict<string>,
     repositoriesLanguageCount: Dict<string>,
     topicsCount: Dict<string>,
-    langProductLinksCount: Dict<string>
+    langProductLinksCount: Dict<string>,
+    repositoriesSoftwareTypeCount: Dict<string>
 }
 
 const RepositoriesChartsContext = createContext<RepositoriesChartsContextProps>({
@@ -46,7 +51,8 @@ const RepositoriesChartsContext = createContext<RepositoriesChartsContextProps>(
     repositoriesCommitsFrequency: {},
     repositoriesLanguageCount: {},
     topicsCount: {},
-    langProductLinksCount: {}
+    langProductLinksCount: {},
+    repositoriesSoftwareTypeCount: {}
 } as RepositoriesChartsContextProps);
 
 export const RepositoriesChartsProvider: FC<{children: ReactNode}> = ({children}) => {
@@ -62,11 +68,12 @@ export const RepositoriesChartsProvider: FC<{children: ReactNode}> = ({children}
     const repositoriesLanguageCount = reposChartsDataQuery.data?.repositoriesLanguageCount;
     const topicsCount = reposChartsDataQuery.data?.topicsCount;
     const langProductLinksCount = reposChartsDataQuery.data?.langProductLinksCount;
+    const repositoriesSoftwareTypeCount = reposChartsDataQuery.data?.repositoriesSoftwareTypeCount;
 
 
     return (
         <RepositoriesChartsContext.Provider value={{repositoriesAvailability, repositoriesCommitsFrequency,
-            repositoriesLanguageCount, topicsCount, langProductLinksCount}}>
+            repositoriesLanguageCount, topicsCount, langProductLinksCount, repositoriesSoftwareTypeCount}}>
             {children}
         </RepositoriesChartsContext.Provider>
     )
