@@ -26,13 +26,24 @@ export type CWE = {
     bfClasses: Array<BFClass>
 }
 
+export type Tag = {
+    id: string
+    name: string
+}
+
+export type Reference = {
+    id: string,
+    url: string
+    tags: Array<Tag>
+}
+
 export type Vulnerability = {
     id: string
     severity: string
     description: string
     exploitability: number
     impact: number
-    references: Array<string>
+    references: Array<Reference>
     cweIds: Array<CWE>
     name: string
     publishedDate: Date
