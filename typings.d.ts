@@ -44,6 +44,7 @@ export type Vulnerability = {
     exploitability: number
     impact: number
     references: Array<Reference>
+    commits: Array<Commit>
     cweIds: Array<CWE>
     name: string
     publishedDate: Date
@@ -53,6 +54,12 @@ export type Vulnerability = {
 export type Commit = {
     id: string
     url: string
+    sha: string
+    date: Date
+    author: string
+    message: string
+    files_count: number
+    parents_count: number
     kind: string
     available: boolean
     state: string
@@ -63,6 +70,7 @@ export type Commit = {
     parentsCount: number
     vulnerabilityId: string
     repositoryId: string
+    files: Array<File>
 }
 
 export type Pagination = {
