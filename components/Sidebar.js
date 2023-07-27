@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 export default function Sidebar() {
   const [collapseShow, setCollapseShow] = React.useState("hidden");
   const [hasMounted, setHasMounted] = React.useState(false);
+  const [expand, setExpanded] = React.useState(false);
   const pathname = usePathname();
 
   // Hooks
@@ -16,9 +17,11 @@ export default function Sidebar() {
   // Render
   if (!hasMounted) return null;
 
+  
+
   return (
       <>
-        <nav className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
+        <nav style={{ backgroundColor: "#DBEAFE"}} className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
           <div className="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center justify-between w-full mx-auto">
             {/* Toggler */}
             <button
@@ -32,7 +35,7 @@ export default function Sidebar() {
             <Link href="/"
                   className="md:block text-left md:pb-2 text-gray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
             >
-              Opera
+              Phanes
             </Link>
             {/* Collapse */}
             <div
@@ -80,25 +83,93 @@ export default function Sidebar() {
               {/* Navigation */}
 
               <ul className="md:flex-col md:min-w-full flex flex-col list-none">
-                <li className="items-center">
-                  <Link href="/" className={ "text-xs uppercase py-3 font-bold block " +
-                      (pathname === "/"
-                          ? "text-sky-500 hover:text-sky-600"
-                          : "text-gray-700 hover:text-gray-500")
-                  }>
+              <li className="items-center">
+                  <Link href="/discovery"
+                        className={
+                            "text-xs uppercase py-3 font-bold block " +
+                            (pathname.indexOf("/discovery") !== -1
+                                ? "text-sky-700 hover:text-sky-900"
+                                : "text-gray-700 hover:text-gray-500")
+                        }
+                  >
                     <i
                         className={
-                            "fas fa-tv mr-2 text-sm " +
-                            (pathname === "/"
+                            "fas fa-bug mr-2 text-sm " +
+                            (pathname.indexOf("/discovery") !== -1
                                 ? "opacity-75"
                                 : "text-gray-300")
                         }
                     ></i>{" "}
-                    Dashboard
+                    Discovery
                   </Link>
                 </li>
 
                 <li className="items-center">
+                  <Link href="/analysis"
+                        className={
+                            "text-xs uppercase py-3 font-bold block " +
+                            (pathname.indexOf("/analysis") !== -1
+                                ? "text-sky-700 hover:text-sky-900"
+                                : "text-gray-700 hover:text-gray-500")
+                        }
+                  >
+                    <i
+                        className={
+                            "fas fa-bug mr-2 text-sm " +
+                            (pathname.indexOf("/analysis") !== -1
+                                ? "opacity-75"
+                                : "text-gray-300")
+                        }
+                    ></i>{" "}
+                    Analysis
+                  </Link>
+                </li>
+
+                <li className="items-center">
+                  <Link href="/scoring"
+                        className={
+                            "text-xs uppercase py-3 font-bold block " +
+                            (pathname.indexOf("/scoring") !== -1
+                                ? "text-sky-700 hover:text-sky-900"
+                                : "text-gray-700 hover:text-gray-500")
+                        }
+                  >
+                    <i
+                        className={
+                            "fas fa-bug mr-2 text-sm " +
+                            (pathname.indexOf("/scoring") !== -1
+                                ? "opacity-75"
+                                : "text-gray-300")
+                        }
+                    ></i>{" "}
+                    Scoring
+                  </Link>
+                </li>
+
+                <li className="items-center">
+                  <Link href="/reporting"
+                        className={
+                            "text-xs uppercase py-3 font-bold block " +
+                            (pathname.indexOf("/reporting") !== -1
+                                ? "text-sky-700 hover:text-sky-900"
+                                : "text-gray-700 hover:text-gray-500")
+                        }
+                  >
+                    <i
+                        className={
+                            "fas fa-bug mr-2 text-sm " +
+                            (pathname.indexOf("/reporting") !== -1
+                                ? "opacity-75"
+                                : "text-gray-300")
+                        }
+                    ></i>{" "}
+                    Reporting
+                  </Link>
+                </li>
+
+                {expand  && (
+                  <div>
+                    <li className="items-center">
                   <Link href="/vulnerabilities"
                         className={
                             "text-xs uppercase py-3 font-bold block " +
@@ -118,6 +189,26 @@ export default function Sidebar() {
                     Vulnerabilities
                   </Link>
                 </li>
+
+                
+                <li className="items-center">
+                  <Link href="/" className={ "text-xs uppercase py-3 font-bold block " +
+                      (pathname === "/"
+                          ? "text-sky-500 hover:text-sky-600"
+                          : "text-gray-700 hover:text-gray-500")
+                  }>
+                    <i
+                        className={
+                            "fas fa-tv mr-2 text-sm " +
+                            (pathname === "/"
+                                ? "opacity-75"
+                                : "text-gray-300")
+                        }
+                    ></i>{" "}
+                    Dashboard
+                  </Link>
+                </li>
+
                 <li className="items-center">
                   <Link href="/repositories"
                         className={
@@ -278,6 +369,9 @@ export default function Sidebar() {
                     Reports
                   </Link>
                 </li>
+                  </div>
+                )}
+                
               </ul>
 
               {/* Divider */}

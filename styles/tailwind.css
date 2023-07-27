@@ -3766,6 +3766,10 @@ select {
   }
 }
 
+blue-background {
+  background-color: #0066ff;
+}
+
 .animate-spin {
   -webkit-animation: spin 1s linear infinite;
           animation: spin 1s linear infinite;
