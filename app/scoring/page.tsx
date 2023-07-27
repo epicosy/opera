@@ -31,15 +31,7 @@ export default function Discovery() {
     const [cwe, setCwe] = useState(null);
     const [data, setData] = useState(null);
     const [cwes, setCwes] = useState([]);
-
-    const handleInputChange = (e) => {
-        setUrl(e.target.value);
-    }
-
-    const handleSelectChange = (value) => {
-        setCwe(value);
-    }
-
+    
     useEffect(() => {
         const fetchCwes = async () => {
             try {

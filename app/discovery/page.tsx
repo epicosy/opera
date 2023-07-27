@@ -33,14 +33,6 @@ export default function Discovery() {
     const [cwes, setCwes] = useState([]);
     const [processed, setProcessed] = useState(false);
 
-    const handleInputChange = (e) => {
-        setUrl(e.target.value);
-    }
-
-    const handleSelectChange = (value) => {
-        setCwe(value);
-    }
-
     useEffect(() => {
         const fetchCwes = async () => {
             try {

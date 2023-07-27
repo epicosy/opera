@@ -5,7 +5,7 @@ import "styles/tailwind.css";
 import {ApolloClient, InMemoryCache, gql} from "@apollo/client";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { StyleSheet } from '@react-pdf/renderer';
 
 
 const client = new ApolloClient({
@@ -48,74 +48,7 @@ const styles = StyleSheet.create({
     }
   });
   
-  // Create Document Component
-  const MyDocument = ({summary, fullReport}) => (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.section}>
-          <Text>{summary}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text>{fullReport}</Text>
-        </View>
-      </Page>
-    </Document>
-  );
-  
 
-    const exportToPDF = async () => {
-        const summaryCanvas = await html2canvas(summaryRef.current);
-        const fullReportCanvas = await html2canvas(fullReportRef.current);
-    
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-    
-        const summaryImgData = summaryCanvas.toDataURL('image/png');
-        const fullReportImgData = fullReportCanvas.toDataURL('image/png');
-    
-        let summaryHeight = summaryCanvas.height * pageWidth / summaryCanvas.width;
-        let fullReportHeight = fullReportCanvas.height * pageWidth / fullReportCanvas.width;
-    
-        let heightLeft = summaryHeight;
-        let position = 0;
-    
-        pdf.addImage(summaryImgData, 'PNG', 0, position, pageWidth, summaryHeight);
-        heightLeft -= pageHeight;
-    
-        while (heightLeft >= 0) {
-            position = heightLeft - summaryHeight;
-            pdf.addPage();
-            pdf.addImage(summaryImgData, 'PNG', 0, position, pageWidth, summaryHeight);
-            heightLeft -= pageHeight;
-        }
-    
-        pdf.addPage();
-    
-        heightLeft = fullReportHeight;
-        position = 0;
-    
-        pdf.addImage(fullReportImgData, 'PNG', 0, position, pageWidth, fullReportHeight);
-        heightLeft -= pageHeight;
-    
-        while (heightLeft >= 0) {
-            position = heightLeft - fullReportHeight;
-            pdf.addPage();
-            pdf.addImage(fullReportImgData, 'PNG', 0, position, pageWidth, fullReportHeight);
-            heightLeft -= pageHeight;
-        }
-    
-        pdf.save("report.pdf");
-    }
-    
-
-    const handleInputChange = (e) => {
-        setUrl(e.target.value);
-    }
-
-    const handleSelectChange = (value) => {
-        setCwe(value);
-    }
 
     useEffect(() => {
         const fetchCwes = async () => {
@@ -209,9 +142,7 @@ const styles = StyleSheet.create({
             
             <div>
             <div>
-                <PDFDownloadLink document={<MyDocument summary={summary} fullReport={fullReport} />} fileName="report.pdf">
-                    {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download')}
-                </PDFDownloadLink>
+                <button>Export</button>
             </div>
         </div>
         </div>

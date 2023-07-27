@@ -19,19 +19,22 @@
     "@radix-ui/react-select": "^1.2.1",
     "@react-pdf/renderer": "^3.1.12",
     "antd": "^5.4.6",
+    "build": "^0.1.4",
     "chart.js": "^4.1.1",
     "gulp": "^3.9.1",
     "gulp-append-prepend": "^1.0.9",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "lodash.debounce": "^4.0.8",
+    "netlify": "^13.1.10",
     "next": "^13.1.6",
     "prismjs": "^1.29.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",
     "react-chartjs-2": "^3.1.1",
     "react-dom": "18.2.0",
-    "react-google-charts": "^4.0.0"
+    "react-google-charts": "^4.0.0",
+    "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "@types/node": "18.11.3",
