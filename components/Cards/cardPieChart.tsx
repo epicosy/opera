@@ -11,10 +11,7 @@ export const options = {
 export default function CardPieChart({ data, fields, title, height }) {
     const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
 
-    const counts = data.map((el) => {
-        return [el.key, el.value];
-    });
-    counts.unshift(fields);
+    const counts = [fields, ...(data?.map(({ key, value }) => [key, value]) || [])];
 
     return (
         <>
