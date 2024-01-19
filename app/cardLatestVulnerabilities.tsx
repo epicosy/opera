@@ -42,7 +42,7 @@ const CardHeader = () => (
     </div>
 );
 
-const TableHeader = ({ headers }) => (
+const TableHeader = ({ headers } : {headers: Array<string>}) => (
     <thead>
     <tr>
         {headers.map((header, index) => (
@@ -57,10 +57,10 @@ const TableHeader = ({ headers }) => (
     </thead>
 );
 
-const VulnerabilityTableRow = ({ vulnerability }) => (
+const VulnerabilityTableRow = ({ vulnerability } : {vulnerability: Vulnerability}) => (
     <tr key={vulnerability.id}>
         <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-            <Link to={`/vulnerabilities/${vulnerability.id}`}>{vulnerability.id}</Link>
+            <Link href={`/vulnerabilities/${vulnerability.id}`}>{vulnerability.id}</Link>
         </th>
         <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap ellipsis p-4" data-text={vulnerability.description}>
             {vulnerability.description}
