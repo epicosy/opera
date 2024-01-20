@@ -9,7 +9,7 @@ export const options = {
     legend: { position: "bottom" },
 };
 
-export default function CardVulnerabilitiesByYearLineChart({data}) {
+export default function CardVulnerabilitiesByYearLineChart({data} : {data: {key: string, value: number}[]}) {
     const vulns_year = data?.map(({ key, value }) => [key, value])?.unshift(["Year", "Count"]);
 
     return (

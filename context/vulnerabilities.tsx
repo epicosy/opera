@@ -64,7 +64,7 @@ interface VulnerabilityPageContextProps {
     pagination: VulnerabilityPagination;
     cwe_ids: number[];
     severity: string[];
-    headers: string[];
+    headers: (string | React.JSX.Element)[];
     rows: string[][];
 }
 
@@ -75,7 +75,16 @@ const VulnerabilityPageContext = createContext<VulnerabilityPageContextProps>({
     setSelectedItems: () => {},
     selectedSeverity: [],
     setSelectedSeverity: () => {},
-    pagination: {},
+    pagination: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        totalPages: 0,
+        totalResults: 0,
+        page: 1,
+        perPage: 10,
+        pages: [],
+        elements: [],
+    },
     cwe_ids: [],
     severity: [],
     headers: [],
@@ -84,8 +93,8 @@ const VulnerabilityPageContext = createContext<VulnerabilityPageContextProps>({
 
 export const VulnerabilityPageProvider: FC<{children: ReactNode}> = ({children}) => {
     const [currentPage, setPage] = useState(1);
-    const [selectedItems, setSelectedItems] = React.useState([]);
-    const [selectedSeverity, setSelectedSeverity] = React.useState([]);
+    const [selectedItems, setSelectedItems] = React.useState<number[]>([]);
+    const [selectedSeverity, setSelectedSeverity] = React.useState<string[]>([]);
     const cwesQuery = useQuery(LIST_CWES, {client});
     const vulnsPageQuery = useQuery(LIST_VULNERABILITIES,
         {client, variables: {page: currentPage, per_page: PAGE_SIZE, cwe_ids: selectedItems,
@@ -126,7 +135,8 @@ export const VulnerabilityPageProvider: FC<{children: ReactNode}> = ({children})
     });
 
     return (
-        <VulnerabilityPageContext.Provider value={{currentPage, setPage, headers, rows, pagination}}>
+        <VulnerabilityPageContext.Provider value={{currentPage, setPage, selectedItems, setSelectedItems,
+            selectedSeverity, setSelectedSeverity, pagination, cwe_ids, severity, headers, rows,}}>
             {children}
         </VulnerabilityPageContext.Provider>
     )

@@ -11,6 +11,7 @@
     "build:tailwind": "tailwind build styles/index.css -o styles/tailwind.css"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.2.6",
     "@apollo/client": "^3.7.7",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@popperjs/core": "^2.9.1",
@@ -18,20 +19,21 @@
     "@radix-ui/react-icons": "^1.2.0",
     "@radix-ui/react-select": "^1.2.1",
     "antd": "^5.13.1",
-    "@ant-design/icons": "^5.2.6",
     "chart.js": "^4.1.1",
     "gulp": "^3.9.1",
     "gulp-append-prepend": "^1.0.9",
+    "lodash.debounce": "^4.0.8",
     "next": "^13.1.6",
+    "prismjs": "^1.29.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",
-    "react-dom": "18.2.0",
-    "react-google-charts": "^4.0.0",
     "react-chartjs-2": "^3.1.1",
-    "prismjs": "^1.29.0",
-    "lodash.debounce": "^4.0.8"
+    "react-dom": "18.2.0",
+    "react-google-charts": "^4.0.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "18.11.3",
     "@types/react": "^18.2.48",
     "@types/react-dom": "18.0.6",

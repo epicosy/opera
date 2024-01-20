@@ -1,7 +1,8 @@
 'use client';
-import React, {FC, ReactNode} from "react";
+import React, {Dispatch, FC, ReactNode, SetStateAction} from "react";
 
 import PageChange from "../PageChange/PageChange";
+import {Pagination} from "../../typings";
 
 const TableHeader: FC<{children: ReactNode}> = ({children}) => {
   return (
@@ -45,7 +46,16 @@ const TableCell: FC<{children: ReactNode}> = ({children}) => {
   )
 }
 
-export default function CardFilterPaginationTable({headers, rows, currentPage, setPage, pagination}) {
+interface CardFilterPaginationTableProps {
+  headers: (string | React.JSX.Element)[],
+  rows: string[][],
+  currentPage: number,
+  setPage: Dispatch<SetStateAction<number>>,
+  pagination: Pagination,
+}
+
+
+export default function CardFilterPaginationTable({headers, rows, currentPage, setPage, pagination} : CardFilterPaginationTableProps) {
 
   return (
     <>

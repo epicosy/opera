@@ -44,16 +44,23 @@ interface ConfigurationsContextProps {
     pagination: ConfigurationsPagination;
     headers: string[];
     rows: string[][];
-    partCounts: Dict<string>;
 }
 
 const ConfigurationsPageContext = createContext<ConfigurationsContextProps>({
     currentPage: 1,
     setPage: () => {},
-    pagination: {},
+    pagination: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        totalPages: 0,
+        totalResults: 0,
+        page: 1,
+        perPage: 10,
+        pages: [],
+        elements: [],
+    },
     headers: [],
-    rows: [],
-    partCounts: {},
+    rows: []
 } as ConfigurationsContextProps);
 
 export const ConfigurationsPageProvider: FC<{children: ReactNode}> = ({children}) => {

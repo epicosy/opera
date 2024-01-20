@@ -5,6 +5,7 @@ import type { SelectProps } from 'antd/es/select';
 import debounce from 'lodash.debounce';
 import type { CustomTagProps } from 'rc-select/lib/BaseSelect';
 
+
 const tagRender = (props: CustomTagProps) => {
     const { label, closable, onClose } = props;
     const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {

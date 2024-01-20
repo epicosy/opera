@@ -45,7 +45,16 @@ interface FilesPageContextProps {
 const FilesPageContext = createContext<FilesPageContextProps>({
     currentPage: 1,
     setPage: () => {},
-    pagination: {},
+    pagination: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        totalPages: 0,
+        totalResults: 0,
+        page: 1,
+        perPage: 10,
+        pages: [],
+        elements: [],
+    },
     headers: [],
     rows: [],
 } as FilesPageContextProps);

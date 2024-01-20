@@ -33,11 +33,11 @@ const COMMITS_CHARTS_DATA = gql`
 
 
 interface CommitsChartsContextProps {
-    commitKindCount: Dict<string>;
-    commitsAvailability: Dict<string>;
-    commitsState: Dict<string>;
-    commitsFilesCount: Dict<string>;
-    commitsChangesCount: Dict<string>;
+    commitKindCount: {key: string, value: number}[];
+    commitsAvailability: {key: string, value: number}[];
+    commitsState: {key: string, value: number}[];
+    commitsFilesCount: {key: string, value: number}[];
+    commitsChangesCount: {key: string, value: number}[];
 }
 
 const CommitChartsContext = createContext<CommitsChartsContextProps>({

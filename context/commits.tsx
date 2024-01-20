@@ -41,8 +41,6 @@ interface CommitsPageContextProps {
     currentPage: number;
     setPage: Dispatch<SetStateAction<number>>;
     pagination: CommitsPagination;
-    cwe_ids: number[];
-    severity: string[];
     headers: string[];
     rows: string[][];
 }
@@ -50,7 +48,16 @@ interface CommitsPageContextProps {
 const CommitPageContext = createContext<CommitsPageContextProps>({
     currentPage: 1,
     setPage: () => {},
-    pagination: {},
+    pagination: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        totalPages: 0,
+        totalResults: 0,
+        page: 1,
+        perPage: 10,
+        pages: [],
+        elements: [],
+    },
     headers: [],
     rows: [],
 } as CommitsPageContextProps);
@@ -76,7 +83,7 @@ export const CommitPageProvider: FC<{children: ReactNode}> = ({children}) => {
     });
 
     return (
-        <CommitPageContext.Provider value={{currentPage, setPage, headers, rows, pagination}}>
+        <CommitPageContext.Provider value={{currentPage, setPage, pagination, headers, rows}}>
             {children}
         </CommitPageContext.Provider>
     )
