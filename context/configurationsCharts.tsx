@@ -24,7 +24,7 @@ const CONFIGS_CHARTS_DATA = gql`
 `;
 
 interface ConfigsChartsContextProps {
-    configsPartCount: Dict<string>;
+    configsPartCount: { key: string; values: { key: string; value: number }[] }[];
     configsVulnsCount: Dict<string>;
 }
 

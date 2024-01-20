@@ -2,9 +2,17 @@
 
 import React from "react";
 import { Pie } from 'react-chartjs-2';
+import { ChartOptions } from 'chart.js';
 
 
-export default function CardNestedPieChart({ data, fields, title }: { data: { key: string; values: { key: string; value: number }[] }[], fields: any, title: string }) {
+interface CardNestedPieChartProps {
+    data: { key: string; values: { key: string; value: number }[] }[];
+    fields: string[];
+    title: string;
+}
+
+
+export default function CardNestedPieChart({data, fields, title}: CardNestedPieChartProps){
     const chartData = {
         labels: data.map(count => count.key),
         datasets: [{
@@ -27,11 +35,13 @@ export default function CardNestedPieChart({ data, fields, title }: { data: { ke
         }]
     };
 
-    const options = {
-        title: {
-            display: true,
-            text: title
-        }
+    const options: ChartOptions<'pie'> = {
+        plugins: {
+            title: {
+                display: true,
+                text: title,
+            },
+        },
     };
 
     return (
