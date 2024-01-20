@@ -31,9 +31,9 @@ const FILES_CHARTS_DATA = gql`
 
 interface FilesChartsContextProps {
     filesExtensions: Dict<string>,
-    filesChangesCount: Dict<string>,
+    filesChangesCount: {key: string, value: number}[],
     filesStatuses: Dict<string>,
-    languageExtensionLinksCount: Dict<string>
+    languageExtensionLinksCount: { at: string; to: string; count: number }[]
 }
 
 const FilesChartsContext = createContext<FilesChartsContextProps>({

@@ -1,6 +1,12 @@
 import Dict = NodeJS.Dict;
 import exp from "constants";
 
+export type LinkCount = {
+    at: string
+    to: string
+    count: number
+}
+
 export type Operation = {
     id: string
     name: string

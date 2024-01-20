@@ -11,7 +11,15 @@ export const options = {
 };
 
 
-export default function CardBarChart({data, fields, title, filterCounts}) {
+interface CardBarChartProps {
+    data: { key: string, value: number }[];
+    fields: Array<string>;
+    title: string;
+    filterCounts?: number;
+}
+
+
+export default function CardBarChart({data, fields, title, filterCounts} : CardBarChartProps) {
     let counts;
 
     if (filterCounts) {

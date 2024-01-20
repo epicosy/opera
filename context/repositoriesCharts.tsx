@@ -39,10 +39,10 @@ const REPOS_CHARTS_DATA = gql`
 
 interface RepositoriesChartsContextProps {
     repositoriesAvailability: Dict<string>,
-    repositoriesCommitsFrequency: Dict<string>,
+    repositoriesCommitsFrequency: {key: string, value: number}[],
     repositoriesLanguageCount: Dict<string>,
     topicsCount: Dict<string>,
-    langProductLinksCount: Dict<string>,
+    langProductLinksCount: {at: string, to: string, count: number}[],
     repositoriesSoftwareTypeCount: Dict<string>
 }
 

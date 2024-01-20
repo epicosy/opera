@@ -7,7 +7,14 @@ import { Chart } from "react-google-charts";
 export const options = {};
 
 
-export default function CardSankeyChart({data, title, filterCounts}) {
+interface CardSankeyChartProps {
+    data: { at: string; to: string; count: number }[];
+    title: string;
+    filterCounts?: number;
+}
+
+
+export default function CardSankeyChart({data, title, filterCounts} : CardSankeyChartProps) {
     let counts;
 
     if (filterCounts) {

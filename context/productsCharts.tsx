@@ -26,8 +26,8 @@ const PRODUCTS_CHARTS_DATA = gql`
 
 
 interface ProductsChartsContextProps {
-    configsCountByProduct: Dict<string>;
-    vulnsCountByProduct: Dict<string>;
+    configsCountByProduct: { key: string, value: number }[];
+    vulnsCountByProduct: { key: string, value: number }[];
     swTypeCount: Dict<string>;
 }
 

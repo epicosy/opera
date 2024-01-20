@@ -76,9 +76,9 @@ export default function RepoPage({ params: { repositoryId } }: PageProps){
                     {repo.language}
                 </p>
                 <h5 className="mb-2 ml-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
-                    {repo.available === true ? (
+                    {repo.available ? (
                     <span className="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Available</span>
-                ) : repo.available === false ? (
+                ) : !repo.available ? (
                     <span className="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Not Available</span>
                 ) : (
                     <span className="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">Unknown</span>

@@ -2,7 +2,6 @@
 
 import React, {createContext, useContext, FC, ReactNode} from "react";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Dict = NodeJS.Dict;
 
 const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
 
@@ -24,9 +23,9 @@ const VENDORS_CHARTS_DATA = gql`
 `;
 
 interface VendorsChartsContextProps {
-    productsCountByVendor: Dict<string>;
-    configsCountByVendor: Dict<string>;
-    vulnsCountByVendor: Dict<string>;
+    productsCountByVendor: {key: string, value: number}[];
+    configsCountByVendor: {key: string, value: number}[];
+    vulnsCountByVendor: {key: string, value: number}[];
 }
 
 const VendorsChartsContext = createContext<VendorsChartsContextProps>({
