@@ -48,7 +48,7 @@ const DatasetForm = () => {
     const [createDataset, { loading, error }] = useMutation(CREATE_DATASET, { client,
         refetchQueries: [{ query: FETCH_DATASETS }]});
 
-    const handleSubmit = (values) => {
+    const handleSubmit = (values: { name: string, description: string}) => {
         createDataset({ variables: { name: values.name, description: values.description } })
             .then(() => {
                 notification.success({
@@ -92,7 +92,7 @@ const DatasetForm = () => {
 
 export default function Datasets() {
     const { loading, error, data , refetch} = useQuery(FETCH_DATASETS, { client });
-    const [removeDataset, { mutationLoading, mutationError }] = useMutation(REMOVE_DATASET, { client,
+    const [removeDataset, { loading: mutationLoading, error: mutationError }] = useMutation(REMOVE_DATASET, { client,
         refetchQueries: [{ query: FETCH_DATASETS }]});
 
     useEffect(() => {
@@ -102,7 +102,7 @@ export default function Datasets() {
     if (loading) return 'Loading...';
     if (error) return `Error! \${error.message}`;
 
-    const handleDelete = (record) => {
+    const handleDelete = (record: any) => {
         removeDataset({ variables: { id: record.id } })
             .then(() => {
                 notification.success({
@@ -122,7 +122,7 @@ export default function Datasets() {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
-            render: (text, record) => <Link href={`http://localhost:3005/datasets/${record.id}`}
+            render: (text: string, record: any) => <Link href={`http://localhost:3005/datasets/${record.id}`}
                                             className="text-blue-600 dark:text-blue-500 hover:underline">{text}</Link>,
         },
         {
@@ -143,7 +143,7 @@ export default function Datasets() {
         {
             title: 'Action',
             key: 'action',
-            render: (text, record) => (
+            render: (text: string, record: any) => (
                 <Button className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium
                 text-red-700 ring-1 ring-inset ring-red-600/10" onClick={() => handleDelete(record)}>
                     Delete
