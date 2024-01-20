@@ -9,7 +9,11 @@ type Props = {
     lang: string;
 };
 
-const langaugesMapping = {
+type LanguageMapping = {
+    [key: string]: string;
+};
+
+const langaugesMapping: LanguageMapping = {
     'js': 'javascript',
     'ts': 'typescript',
     'h': 'clike',
@@ -17,7 +21,7 @@ const langaugesMapping = {
     'py': 'python',
     'jsp': 'java',
     'md': 'markdown'
-}
+};
 
 
 const CodeRenderer = ({ lang, code }: Props) => {
