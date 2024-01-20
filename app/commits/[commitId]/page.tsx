@@ -45,12 +45,12 @@ const FETCH_COMMIT = gql`
 `;
 
 
-const getAvailableTagColor = (value) => {
+const getAvailableTagColor = (value: boolean) => {
     if (value === null) {
         return 'grey';
-    } else if (value === false) {
+    } else if (!value) {
         return 'orange';
-    } else if (value === true) {
+    } else if (value) {
         return 'green';
     }
     return 'default';
