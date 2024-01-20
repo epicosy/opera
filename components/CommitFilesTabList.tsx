@@ -32,7 +32,7 @@ const CommitFilesTabList: React.FC<CommitFilesAccordionProps> = ({ commits }) =>
 
     const [loadFile, { loading }] = useMutation(LOAD_FILE, { client });
 
-    const handleLoadFile = async (id) => {
+    const handleLoadFile = async (id: string) => {
         try {
             const { data } = await loadFile({ variables: { id } });
             const file = data.loadFile.file;
