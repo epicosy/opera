@@ -1,7 +1,7 @@
 'use client';
 import React, {useState} from "react";
 import {Dataset} from "../../../typings";
-import {ApolloClient, gql, InMemoryCache, useMutation, useQuery} from "@apollo/client";
+import {ApolloClient, ApolloError, gql, InMemoryCache, useMutation, useQuery} from "@apollo/client";
 import {DebounceSelect, fetchVulnerability, VulnerabilityValue} from "../../../components/debounceSelect";
 import {Button, notification, Table, Input, Modal} from "antd";
 import {ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined} from "@ant-design/icons";
@@ -18,19 +18,19 @@ const columns = [
         title: 'Vulnerability ID',
         dataIndex: 'id',
         key: 'id',
-        render: (text) => <Link href={`http://localhost:3005/vulnerabilities/${text}/`} target="_blank"
-                                className="text-blue-600 dark:text-blue-500 hover:underline" >{text}</Link>,
+        render: (text: string) => <Link href={`http://localhost:3005/vulnerabilities/${text}/`} target="_blank"
+                                        className="text-blue-600 dark:text-blue-500 hover:underline" >{text}</Link>,
     },
     {
         title: 'CWE ID',
         dataIndex: 'cweIds',
         key: 'cweIds',
-        render: (cweIds) => cweIds.map((cwe: any) => cwe.id).join(", ")
+        render: (cweIds: Array<{ id: string }>) => cweIds.map((cwe: any) => cwe.id).join(", ")
     },
     {
         title: 'Action',
         key: 'action',
-        render: (text, record) => (
+        render: (text: string, record: any) => (
             <Button type="primary" danger onClick={() => console.log(text, record)}>
                 <DeleteOutlined />
             </Button>
@@ -126,10 +126,14 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
 
             setIsEditing(false);
         } catch (error) {
-            notification.error({
-                message: 'Error',
-                description: `Failed to update dataset information: ${error.message}`
-            });
+            if (error instanceof ApolloError) {
+                notification.error({
+                    message: 'Error',
+                    description: `Failed to update dataset information: ${error.message}`
+                });
+            } else {
+                console.error('An unexpected error occurred:', error);
+            }
         }
     };
 
@@ -153,10 +157,15 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
                 description: 'All vulnerabilities removed successfully.'
             });
         } catch (error) {
-            notification.error({
-                message: 'Error',
-                description: `Failed to remove vulnerabilities: ${error.message}`
-            });
+            if (error instanceof ApolloError) {
+                notification.error({
+                    message: 'Error',
+                    description: `Failed to remove vulnerabilities: ${error.message}`
+                });
+            } else {
+                // Handle other types of errors
+                console.error('An unexpected error occurred:', error);
+            }
         }
 
         setIsConfirmVisible(false);
@@ -228,7 +237,7 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
     );
 }
 
-function VulnerabilitySelect({ value, onChange }) {
+function VulnerabilitySelect({value, onChange} : {value: VulnerabilityValue[], onChange: any}) {
     // Implement the DebounceSelect component here
 
     return (
