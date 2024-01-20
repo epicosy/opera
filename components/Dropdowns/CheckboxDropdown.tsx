@@ -1,8 +1,17 @@
 import * as React from 'react';
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon } from '@radix-ui/react-icons';
+import {ChangeEvent} from "react";
 
-const CheckboxMenuItem = ({ value, checked, onChange }) => {
+
+interface CheckboxMenuItemProps {
+    value: any;
+    checked: boolean;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+
+const CheckboxMenuItem = ({ value, checked, onChange } : CheckboxMenuItemProps) => {
     return (
         <label className="flex items-center space-x-2">
             <input
@@ -18,7 +27,16 @@ const CheckboxMenuItem = ({ value, checked, onChange }) => {
     );
 };
 
-export default function DropdownWithCheckboxes({ title, items, selectedItems, onChange }) {
+
+interface DropdownWithCheckboxesProps {
+    title: string;
+    items: any[];
+    selectedItems: any[];
+    onChange: (items: any[]) => void;
+}
+
+
+export default function DropdownWithCheckboxes({ title, items, selectedItems, onChange }: DropdownWithCheckboxesProps) {
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger className="inline-flex items-center space-x-2">
@@ -31,7 +49,7 @@ export default function DropdownWithCheckboxes({ title, items, selectedItems, on
                         key={item}
                         value={item}
                         checked={selectedItems.includes(item)}
-                        onChange={(e) => {
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
                             if (e.target.checked) {
                                 onChange([...selectedItems, item]);
                             } else {

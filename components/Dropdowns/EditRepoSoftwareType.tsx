@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Select, Button, notification } from 'antd';
-import {useQuery, useMutation, gql, ApolloClient, InMemoryCache} from '@apollo/client';
+import {useQuery, useMutation, gql, ApolloClient, InMemoryCache, ApolloError} from '@apollo/client';
 import { Repository } from '../../typings';
-import {Callback} from "escalade";
 
 
 const client = new ApolloClient({
@@ -66,11 +65,19 @@ const SoftwareTypeComponent: React.FC<{ repo: Repository}> = ({ repo}) => {
                 description: 'The software type has been successfully updated.',
             });
         } catch (error) {
-            // Show error notification
-            notification.error({
-                message: 'Error',
-                description: `An error occurred while updating the software type: ${error.message}.`,
-            });
+            if (error instanceof ApolloError) {
+                // Handle ApolloError
+                notification.error({
+                    message: 'Error',
+                    description: `An Apollo error occurred while updating the software type: ${error.message}.`,
+                });
+            } else {
+                // Handle other types of errors
+                notification.error({
+                    message: 'Error',
+                    description: `An error occurred while updating the software type: ${error}.`,
+                });
+            }
         }
 
         setEditable(false);
