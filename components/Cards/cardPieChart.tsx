@@ -8,10 +8,17 @@ export const options = {
     is3D: false,
 };
 
-export default function CardPieChart({ data, fields, title, height }) {
+interface CardPieChartProps {
+    data: any;
+    fields: Array<string>;
+    title: string;
+    height?: number;
+}
+
+export default function CardPieChart({ data, fields, title, height = 350 } : CardPieChartProps) {
     const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
 
-    const counts = [fields, ...(data?.map(({ key, value }) => [key, value]) || [])];
+    const counts = [fields, ...(data?.map(({ key, value } : {key: string, value: number}) => [key, value]) || [])];
 
     return (
         <>
