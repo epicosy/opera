@@ -1,9 +1,16 @@
 'use client';
-import React, {useState} from "react";
-import {useVulnerabilityPage} from "../../context/vulnerabilities";
+import React, {Dispatch, SetStateAction, useState} from "react";
+import {Pagination} from "../../typings";
 
 
-export default function PageChange({currentPage, setPage, pagination}) {
+interface PageChangeProps {
+    currentPage: number,
+    setPage: Dispatch<SetStateAction<number>>,
+    pagination: Pagination,
+}
+
+
+export default function PageChange({currentPage, setPage, pagination}: PageChangeProps) {
 
     return (
         <div className="flex w-screen">
