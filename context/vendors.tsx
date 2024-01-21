@@ -3,7 +3,6 @@
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {VendorsPagination} from "../typings";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Dict = NodeJS.Dict;
 
 const PAGE_SIZE = 15;
 const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
@@ -34,13 +33,22 @@ interface VendorsPageContextProps {
     setPage: Dispatch<SetStateAction<number>>;
     pagination: VendorsPagination;
     headers: string[];
-    rows: string[][];
+    rows: (string | number)[][];
 }
 
 const VendorsPageContext = createContext<VendorsPageContextProps>({
     currentPage: 1,
     setPage: () => {},
-    pagination: {},
+    pagination: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        totalPages: 0,
+        totalResults: 0,
+        page: 1,
+        perPage: 10,
+        pages: [],
+        elements: [],
+    },
     headers: [],
     rows: [],
 } as VendorsPageContextProps);
