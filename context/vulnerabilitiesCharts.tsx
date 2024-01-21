@@ -62,7 +62,7 @@ export const VulnerabilitiesChartsProvider: FC<{children: ReactNode}> = ({childr
     return (
         <VulnerabilitiesChartsContext.Provider value={{cweCounts, vulnsSeverity, vulnsExploitability, cweMultiplicity,
             vulnsCountBySofDevView}}>
-            {isError ? null : children}
+            {children}
         </VulnerabilitiesChartsContext.Provider>
     );
 }

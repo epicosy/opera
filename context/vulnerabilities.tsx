@@ -103,28 +103,45 @@ export const VulnerabilityPageProvider: FC<{children: ReactNode}> = ({children})
 
     if (cwesQuery.loading) return <p>Loading CWE-IDs...</p>;
 
+    let cwe_ids: number[];
+
     if (cwesQuery.error){
-        return <p>Error: Could not fetch CWE-Ids :(</p>;
+        console.log("Error loading CWE-IDs:", cwesQuery.error);
+        cwe_ids = [];
+    } else {
+        cwe_ids = cwesQuery.data?.cwes.map((cwe: CWE) => cwe.id);
     }
 
-
-    const cwe_ids: number[] = cwesQuery.data?.cwes.map((cwe: CWE) => cwe.id);
     const severity: string[] = ["HIGH", "MEDIUM", "LOW"];
 
     if (vulnsPageQuery.loading) return <p>Loading Vulnerabilities...</p>;
     if (vulnsPageQuery.error){
-        return <p>Error loading vulnerabilities :(</p>;
+        // Handle the case where there is an error fetching vulnerabilities
+        console.error("Error loading vulnerabilities:", vulnsPageQuery.error);
     }
 
-    const cweIdsHeader = <DropdownWithCheckboxes title="CWE-IDs" items={cwe_ids} selectedItems={selectedItems}
-                                                 onChange={setSelectedItems}/>
-    const severityHeader = <DropdownWithCheckboxes title="Severity" items={severity} selectedItems={selectedSeverity}
-                                                   onChange={setSelectedSeverity}/>
-    const pagination: VulnerabilityPagination = vulnsPageQuery.data?.vulnerabilitiesPage;
+    let cweIdsHeader: (string | React.JSX.Element);
+    if (cwe_ids.length === 0) {
+        cweIdsHeader = "CWE-IDs";
+    } else {
+        cweIdsHeader = <DropdownWithCheckboxes title="CWE-IDs" items={cwe_ids} selectedItems={selectedItems}
+                                               onChange={setSelectedItems}/>
+    }
+    let severityHeader: (string | React.JSX.Element);
+
+    if (vulnsPageQuery.error){
+        severityHeader = "Severity";
+    } else {
+        severityHeader = <DropdownWithCheckboxes title="Severity" items={severity} selectedItems={selectedSeverity}
+                                                 onChange={setSelectedSeverity}/>
+    }
+
     const headers = ["Published Date", cweIdsHeader, "BF-Classes", "Operations", "Phases", severityHeader,
         "Exploitability", "Impact", "ID"];
 
-    const rows = pagination.elements.map((vuln: any) => {
+    const pagination: VulnerabilityPagination = vulnsPageQuery.data?.vulnerabilitiesPage;
+
+    const rows = pagination?.elements?.map((vuln: any) => {
         return [new Date(vuln.publishedDate).toLocaleDateString(), vuln.cweIds.map((cwe: any) => cwe.id).join(", "),
             vuln.cweIds.map((cwe: any) => cwe.bfClasses.map((bf: any) => bf.name).join(", ")).join("|"),
             vuln.cweIds.map((cwe: any) => cwe.operations.map((op: any) => op.name).join(", ")).join("|"),
@@ -132,7 +149,7 @@ export const VulnerabilityPageProvider: FC<{children: ReactNode}> = ({children})
             vuln.severity, vuln.exploitability, vuln.impact,
             <Link href={`http://localhost:3005/vulnerabilities/${vuln.id}/`} target="_blank"
                   className="text-blue-600 dark:text-blue-500 hover:underline" >{vuln.id}</Link>];
-    });
+    }) || [];
 
     return (
         <VulnerabilityPageContext.Provider value={{currentPage, setPage, selectedItems, setSelectedItems,
