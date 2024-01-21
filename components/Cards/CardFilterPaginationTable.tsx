@@ -48,7 +48,7 @@ const TableCell: FC<{children: ReactNode}> = ({children}) => {
 
 interface CardFilterPaginationTableProps {
   headers: (string | React.JSX.Element)[],
-  rows: string[][],
+  rows: (string | number)[][],
   currentPage: number,
   setPage: Dispatch<SetStateAction<number>>,
   pagination: Pagination,
