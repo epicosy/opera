@@ -51,23 +51,20 @@ const VulnerabilitiesChartsContext = createContext<VulnerabilitiesChartsContextP
 export const VulnerabilitiesChartsProvider: FC<{children: ReactNode}> = ({children}) => {
     const vulnsChartsDataQuery = useQuery(VULNS_CHARTS_DATA, {client});
 
-    if (vulnsChartsDataQuery.loading) return <p>Loading charts data...</p>;
-    if (vulnsChartsDataQuery.error){
-        return <p>Error loading charts data :(</p>;
-    }
+    const isError = vulnsChartsDataQuery.error;
 
-    const cweCounts = vulnsChartsDataQuery.data?.cweCounts;
-    const vulnsSeverity = vulnsChartsDataQuery.data?.vulnsSeverity;
-    const vulnsExploitability = vulnsChartsDataQuery.data?.vulnsExploitability;
-    const cweMultiplicity = vulnsChartsDataQuery.data?.cweMultiplicity;
-    const vulnsCountBySofDevView = vulnsChartsDataQuery.data?.vulnsCountBySofDevView;
+    const cweCounts = vulnsChartsDataQuery.data?.cweCounts || [];
+    const vulnsSeverity = vulnsChartsDataQuery.data?.vulnsSeverity || [];
+    const vulnsExploitability = vulnsChartsDataQuery.data?.vulnsExploitability || [];
+    const cweMultiplicity = vulnsChartsDataQuery.data?.cweMultiplicity || [];
+    const vulnsCountBySofDevView = vulnsChartsDataQuery.data?.vulnsCountBySofDevView || [];
 
     return (
         <VulnerabilitiesChartsContext.Provider value={{cweCounts, vulnsSeverity, vulnsExploitability, cweMultiplicity,
             vulnsCountBySofDevView}}>
-            {children}
+            {isError ? null : children}
         </VulnerabilitiesChartsContext.Provider>
-    )
+    );
 }
 
 export const useVulnerabilitiesCharts = () => useContext(VulnerabilitiesChartsContext);
