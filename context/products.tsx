@@ -3,7 +3,6 @@
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {ProductsPagination} from "../typings";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Dict = NodeJS.Dict;
 
 const PAGE_SIZE = 15;
 const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
@@ -39,7 +38,16 @@ interface ProductsPageContextProps {
 const ProductsPageContext = createContext<ProductsPageContextProps>({
     currentPage: 1,
     setPage: () => {},
-    pagination: {},
+    pagination: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        totalPages: 0,
+        totalResults: 0,
+        page: 1,
+        perPage: 10,
+        pages: [],
+        elements: [],
+    },
     headers: [],
     rows: [],
 } as ProductsPageContextProps);
@@ -58,7 +66,7 @@ export const ProductsPageProvider: FC<{children: ReactNode}> = ({children}) => {
     const pagination: ProductsPagination = productsPageQuery.data?.productsPage;
     const headers = ["Id", "Name", "Product Type", "Configurations Count", "Vulnerabilities Count"];
 
-    const rows = pagination.elements.map((product: Dict<string>) => {
+    const rows = pagination.elements.map((product: any) => {
         return [
             product.id,
             product.name,
