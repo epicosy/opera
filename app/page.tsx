@@ -8,13 +8,15 @@ import Panel from "../components/Panel";
 import {GraphQLProvider} from "../context/graphql";
 
 export default function Dashboard(){
-    let defaultHeaders: Record<string, string> = {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
         'client-name': 'opera',
-        'client-version': process.env.npm_package_version || '',
+        'client-version': process.env.npm_package_version || ''
     };
 
     return (
-        <GraphQLProvider uri={process.env.GRAPHQL_API || 'http://localhost:4000/graphql'} headers={defaultHeaders} >
+        <GraphQLProvider uri={graphqlUri} headers={defaultHeaders} >
             <Panel/>
         </GraphQLProvider>
     );
