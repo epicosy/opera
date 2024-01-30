@@ -1,20 +1,10 @@
 "use client"
 
 import React from "react";
-import CardStats from "../components/Cards/CardStats.js";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import CardStats from "./Cards/CardStats";
+import {useQuery} from "@apollo/client";
+import {STATS_QUERY} from "../src/graphql/queries";
 
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-const STATS_QUERY = gql`
-    query {
-        stats {
-            total
-            labeled
-            references
-            commits
-        }
-    }
-`
 
 const cards = [
     { subtitle: 'TOTAL', icon: 'far fa-database', color: 'bg-red-500', key: 'total' },
@@ -25,7 +15,7 @@ const cards = [
 
 
 export default function Stats() {
-    const stats_query = useQuery(STATS_QUERY, { client });
+    const stats_query = useQuery(STATS_QUERY);
 
     if (stats_query.loading) return <p>Loading Stats...</p>;
 
@@ -47,7 +37,7 @@ export default function Stats() {
                                             statSubtitle={`ERROR ${key}`}
                                             statTitle="N/A"
                                             statIconName="fas fa-exclamation-circle"
-                                            statIconColor="bg-gray-500"
+                                            statIconColor="bg-red-500"
                                         />
                                     </div>
                                 ))

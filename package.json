@@ -3,6 +3,7 @@
   "private": true,
   "repository": "https://github.com/epicosy/opera",
   "license": "MIT",
+  "version": "0.0.1",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,6 +25,7 @@
     "gulp-append-prepend": "^1.0.9",
     "lodash.debounce": "^4.0.8",
     "next": "^13.1.6",
+    "next-plugin-graphql": "^0.0.2",
     "prismjs": "^1.29.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",

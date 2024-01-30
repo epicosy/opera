@@ -1,25 +1,10 @@
 import React from "react";
 
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import {Vulnerability} from "../typings";
+import {ApolloError, useQuery} from "@apollo/client";
+import {Vulnerability} from "../../typings";
 import Link from "next/link";
+import {LATEST_VULNS_QUERY} from "../../src/graphql/queries";
 
-
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-const LATEST_VULNS_QUERY = gql`
-    query {
-        vulnerabilities(first: 10) {
-            id
-            severity
-            exploitability
-            description
-            impact
-            publishedDate
-            lastModifiedDate
-        }
-    }
-`
 
 const CardHeader = () => (
     <div className="rounded-t mb-0 px-4 py-3 border-0">
@@ -74,32 +59,55 @@ const VulnerabilityTableRow = ({ vulnerability } : {vulnerability: Vulnerability
     </tr>
 );
 
+// Loading component
+const LoadingState = () => (
+    <tr>
+        <td className="px-6 py-4 text-center" colSpan={4}>
+            <div className="animate-spin">
+                Loading...
+            </div>
+        </td>
+    </tr>
+);
+
+// Error component
+const ErrorState = ({ error } : {error : ApolloError }) => (
+    <tr>
+        <td className="px-6 py-4 text-center text-blueGray-500" colSpan={4}>
+            Error: {JSON.stringify(error)}
+        </td>
+    </tr>
+);
+
 export default function CardLatestVulnerabilities() {
-  const latest_vulns_query = useQuery(LATEST_VULNS_QUERY, { client });
-  const latest_vulns: Array<Vulnerability> = latest_vulns_query.data?.vulnerabilities;
+  const {data, loading, error } = useQuery(LATEST_VULNS_QUERY);
+
+  const latest_vulns: Array<Vulnerability> = data?.vulnerabilities;
   const headers = ['ID', 'Description', 'Impact', 'Published'];
 
   return (
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-        <CardHeader />
-        <div className="block w-full overflow-x-auto">
-          <table className="items-center w-full bg-transparent border-collapse table-fixed">
-            <TableHeader headers={headers} />
-            <tbody>
-            {latest_vulns ? (
-                latest_vulns.map((vulnerability) => (
-                    <VulnerabilityTableRow key={vulnerability.id} vulnerability={vulnerability} />
-                ))
-            ) : (
-                <tr>
-                  <td className="px-6 py-4 text-center text-blueGray-500" colSpan={headers.length}>
-                    No data available
-                  </td>
-                </tr>
-            )}
-            </tbody>
-          </table>
-        </div>
+          <CardHeader />
+          <div className="block w-full overflow-x-auto">
+              <table className="items-center w-full bg-transparent border-collapse table-fixed">
+                  <TableHeader headers={headers} />
+                  <tbody>
+                  {loading && <LoadingState />}
+                  {error && <ErrorState error={error} />}
+                  {latest_vulns ? (
+                      latest_vulns.map((vulnerability) => (
+                          <VulnerabilityTableRow key={vulnerability.id} vulnerability={vulnerability}/>
+                      ))
+                  ) : !loading && (
+                      <tr>
+                          <td className="px-6 py-4 text-center text-blueGray-500" colSpan={headers.length}>
+                                No data available
+                          </td>
+                      </tr>
+                  )}
+                  </tbody>
+              </table>
+          </div>
       </div>
-  );
+    );
 }
