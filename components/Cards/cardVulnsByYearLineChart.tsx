@@ -9,8 +9,13 @@ export const options = {
     legend: { position: "bottom" },
 };
 
-export default function CardVulnerabilitiesByYearLineChart({data} : {data: {key: string, value: number}[]}) {
-    const vulns_year = data?.map(({ key, value }) => [key, value])?.unshift(["Year", "Count"]);
+interface VulnsByYearProps {
+    data: { key: string, value: number }[];
+}
+
+
+export default function CardVulnerabilitiesByYearLineChart({data} : VulnsByYearProps) {
+    const vulns_year = [["Year", "Count"], ...(data?.map(({ key, value }) => [key, value]) || [])];
 
     return (
         <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white">
