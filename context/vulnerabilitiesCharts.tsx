@@ -1,36 +1,10 @@
 'use client';
 
 import React, {createContext, FC, ReactNode, useContext} from "react";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
 import Dict = NodeJS.Dict;
+import {VULNS_CHARTS_DATA} from "../src/graphql/queries";
 
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-
-const VULNS_CHARTS_DATA = gql`
-    query {
-        cweCounts{
-            key
-            value
-        },
-        vulnsSeverity{
-            key
-            value
-        },
-        vulnsExploitability{
-            key
-            value
-        },
-        cweMultiplicity{
-            key
-            value
-        },
-        vulnsCountBySofDevView{
-            key
-            value
-        }
-    }
-`;
 
 interface VulnerabilitiesChartsContextProps {
     cweCounts: Dict<string>;
@@ -49,7 +23,7 @@ const VulnerabilitiesChartsContext = createContext<VulnerabilitiesChartsContextP
 } as VulnerabilitiesChartsContextProps);
 
 export const VulnerabilitiesChartsProvider: FC<{children: ReactNode}> = ({children}) => {
-    const vulnsChartsDataQuery = useQuery(VULNS_CHARTS_DATA, {client});
+    const vulnsChartsDataQuery = useQuery(VULNS_CHARTS_DATA);
 
     const isError = vulnsChartsDataQuery.error;
 

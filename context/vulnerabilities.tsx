@@ -2,57 +2,13 @@
 
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {CWE, VulnerabilityPagination} from "../typings";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
 import DropdownWithCheckboxes from "../components/Dropdowns/CheckboxDropdown";
 import Link from "next/link";
+import {LIST_CWES, LIST_VULNERABILITIES} from "../src/graphql/queries";
 
 const PAGE_SIZE = 15;
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
 
-const LIST_CWES = gql`
-    query cwes{
-        cwes (exists: true){
-            id
-        }
-    }
-`;
-
-const LIST_VULNERABILITIES = gql`
-    query vulnerabilitiesPage($page: Int!, $per_page: Int!, $cwe_ids: [Int]!, $severity: [String]!) {
-        vulnerabilitiesPage(page: $page, perPage: $per_page, cweIds: $cwe_ids, severity: $severity) {
-            hasNextPage
-            hasPreviousPage
-            totalPages
-            totalResults
-            page
-            perPage
-            pages
-            elements {
-                id
-                severity
-                exploitability
-                impact
-                references {
-                    url
-                }
-                publishedDate
-                lastModifiedDate
-                cweIds {
-                    id
-                    operations {
-                        name
-                    }
-                    phases {
-                        name
-                    }
-                    bfClasses {
-                        name
-                    }
-                }
-            }
-        }
-    }
-`;
 
 interface VulnerabilityPageContextProps {
     currentPage: number;
@@ -95,9 +51,9 @@ export const VulnerabilityPageProvider: FC<{children: ReactNode}> = ({children})
     const [currentPage, setPage] = useState(1);
     const [selectedItems, setSelectedItems] = React.useState<number[]>([]);
     const [selectedSeverity, setSelectedSeverity] = React.useState<string[]>([]);
-    const cwesQuery = useQuery(LIST_CWES, {client});
+    const cwesQuery = useQuery(LIST_CWES);
     const vulnsPageQuery = useQuery(LIST_VULNERABILITIES,
-        {client, variables: {page: currentPage, per_page: PAGE_SIZE, cwe_ids: selectedItems,
+        {variables: {page: currentPage, per_page: PAGE_SIZE, cwe_ids: selectedItems,
                 severity: selectedSeverity}}
     );
 

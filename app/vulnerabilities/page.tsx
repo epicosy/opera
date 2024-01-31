@@ -7,6 +7,7 @@ import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginati
 import {useVulnerabilityPage, VulnerabilityPageProvider} from "../../context/vulnerabilities";
 import {useVulnerabilitiesCharts, VulnerabilitiesChartsProvider} from "../../context/vulnerabilitiesCharts";
 import CardPieChart from "../../components/Cards/cardPieChart";
+import {GraphQLProvider} from "../../context/graphql";
 
 
 function VulnerabilityTable() {
@@ -54,16 +55,26 @@ function VulnerabilitiesCharts(){
 }
 
 export default function Vulnerabilities() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
+
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <VulnerabilitiesChartsProvider>
-                        <VulnerabilitiesCharts/>
-                    </VulnerabilitiesChartsProvider>
-                    <VulnerabilityPageProvider>
-                        <VulnerabilityTable />
-                    </VulnerabilityPageProvider>
+                    <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                        <VulnerabilitiesChartsProvider>
+                            <VulnerabilitiesCharts/>
+                        </VulnerabilitiesChartsProvider>
+                        <VulnerabilityPageProvider>
+                            <VulnerabilityTable />
+                        </VulnerabilityPageProvider>
+                    </GraphQLProvider>
                 </div>
             </div>
         </>
