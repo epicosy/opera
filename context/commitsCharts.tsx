@@ -1,35 +1,8 @@
 'use client';
 
 import React, {createContext, useContext, FC, ReactNode} from "react";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Dict = NodeJS.Dict;
-
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-const COMMITS_CHARTS_DATA = gql`
-    query {
-        commitKindCount{
-            key
-            value
-        },
-        commitsAvailability{
-            key
-            value
-        },
-        commitsState{
-            key
-            value
-        },
-        commitsFilesCount{
-            key
-            value
-        },
-        commitsChangesCount{
-            key
-            value
-        }
-    }
-`;
+import {useQuery} from "@apollo/client";
+import {COMMITS_CHARTS_DATA} from "../src/graphql/queries/commits";
 
 
 interface CommitsChartsContextProps {
@@ -49,7 +22,7 @@ const CommitChartsContext = createContext<CommitsChartsContextProps>({
 } as CommitsChartsContextProps);
 
 export const CommitChartsProvider: FC<{children: ReactNode}> = ({children}) => {
-    const commitsChartsDataQuery = useQuery(COMMITS_CHARTS_DATA, {client});
+    const commitsChartsDataQuery = useQuery(COMMITS_CHARTS_DATA);
 
     if (commitsChartsDataQuery.loading) return <p>Loading charts data...</p>;
     if (commitsChartsDataQuery.error){

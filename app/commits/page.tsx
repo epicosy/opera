@@ -7,6 +7,7 @@ import {CommitPageProvider, useCommitsPage} from "../../context/commits";
 import CardPieChart from "../../components/Cards/cardPieChart";
 import {CommitChartsProvider, useCommitsCharts} from "../../context/commitsCharts";
 import CardBarChart from "../../components/Cards/CardBarChart";
+import {GraphQLProvider} from "../../context/graphql";
 
 function CommitTable() {
     const { headers, rows, currentPage, setPage, pagination} = useCommitsPage();
@@ -54,16 +55,25 @@ function CommitCharts() {
 }
 
 export default function Commits() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <CommitChartsProvider>
-                        <CommitCharts/>
-                    </CommitChartsProvider>
-                    <CommitPageProvider>
-                        <CommitTable/>
-                    </CommitPageProvider>
+                    <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                        <CommitChartsProvider>
+                            <CommitCharts/>
+                        </CommitChartsProvider>
+                        <CommitPageProvider>
+                            <CommitTable/>
+                        </CommitPageProvider>
+                    </GraphQLProvider>
                 </div>
             </div>
         </>

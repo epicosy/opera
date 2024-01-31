@@ -2,39 +2,14 @@
 
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {CommitsPagination} from "../typings";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
+
+import {LIST_COMMITS} from "../src/graphql/queries/commits";
 
 const PAGE_SIZE = 15;
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
 
 
-const LIST_COMMITS = gql`
-    query commitsPage($page: Int!, $per_page: Int!) {
-        commitsPage(page: $page, perPage: $per_page) {
-            hasNextPage
-            hasPreviousPage
-            totalPages
-            totalResults
-            page
-            perPage
-            pages
-            elements {
-                id
-                url
-                kind
-                available
-                state
-                changes
-                additions
-                deletions
-                filesCount
-                parentsCount
-                vulnerabilityId
-                repositoryId
-            }
-        }
-    }
-`;
+
 
 
 interface CommitsPageContextProps {
@@ -64,8 +39,7 @@ const CommitPageContext = createContext<CommitsPageContextProps>({
 
 export const CommitPageProvider: FC<{children: ReactNode}> = ({children}) => {
     const [currentPage, setPage] = useState(1);
-    const commitsPageQuery = useQuery(LIST_COMMITS,
-        {client, variables: {page: currentPage, per_page: PAGE_SIZE}}
+    const commitsPageQuery = useQuery(LIST_COMMITS,{ variables: {page: currentPage, per_page: PAGE_SIZE}}
     );
 
     if (commitsPageQuery.loading) return <p>Loading commits...</p>;
