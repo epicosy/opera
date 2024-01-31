@@ -1,41 +1,9 @@
 'use client';
 
 import React, {createContext, useContext, FC, ReactNode} from "react";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
 import Dict = NodeJS.Dict;
-
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-
-const REPOS_CHARTS_DATA = gql`
-    query repositoriesCommitCounts {
-        repositoriesCommitsFrequency{
-            key
-            value
-        },
-        repositoriesAvailability{
-            key
-            value
-        },
-        repositoriesLanguageCount{
-            key
-            value
-        },
-        topicsCount{
-            key
-            value
-        },
-        langProductLinksCount(filterCounts: 100){
-            at
-            to
-            count
-        },
-        repositoriesSoftwareTypeCount{
-            key
-            value
-        }
-    }
-`;
+import {REPOS_CHARTS_DATA} from "../src/graphql/queries/repositories";
 
 interface RepositoriesChartsContextProps {
     repositoriesAvailability: Dict<string>,
@@ -56,7 +24,7 @@ const RepositoriesChartsContext = createContext<RepositoriesChartsContextProps>(
 } as RepositoriesChartsContextProps);
 
 export const RepositoriesChartsProvider: FC<{children: ReactNode}> = ({children}) => {
-    const reposChartsDataQuery = useQuery(REPOS_CHARTS_DATA,{client});
+    const reposChartsDataQuery = useQuery(REPOS_CHARTS_DATA);
 
     if (reposChartsDataQuery.loading) return <p>Loading charts data ...</p>;
     if (reposChartsDataQuery.error){

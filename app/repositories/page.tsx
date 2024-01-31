@@ -8,6 +8,7 @@ import {RepositoriesChartsProvider, useRepositoriesCharts} from "../../context/r
 import CardBarChart from "../../components/Cards/CardBarChart";
 import CardPieChart from "../../components/Cards/cardPieChart";
 import CardSankeyChart from "../../components/Cards/CardSankeyChart";
+import {GraphQLProvider} from "../../context/graphql";
 
 function RepositoriesTable() {
     const { headers, rows, currentPage, setPage, pagination } = useRepositoriesPage();
@@ -87,16 +88,25 @@ function RepositoriesCharts() {
 
 
 export default function Repositories() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <RepositoriesChartsProvider>
-                        <RepositoriesCharts/>
-                    </RepositoriesChartsProvider>
-                    <RepositoriesPageProvider>
-                        <RepositoriesTable/>
-                    </RepositoriesPageProvider>
+                    <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                        <RepositoriesChartsProvider>
+                            <RepositoriesCharts/>
+                        </RepositoriesChartsProvider>
+                        <RepositoriesPageProvider>
+                            <RepositoriesTable/>
+                        </RepositoriesPageProvider>
+                    </GraphQLProvider>
                 </div>
             </div>
         </>

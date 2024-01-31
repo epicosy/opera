@@ -2,39 +2,13 @@
 
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {RepositoriesPagination, Repository} from "../typings";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
 import DropdownWithCheckboxes from "../components/Dropdowns/CheckboxDropdown";
 import Link from "next/link";
+import {LIST_REPOSITORIES} from "../src/graphql/queries/repositories";
 
 const PAGE_SIZE = 15;
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
 
-
-const LIST_REPOSITORIES = gql`
-    query repositoriesPage($page: Int!, $per_page: Int!, $availability: [Boolean]!, $language: [String]!) {
-        repositoriesPage(page: $page, perPage: $per_page, availability: $availability, language: $language){
-            hasNextPage
-            hasPreviousPage
-            totalPages
-            totalResults
-            page
-            perPage
-            pages
-            elements{
-                id
-                name
-                owner
-                available
-                language
-                topics
-                commitsCount
-            }
-        },
-        repositoriesLanguageCount{
-            key
-        }
-    }
-`;
 
 interface RepositoriesPageContextProps {
     currentPage: number;
@@ -74,7 +48,7 @@ export const RepositoriesPageProvider: FC<{children: ReactNode}> = ({children}) 
     const [selectedAvailability, setSelectedAvailability] = React.useState<boolean[]>([]);
     const [selectedLanguage, setSelectedLanguage] = React.useState<string[]>([]);
     const repositoriesPageQuery = useQuery(LIST_REPOSITORIES,
-        {client, variables: {page: currentPage, per_page: PAGE_SIZE, availability: selectedAvailability,
+        {variables: {page: currentPage, per_page: PAGE_SIZE, availability: selectedAvailability,
                 language: selectedLanguage}}
     );
 
