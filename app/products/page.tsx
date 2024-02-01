@@ -7,6 +7,7 @@ import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginati
 import {ProductsChartsProvider, useProductsCharts} from "../../context/productsCharts";
 import CardBarChart from "../../components/Cards/CardBarChart";
 import CardPieChart from "../../components/Cards/cardPieChart";
+import {GraphQLProvider} from "../../context/graphql";
 
 function ProductsTable() {
     const { headers, rows, currentPage, setPage, pagination } = useProductsPage();
@@ -50,16 +51,25 @@ function ProductsCharts() {
 
 
 export default function Products() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <ProductsChartsProvider>
-                        <ProductsCharts/>
-                    </ProductsChartsProvider>
-                    <ProductsPageProvider>
-                        <ProductsTable/>
-                    </ProductsPageProvider>
+                    <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                        <ProductsChartsProvider>
+                            <ProductsCharts/>
+                        </ProductsChartsProvider>
+                        <ProductsPageProvider>
+                            <ProductsTable/>
+                        </ProductsPageProvider>
+                    </GraphQLProvider>
                 </div>
             </div>
         </>

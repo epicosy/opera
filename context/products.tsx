@@ -2,30 +2,10 @@
 
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {ProductsPagination} from "../typings";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
+import {PRODUCTS_LIST} from "../src/graphql/queries/products";
 
 const PAGE_SIZE = 15;
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-const PRODUCTS_LIST = gql`
-    query productsPage($page: Int!, $per_page: Int!) {
-        productsPage(page: $page, perPage: $per_page){
-            hasNextPage
-            hasPreviousPage
-            totalPages
-            totalResults
-            page
-            perPage
-            pages
-            elements{
-                id
-                name
-                swType
-                configurationsCount
-                vulnerabilitiesCount
-            }
-        }
-}`;
 
 interface ProductsPageContextProps {
     currentPage: number;
@@ -54,19 +34,18 @@ const ProductsPageContext = createContext<ProductsPageContextProps>({
 
 export const ProductsPageProvider: FC<{children: ReactNode}> = ({children}) => {
     const [currentPage, setPage] = useState(1);
-    const productsPageQuery = useQuery(PRODUCTS_LIST,
-        {client, variables: {page: currentPage, per_page: PAGE_SIZE}}
+    const productsPageQuery = useQuery(PRODUCTS_LIST,{variables: {page: currentPage, per_page: PAGE_SIZE}}
     );
 
     if (productsPageQuery.loading) return <p>Loading products...</p>;
     if (productsPageQuery.error){
-        return <p>Error loading products :(</p>;
+        console.error("Error loading products:", productsPageQuery.error);
     }
 
     const pagination: ProductsPagination = productsPageQuery.data?.productsPage;
     const headers = ["Id", "Name", "Product Type", "Configurations Count", "Vulnerabilities Count"];
 
-    const rows = pagination.elements.map((product: any) => {
+    const rows = pagination?.elements.map((product: any) => {
         return [
             product.id,
             product.name,
@@ -74,7 +53,7 @@ export const ProductsPageProvider: FC<{children: ReactNode}> = ({children}) => {
             product.configurationsCount,
             product.vulnerabilitiesCount,
         ];
-    });
+    }) || [];
 
     return (
         <ProductsPageContext.Provider value={{currentPage, setPage, pagination, headers, rows}}>
