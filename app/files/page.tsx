@@ -8,6 +8,7 @@ import {FilesChartsProvider, useFilesChartsContext} from "../../context/filesCha
 import CardPieChart from "../../components/Cards/cardPieChart";
 import CardBarChart from "../../components/Cards/CardBarChart";
 import CardSankeyChart from "../../components/Cards/CardSankeyChart";
+import {GraphQLProvider} from "../../context/graphql";
 
 function FilesTable() {
     const { headers, rows, currentPage, setPage, pagination } = useFilesPage();
@@ -58,16 +59,26 @@ function FilesCharts() {
 }
 
 export default function Files() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
+
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <FilesChartsProvider>
-                        <FilesCharts/>
-                    </FilesChartsProvider>
-                    <FilesPageProvider>
-                        <FilesTable/>
-                    </FilesPageProvider>
+                    <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                        <FilesChartsProvider>
+                            <FilesCharts/>
+                        </FilesChartsProvider>
+                        <FilesPageProvider>
+                            <FilesTable/>
+                        </FilesPageProvider>
+                    </GraphQLProvider>
                 </div>
             </div>
         </>
