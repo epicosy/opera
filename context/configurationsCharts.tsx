@@ -1,27 +1,9 @@
 'use client';
 
 import React, {createContext, useContext, FC, ReactNode} from "react";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Dict = NodeJS.Dict;
+import {useQuery} from "@apollo/client";
+import {CONFIGS_CHARTS_DATA} from "../src/graphql/queries/configurations";
 
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-
-const CONFIGS_CHARTS_DATA = gql`
-    query {
-        configsPartCount{
-            key
-            values {
-                key
-                value
-            }
-        },
-        configsVulnsCount{
-            key
-            value
-        }
-    }
-`;
 
 interface ConfigsChartsContextProps {
     configsPartCount: { key: string; values: { key: string; value: number }[] }[];
@@ -34,15 +16,15 @@ const ConfigsChartsContext = createContext<ConfigsChartsContextProps>({
 } as ConfigsChartsContextProps);
 
 export const ConfigsChartsProvider: FC<{children: ReactNode}> = ({children}) => {
-    const configsChartsDataQuery = useQuery(CONFIGS_CHARTS_DATA, {client});
+    const configsChartsDataQuery = useQuery(CONFIGS_CHARTS_DATA);
 
     if (configsChartsDataQuery.loading) return <p>Loading charts data...</p>;
     if (configsChartsDataQuery.error){
-        return <p>Error loading charts data :(</p>;
+        console.log("Error loading configuration charts:", configsChartsDataQuery.error);
     }
 
-    const configsPartCount = configsChartsDataQuery.data?.configsPartCount;
-    const configsVulnsCount = configsChartsDataQuery.data?.configsVulnsCount;
+    const configsPartCount = configsChartsDataQuery.data?.configsPartCount || [];
+    const configsVulnsCount = configsChartsDataQuery.data?.configsVulnsCount || [];
 
     return (
         <ConfigsChartsContext.Provider value={{configsPartCount, configsVulnsCount}}>

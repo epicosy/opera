@@ -17,11 +17,24 @@ const TableHeader: FC<{children: ReactNode}> = ({children}) => {
 type TableRow = Array<any>;
 type TableRows = Array<TableRow>;
 
-interface Props {
+interface TableBodyProps {
   rows: TableRows;
+  n_columns: number;
 }
 
-const TableBody: React.FC<Props> = ({ rows }) => {
+const TableBody: React.FC<TableBodyProps> = ({ rows , n_columns}) => {
+  if (!rows || rows.length === 0) {
+    return (
+        <tbody>
+        <tr>
+            <td className="px-6 py-4 text-center text-blueGray-500" colSpan={n_columns}>
+                No data available
+            </td>
+        </tr>
+        </tbody>
+    );
+  }
+
   return (
       <tbody>
       {rows.map((row, rowIndex) => (
@@ -37,14 +50,13 @@ const TableBody: React.FC<Props> = ({ rows }) => {
   );
 };
 
-
-const TableCell: FC<{children: ReactNode}> = ({children}) => {
-  return (
-      <td className="border-t-0 flex-nowrap w-4 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-        {children}
-      </td>
-  )
-}
+const TableCell: FC<{ children: ReactNode }> = ({ children }) => {
+    return (
+        <td className="border-t-0 flex-nowrap w-4 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+            <div className="flex-wrap">{children}</div>
+        </td>
+    );
+};
 
 interface CardFilterPaginationTableProps {
   headers: (string | React.JSX.Element)[],
@@ -72,7 +84,7 @@ export default function CardFilterPaginationTable({headers, rows, currentPage, s
                 ))}
               </tr>
             </thead>
-            <TableBody rows={rows}/>
+            <TableBody rows={rows} n_columns={headers.length} />
           </table>
         </div>
       </div>
