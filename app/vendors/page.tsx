@@ -7,6 +7,7 @@ import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginati
 import {useVendorsCharts, VendorsChartsProvider} from "../../context/vendorsCharts";
 import CardPieChart from "../../components/Cards/cardPieChart";
 import CardBarChart from "../../components/Cards/CardBarChart";
+import {GraphQLProvider} from "../../context/graphql";
 
 function VendorsTable() {
     const { headers, rows, currentPage, setPage, pagination } = useVendorsPage();
@@ -48,16 +49,25 @@ function VendorsCharts() {
 }
 
 export default function Vendors() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
     return (
         <>
             <div className="flex flex-wrap mt-4">
                 <div className="w-full mb-12 px-4">
-                    <VendorsChartsProvider>
-                        <VendorsCharts/>
-                    </VendorsChartsProvider>
-                    <VendorsPageProvider>
-                        <VendorsTable/>
-                    </VendorsPageProvider>
+                    <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                        <VendorsChartsProvider>
+                            <VendorsCharts/>
+                        </VendorsChartsProvider>
+                        <VendorsPageProvider>
+                            <VendorsTable/>
+                        </VendorsPageProvider>
+                    </GraphQLProvider>
                 </div>
             </div>
         </>

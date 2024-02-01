@@ -2,31 +2,10 @@
 
 import React, {createContext, useContext, Dispatch, SetStateAction, useState, FC, ReactNode} from "react";
 import {VendorsPagination} from "../typings";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
+import {VENDORS_LIST} from "../src/graphql/queries/vendors";
 
 const PAGE_SIZE = 15;
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-const VENDORS_LIST = gql`
-    query vendorsPage($page: Int!, $per_page: Int!) {
-        vendorsPage(page: $page, perPage: $per_page){
-            hasNextPage
-            hasPreviousPage
-            totalPages
-            totalResults
-            page
-            perPage
-            pages
-            elements{
-                id
-                name
-                productsCount
-                configurationsCount
-                vulnerabilitiesCount
-            }
-        }
-    }
-`;
 
 interface VendorsPageContextProps {
     currentPage: number;
@@ -55,21 +34,20 @@ const VendorsPageContext = createContext<VendorsPageContextProps>({
 
 export const VendorsPageProvider: FC<{children: ReactNode}> = ({children}) => {
     const [currentPage, setPage] = useState(1);
-    const vendorsPageQuery = useQuery(VENDORS_LIST,
-        {client, variables: {page: currentPage, per_page: PAGE_SIZE}}
+    const vendorsPageQuery = useQuery(VENDORS_LIST,{variables: {page: currentPage, per_page: PAGE_SIZE}}
     );
 
     if (vendorsPageQuery.loading) return <p>Loading vendors...</p>;
     if (vendorsPageQuery.error){
-        return <p>Error loading vendors :(</p>;
+        console.error("Error loading vendors:", vendorsPageQuery.error);
     }
 
     const pagination: VendorsPagination = vendorsPageQuery.data?.vendorsPage;
     const headers = ["Id", "Name", "Products Count", "Configurations Count", "Vulnerabilities Count"];
-    const rows = pagination.elements.map((element) => {
+    const rows = pagination?.elements.map((element) => {
         return [element.id, element.name, element.productsCount, element.configurationsCount,
             element.vulnerabilitiesCount];
-    });
+    }) || [];
 
     return (
         <VendorsPageContext.Provider value={{currentPage, setPage, pagination, headers, rows}}>

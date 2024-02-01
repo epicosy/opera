@@ -1,26 +1,9 @@
 'use client';
 
 import React, {createContext, useContext, FC, ReactNode} from "react";
-import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
+import {VENDORS_CHARTS_DATA} from "../src/graphql/queries/vendors";
 
-const client = new ApolloClient({ uri: `http://localhost:3001/graphql`, cache: new InMemoryCache() });
-
-const VENDORS_CHARTS_DATA = gql`
-    query {
-        productsCountByVendor{   
-            key
-            value
-        },
-        configsCountByVendor{
-            key
-            value
-        },
-        vulnsCountByVendor{
-            key
-            value
-        }
-    }
-`;
 
 interface VendorsChartsContextProps {
     productsCountByVendor: {key: string, value: number}[];
@@ -36,16 +19,16 @@ const VendorsChartsContext = createContext<VendorsChartsContextProps>({
 
 
 export const VendorsChartsProvider: FC<{children: ReactNode}> = ({children}) => {
-    const vendorsChartsDataQuery = useQuery(VENDORS_CHARTS_DATA, {client});
+    const vendorsChartsDataQuery = useQuery(VENDORS_CHARTS_DATA);
 
     if (vendorsChartsDataQuery.loading) return <p>Loading charts data...</p>;
     if (vendorsChartsDataQuery.error){
-        return <p>Error loading charts data :(</p>;
+        console.error("Error loading charts data:",vendorsChartsDataQuery.error);
     }
 
-    const productsCountByVendor = vendorsChartsDataQuery.data?.productsCountByVendor;
-    const configsCountByVendor = vendorsChartsDataQuery.data?.configsCountByVendor;
-    const vulnsCountByVendor = vendorsChartsDataQuery.data?.vulnsCountByVendor;
+    const productsCountByVendor = vendorsChartsDataQuery.data?.productsCountByVendor || [];
+    const configsCountByVendor = vendorsChartsDataQuery.data?.configsCountByVendor || []
+    const vulnsCountByVendor = vendorsChartsDataQuery.data?.vulnsCountByVendor || [];
 
     return (
         <VendorsChartsContext.Provider value={{productsCountByVendor, configsCountByVendor, vulnsCountByVendor}}>
