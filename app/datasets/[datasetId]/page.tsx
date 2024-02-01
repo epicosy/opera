@@ -1,11 +1,14 @@
 'use client';
 import React, {useState} from "react";
 import {Dataset} from "../../../typings";
-import {ApolloClient, ApolloError, gql, InMemoryCache, useMutation, useQuery} from "@apollo/client";
+import {ApolloError, useMutation, useQuery} from "@apollo/client";
 import {DebounceSelect, fetchVulnerability, VulnerabilityValue} from "../../../components/debounceSelect";
 import {Button, notification, Table, Input, Modal} from "antd";
 import {ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import Link from "next/link";
+import {EDIT_DATASET, FETCH_DATASET, REMOVE_DATASET_VULNERABILITIES,
+    ADD_VULNERABILITIES_TO_DATASET} from "../../../src/graphql/queries/datasets";
+import {GraphQLProvider} from "../../../context/graphql";
 
 type PageProps = {
     params: {
@@ -38,70 +41,11 @@ const columns = [
     },
 ];
 
-const client = new ApolloClient({
-    uri: 'http://localhost:3001/graphql',
-    cache: new InMemoryCache(),
-});
-
-
-const FETCH_DATASET = gql`
-    query FetchDataset($id: ID!) {
-        dataset(id: $id) {
-            id
-            name
-            description
-            vulnerabilities {
-                id
-                cweIds{
-                    id
-                }
-            }
-        }
-    }
-`;
-
-const ADD_VULNERABILITIES_TO_DATASET = gql`
-    mutation AddVulnerabilitiesToDataset($datasetId: Int!, $vulnerabilityIds: [String]! ) {
-        addVulnerabilitiesToDataset(datasetId: $datasetId, vulnerabilityIds: $vulnerabilityIds) {
-            dataset {
-                id
-                vulnerabilities {
-                    id
-                }
-            }
-        }
-    }
-`;
-
-const EDIT_DATASET = gql`
-    mutation EditDataset($id: Int!, $name: String!, $description: String!) {
-        editDataset(id: $id, name: $name, description: $description) {
-            dataset {
-                id
-                name
-                description
-            }
-        }
-    }
-`;
-
-const REMOVE_DATASET_VULNERABILITIES = gql`
-    mutation RemoveDatasetVulnerabilities($id: Int!) {
-        removeDatasetVulnerabilities(id: $id) {
-            dataset {
-                id
-                vulnerabilities {
-                    id
-                }
-            }
-        }
-    }
-`;
 
 function DatasetInfo({ dataset } : { dataset: Dataset }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editedName, setEditedName] = useState(dataset.name);
-    const [editedDescription, setEditedDescription] = useState(dataset.description);
+    const [editedName, setEditedName] = useState(dataset?.name);
+    const [editedDescription, setEditedDescription] = useState(dataset?.description);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
     const handleEdit = () => {
@@ -110,14 +54,8 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
 
     const handleSave = async () => {
         try {
-            await client.mutate({
-                mutation: EDIT_DATASET,
-                variables: {
-                    id: dataset.id,
-                    name: editedName,
-                    description: editedDescription
-                }
-            });
+            const [editDataset] = useMutation(EDIT_DATASET);
+            await editDataset({variables: {id: dataset.id, name: editedName, description: editedDescription}});
 
             notification.success({
                 message: 'Success',
@@ -145,12 +83,8 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
 
     const handleDeleteVulnerabilities = async () => {
         try {
-            await client.mutate({
-                mutation: REMOVE_DATASET_VULNERABILITIES,
-                variables: {
-                    id: dataset.id
-                }
-            });
+            const [removeDatasetVulnerabilities] = useMutation(REMOVE_DATASET_VULNERABILITIES);
+            await removeDatasetVulnerabilities({variables: {id: dataset.id}});
 
             notification.success({
                 message: 'Success',
@@ -180,7 +114,7 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
     };
 
     return (
-        <div className="flex flex-col w-full block p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex flex-col w-full block p-6 bg-gray-50 border border-gray-200 rounded-lg shadow">
             {isEditing ? (
                 <>
                     <Input
@@ -206,9 +140,9 @@ function DatasetInfo({ dataset } : { dataset: Dataset }) {
                 </>
             ) : (
                 <>
-                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{dataset.name}</h5>
-                    <p className="font-normal text-gray-700 dark:text-gray-400">{dataset.description}</p>
-                    <p className="font-normal text-gray-700 dark:text-gray-400">Vulnerabilities: {dataset.vulnerabilities.length}</p>
+                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{dataset?.name}</h5>
+                    <p className="font-normal text-gray-700 dark:text-gray-400">{dataset?.description}</p>
+                    <p className="font-normal text-gray-700 dark:text-gray-400">Vulnerabilities: {dataset?.vulnerabilities.length}</p>
                     <div className="flex mt-2">
                         <Button type="primary" onClick={handleEdit} className="mr-2 text-white bg-blue-700
                         hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm
@@ -254,11 +188,10 @@ function VulnerabilitySelect({value, onChange} : {value: VulnerabilityValue[], o
     );
 }
 
-
-function DatasetPage({ params: { datasetId } }: PageProps) {
-    const { loading, error, data, refetch } = useQuery(FETCH_DATASET, { client, variables: { id: datasetId } });
+function DatasetPageBody({ params: { datasetId } }: PageProps) {
+    const { loading, error, data, refetch } = useQuery(FETCH_DATASET, {variables: { id: datasetId } });
     const [value, setValue] = useState<VulnerabilityValue[]>([]);
-    const [addVulnerabilitiesToDataset] = useMutation(ADD_VULNERABILITIES_TO_DATASET, {client});
+    const [addVulnerabilitiesToDataset] = useMutation(ADD_VULNERABILITIES_TO_DATASET);
 
     const handleSubmit = async () => {
         const vulnerabilityIds = value.map((vulnerability) => vulnerability.value);
@@ -286,10 +219,11 @@ function DatasetPage({ params: { datasetId } }: PageProps) {
 
     const isSubmitDisabled = value.length === 0;
 
-    if (loading) return 'Loading...';
-    if (error) return `Error! ${error.message}`;
+    if (error) {
+        console.error('Error fetching dataset:', error);
+    }
 
-    const dataset: Dataset = data.dataset;
+    const dataset: Dataset = data?.dataset;
 
     return (
         <>
@@ -308,10 +242,27 @@ function DatasetPage({ params: { datasetId } }: PageProps) {
                             <ArrowRightOutlined />
                         </Button>
                     </div>
-                    <Table columns={columns} dataSource={dataset.vulnerabilities} />
+                    <Table columns={columns} dataSource={dataset?.vulnerabilities} />
                 </div>
             </div>
         </>
+    );
+}
+
+
+function DatasetPage({ params: { datasetId } }: PageProps) {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
+
+    return (
+        <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+            <DatasetPageBody params={{ datasetId }} />
+        </GraphQLProvider>
     );
 }
 

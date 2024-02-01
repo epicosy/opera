@@ -2,51 +2,20 @@
 import React, {useEffect} from "react";
 import { Form, Input, Button, Table, notification } from 'antd';
 import "styles/tailwind.css";
-import {ApolloClient, InMemoryCache, gql, useMutation, useQuery} from "@apollo/client";
+import {useMutation, useQuery} from "@apollo/client";
 import Link from "next/link";
+import {CREATE_DATASET, FETCH_DATASETS, REMOVE_DATASET} from "../../src/graphql/queries/datasets";
+import {GraphQLProvider} from "../../context/graphql";
 
-const client = new ApolloClient({
-    uri: 'http://localhost:3001/graphql',
-    cache: new InMemoryCache(),
-});
-
-const CREATE_DATASET = gql`
-    mutation CreateDataset($name: String!, $description: String!) {
-        createDataset(name: $name, description: $description) {
-            dataset{
-                id
-                name
-                description   
-            }
-        }
-    }
-`;
-
-const REMOVE_DATASET = gql`
-    mutation RemoveDataset($id: Int!) {
-        removeDataset(id: $id) {
-            dataset{
-                id
-            }
-        }
-    }
-`;
-
-const FETCH_DATASETS = gql`
-    query FetchDatasets {
-        datasets {
-            id
-            name
-            description
-            size
-        }
-    }
-`;
 
 const DatasetForm = () => {
     const [form] = Form.useForm();
-    const [createDataset, { loading, error }] = useMutation(CREATE_DATASET, { client,
+    const [createDataset, { loading, error }] = useMutation(CREATE_DATASET, {
         refetchQueries: [{ query: FETCH_DATASETS }]});
+
+    if (error){
+        console.log("Error creating dataset: ", error);
+    }
 
     const handleSubmit = (values: { name: string, description: string}) => {
         createDataset({ variables: { name: values.name, description: values.description } })
@@ -90,17 +59,18 @@ const DatasetForm = () => {
     );
 };
 
-export default function Datasets() {
-    const { loading, error, data , refetch} = useQuery(FETCH_DATASETS, { client });
-    const [removeDataset, { loading: mutationLoading, error: mutationError }] = useMutation(REMOVE_DATASET, { client,
+function DatasetsTable () {
+    const { loading, error, data , refetch} = useQuery(FETCH_DATASETS);
+    const [removeDataset, { loading: mutationLoading, error: mutationError }] = useMutation(REMOVE_DATASET, {
         refetchQueries: [{ query: FETCH_DATASETS }]});
 
     useEffect(() => {
         refetch(); // Refetch the data when the component mounts or when the data is updated
     }, [refetch]);
 
-    if (loading) return 'Loading...';
-    if (error) return `Error! \${error.message}`;
+    if (error){
+        console.log("Error fetching datasets: ", error);
+    }
 
     const handleDelete = (record: any) => {
         removeDataset({ variables: { id: record.id } })
@@ -123,7 +93,7 @@ export default function Datasets() {
             dataIndex: 'id',
             key: 'id',
             render: (text: string, record: any) => <Link href={`http://localhost:3005/datasets/${record.id}`}
-                                            className="text-blue-600 dark:text-blue-500 hover:underline">{text}</Link>,
+                                                         className="text-blue-600 dark:text-blue-500 hover:underline">{text}</Link>,
         },
         {
             title: 'Name',
@@ -136,7 +106,7 @@ export default function Datasets() {
             key: 'description'
         },
         {
-          title: 'Size',
+            title: 'Size',
             dataIndex: 'size',
             key: 'size',
         },
@@ -152,8 +122,22 @@ export default function Datasets() {
         },
     ];
 
+    return (<Table dataSource={data?.datasets} columns={columns} />);
+}
+
+
+export default function Datasets() {
+    const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
+
+    let defaultHeaders: Record<string, any > = {
+        'client-name': 'opera',
+        'client-version': process.env.npm_package_version || ''
+    };
+
     return <div>
-        <DatasetForm />
-        <Table dataSource={data.datasets} columns={columns} />
+        <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+            <DatasetForm />
+            <DatasetsTable />
+        </GraphQLProvider>
     </div>
 }
