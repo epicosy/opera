@@ -44,17 +44,17 @@ export const CommitPageProvider: FC<{children: ReactNode}> = ({children}) => {
 
     if (commitsPageQuery.loading) return <p>Loading commits...</p>;
     if (commitsPageQuery.error){
-        return <p>Error loading commits :(</p>;
+        console.log("Error loading commits:", commitsPageQuery.error)
     }
 
     const pagination: CommitsPagination = commitsPageQuery.data?.commitsPage;
     const headers = ["URL", "Kind", "Available", "State", "Changes", "Additions", "Deletions", "#Files", "#Parents",
         "Vulnerability Id", "Repository Id"];
 
-    const rows = pagination.elements.map((commit: any) => {
+    const rows = pagination?.elements.map((commit: any) => {
         return [commit.url, commit.kind, commit.available, commit.state, commit.changes, commit.additions,
             commit.deletions, commit.filesCount, commit.parentsCount, commit.vulnerabilityId, commit.repositoryId]
-    });
+    }) || [];
 
     return (
         <CommitPageContext.Provider value={{currentPage, setPage, pagination, headers, rows}}>

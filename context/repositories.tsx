@@ -52,27 +52,32 @@ export const RepositoriesPageProvider: FC<{children: ReactNode}> = ({children}) 
                 language: selectedLanguage}}
     );
 
+    let languages = [];
+    let availabilityDrop: string | React.JSX.Element = "Available";
+    let languagesDrop: string | React.JSX.Element = "Language";
+
     if (repositoriesPageQuery.loading) return <p>Loading repositories...</p>;
     if (repositoriesPageQuery.error){
-        return <p>Error loading repositories :(</p>;
+        console.error("Error loading repositories:", repositoriesPageQuery.error);
+    } else {
+        languages = repositoriesPageQuery.data?.repositoriesLanguageCount.map((lang: any) => lang.key);
+        availabilityDrop = <DropdownWithCheckboxes title="Available" items={[true, false, null]}
+                                                         selectedItems={selectedAvailability}
+                                                         onChange={setSelectedAvailability}/>
+        languagesDrop = <DropdownWithCheckboxes title="Language" items={languages}
+                                                      selectedItems={selectedLanguage}
+                                                      onChange={setSelectedLanguage}/>
     }
 
     const pagination: RepositoriesPagination = repositoriesPageQuery.data?.repositoriesPage;
-    const languages = repositoriesPageQuery.data?.repositoriesLanguageCount.map((lang: any) => lang.key);
-    const availabilityDrop = <DropdownWithCheckboxes title="Available" items={[true, false, null]}
-                                                     selectedItems={selectedAvailability}
-                                                     onChange={setSelectedAvailability}/>
-    const languagesDrop = <DropdownWithCheckboxes title="Language" items={languages}
-                                                    selectedItems={selectedLanguage}
-                                                    onChange={setSelectedLanguage}/>
 
     const headers = ["Id", "Owner", "Name", availabilityDrop, languagesDrop, "Topics", "Commits Count"];
 
-    const rows = pagination.elements.map((repo: any) => {
+    const rows = pagination?.elements.map((repo: any) => {
         return [<Link href={`http://localhost:3005/repositories/${repo.id}/`} target="_blank"
                       className="text-blue-600 dark:text-blue-500 hover:underline" >{repo.id}</Link>,
             repo.owner, repo.name, repo.available, repo.language, repo.topics.join(", "), repo.commitsCount]
-    });
+    }) || [];
 
     return (
         <RepositoriesPageContext.Provider value={{currentPage, setPage, selectedAvailability, setSelectedAvailability,

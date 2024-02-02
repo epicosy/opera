@@ -28,16 +28,15 @@ export const RepositoriesChartsProvider: FC<{children: ReactNode}> = ({children}
 
     if (reposChartsDataQuery.loading) return <p>Loading charts data ...</p>;
     if (reposChartsDataQuery.error){
-        return <p>Error loading charts data :(</p>;
+        console.error("Error loading charts data:", reposChartsDataQuery.error);
     }
 
-    const repositoriesAvailability = reposChartsDataQuery.data?.repositoriesAvailability;
-    const repositoriesCommitsFrequency = reposChartsDataQuery.data?.repositoriesCommitsFrequency;
-    const repositoriesLanguageCount = reposChartsDataQuery.data?.repositoriesLanguageCount;
-    const topicsCount = reposChartsDataQuery.data?.topicsCount;
-    const langProductLinksCount = reposChartsDataQuery.data?.langProductLinksCount;
-    const repositoriesSoftwareTypeCount = reposChartsDataQuery.data?.repositoriesSoftwareTypeCount;
-
+    const repositoriesAvailability = reposChartsDataQuery.data?.repositoriesAvailability || [];
+    const repositoriesCommitsFrequency = reposChartsDataQuery.data?.repositoriesCommitsFrequency || [];
+    const repositoriesLanguageCount = reposChartsDataQuery.data?.repositoriesLanguageCount || [];
+    const topicsCount = reposChartsDataQuery.data?.topicsCount || [];
+    const langProductLinksCount = reposChartsDataQuery.data?.langProductLinksCount || [];
+    const repositoriesSoftwareTypeCount = reposChartsDataQuery.data?.repositoriesSoftwareTypeCount || [];
 
     return (
         <RepositoriesChartsContext.Provider value={{repositoriesAvailability, repositoriesCommitsFrequency,
