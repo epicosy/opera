@@ -4,15 +4,14 @@ import React from "react";
 interface CardStatsProps {
     statSubtitle: string,
     statTitle: string,
-    statIconName?: string,
+    icon: React.JSX.Element,
     // can be any of the background color utilities
     // from tailwindcss
     statIconColor?: string,
 }
 
 
-export default function CardStats({statSubtitle, statTitle, statIconName = "far fa-chart-bar",
-                                      statIconColor = "bg-red-500"} : CardStatsProps) {
+export default function CardStats({statSubtitle, statTitle, icon, statIconColor = "bg-red-500"} : CardStatsProps) {
   return (
       <>
         <div className="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg">
@@ -33,7 +32,7 @@ export default function CardStats({statSubtitle, statTitle, statIconName = "far 
                         statIconColor
                     }
                 >
-                  <i className={statIconName}></i>
+                    {icon}
                 </div>
               </div>
             </div>

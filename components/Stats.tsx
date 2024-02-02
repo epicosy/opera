@@ -4,13 +4,13 @@ import React from "react";
 import CardStats from "./Cards/CardStats";
 import {useQuery} from "@apollo/client";
 import {STATS_QUERY} from "../src/graphql/queries";
-
+import {TagOutlined, ExclamationCircleOutlined, DatabaseOutlined, LinkOutlined, BranchesOutlined} from "@ant-design/icons";
 
 const cards = [
-    { subtitle: 'TOTAL', icon: 'far fa-database', color: 'bg-red-500', key: 'total' },
-    { subtitle: 'LABELED', icon: 'fas fa-tag', color: 'bg-orange-500', key: 'labeled' },
-    { subtitle: 'REFERENCES', icon: 'fas fa-link', color: 'bg-yellow-500', key: 'references' },
-    { subtitle: 'COMMITS', icon: 'fas fa-code-commit', color: 'bg-sky-500', key: 'commits' },
+    { subtitle: 'TOTAL', icon: <DatabaseOutlined className="text-xl" />, color: 'bg-red-500', key: 'total' },
+    { subtitle: 'LABELED', icon: <TagOutlined className="text-xl" />, color: 'bg-orange-500', key: 'labeled' },
+    { subtitle: 'REFERENCES', icon: <LinkOutlined className="text-xl" />, color: 'bg-yellow-500', key: 'references' },
+    { subtitle: 'COMMITS', icon: <BranchesOutlined className="text-xl" />, color: 'bg-sky-500', key: 'commits' },
 ];
 
 
@@ -36,7 +36,7 @@ export default function Stats() {
                                         <CardStats
                                             statSubtitle={`ERROR ${key}`}
                                             statTitle="N/A"
-                                            statIconName="fas fa-exclamation-circle"
+                                            icon={<ExclamationCircleOutlined />}
                                             statIconColor="bg-red-500"
                                         />
                                     </div>
@@ -48,7 +48,7 @@ export default function Stats() {
                                         <CardStats
                                             statSubtitle={subtitle}
                                             statTitle={stats?.[key] || 'N/A'}
-                                            statIconName={icon}
+                                            icon={icon}
                                             statIconColor={color}
                                         />
                                     </div>
