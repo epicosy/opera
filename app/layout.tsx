@@ -1,5 +1,5 @@
 import "../styles/globals.css"
-import Sidebar from "../components/Sidebar.js";
+import Sidebar from "../components/Sidebar";
 import Footer from "./footer";
 
 export default function RootLayout({
