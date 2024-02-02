@@ -3,172 +3,87 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapse } from 'antd';
-import type { CollapseProps } from 'antd';
-import {AreaChartOutlined, LineChartOutlined} from "@ant-design/icons";
+import {BugOutlined, FolderOutlined, BranchesOutlined, SlidersOutlined, FileOutlined, AreaChartOutlined, ShopOutlined,
+    LineChartOutlined, ProjectOutlined, DatabaseOutlined, DashboardOutlined} from "@ant-design/icons";
 
-function Explorer() {
-  const pathname = usePathname();
 
-  return  (
-      <ul className="md:flex-col md:min-w-full flex flex-col list-none">
-        <li className="items-center">
-          <Link href="/vulnerabilities"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/vulnerabilities") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fas fa-bug mr-2 text-sm " +
-                    (pathname.indexOf("/vulnerabilities") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Vulnerabilities
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link href="/repositories"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/repositories") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fas fa-folders mr-2 text-sm " +
-                    (pathname.indexOf("/repositories") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Repositories
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link href="/commits"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/commits") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fas fa-code-commit mr-2 text-sm " +
-                    (pathname.indexOf("/commits") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Commits
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link href="/configurations"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/configurations") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fas fa-sliders mr-2 text-sm " +
-                    (pathname.indexOf("/configurations") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Configurations
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link href="/vendors"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/vendors") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fa-solid fa-sliders mr-2 text-sm " +
-                    (pathname.indexOf("/vendors") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Vendors
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link href="/products"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/products") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fa-solid fa-sliders mr-2 text-sm " +
-                    (pathname.indexOf("/products") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Products
-          </Link>
-        </li>
-        <li className="items-center">
-          <Link href="/files"
-                className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (pathname.indexOf("/files") !== -1
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                }
-          >
-            <i
-                className={
-                    "fa-solid fa-file mr-2 text-sm " +
-                    (pathname.indexOf("/files") !== -1
-                        ? "opacity-75"
-                        : "text-gray-300")
-                }
-            ></i>{" "}
-            Files
-          </Link>
-        </li>
-      </ul>
-  )
+interface NavItemProps {
+    href: string;
+    iconClass: string;
+    label: string;
+    size?: string;
 }
 
+const getIconComponent = (iconClass : string) => {
+    switch (iconClass) {
+        case 'BugOutlined':
+            return <BugOutlined />;
+        case 'FolderOutlined':
+            return <FolderOutlined />;
+        case 'BranchesOutlined':
+            return <BranchesOutlined />;
+        case 'SlidersOutlined':
+            return <SlidersOutlined />;
+        case 'FileOutlined':
+            return <FileOutlined />;
+        case 'ShopOutlined':
+            return <ShopOutlined />;
+        case 'ProjectOutlined':
+            return <ProjectOutlined />;
+        case 'DatabaseOutlined':
+            return <DatabaseOutlined />;
+        case 'DashboardOutlined':
+            return <DashboardOutlined />;
+        // Add other cases as needed
+        default:
+            return null;
+    }
+};
 
-const items: CollapseProps['items'] = [
-  {
-    key: '1',
-    label: <p className="" > Explorer </p>,
-    children: <Explorer />,
-  }
-];
+const NavItem = ({ href, iconClass, label, size='text-xs'} : NavItemProps) => {
+    const pathname = usePathname();
+    const iconComponent = getIconComponent(iconClass);
+    const isActive = href === '/' ? pathname === href : pathname.startsWith(href);
+
+    return (
+        <li className="items-center">
+            <Link
+                href={href}
+                className={
+                    "text-xs uppercase py-3 font-bold block " +
+                    (isActive ? "text-sky-500 hover:text-sky-600" : "text-gray-700 hover:text-gray-500")
+                }
+            >
+                {iconComponent && (
+                    <span className={`${iconComponent.props.className} mr-2 ` + size +
+                        (isActive ? "opacity-75" : "text-gray-300")}>
+            {iconComponent}
+          </span>
+                )}
+                {label}
+            </Link>
+        </li>
+    );
+};
+
+function Explorer() {
+    return (
+        <ul className="md:flex-col md:min-w-full flex flex-col list-none">
+            <NavItem href="/vulnerabilities" iconClass="BugOutlined" label="Vulnerabilities" />
+            <NavItem href="/repositories" iconClass="FolderOutlined" label="Repositories" />
+            <NavItem href="/commits" iconClass="BranchesOutlined" label="Commits" />
+            <NavItem href="/configurations" iconClass="SlidersOutlined" label="Configurations" />
+            <NavItem href="/vendors" iconClass="ShopOutlined" label="Vendors" />
+            <NavItem href="/products" iconClass="ProjectOutlined" label="Products" />
+            <NavItem href="/files" iconClass="FileOutlined" label="Files" />
+        </ul>
+    );
+}
 
 
 export default function Sidebar() {
   const [collapseShow, setCollapseShow] = React.useState("hidden");
   const [hasMounted, setHasMounted] = React.useState(false);
-  const pathname = usePathname();
 
   // Hooks
   React.useEffect(() => {
@@ -202,25 +117,9 @@ export default function Sidebar() {
             {/* Navigation */}
 
             <ul className="md:flex-col md:min-w-full flex flex-col list-none">
+                <NavItem href="/" iconClass="DashboardOutlined" label="Dashboard" size='text-sm' />
               <li className="items-center">
-                <Link href="/" className={ "text-sm uppercase py-3 font-bold block " +
-                      (pathname === "/"
-                        ? "text-sky-500 hover:text-sky-600"
-                        : "text-gray-700 hover:text-gray-500")
-                    }>
-                    <i
-                      className={
-                        "fas fa-tv mr-2 text-sm " +
-                        (pathname === "/"
-                          ? "opacity-75"
-                          : "text-gray-300")
-                      }
-                    ></i>{" "}
-                    Dashboard
-                </Link>
-              </li>
-              <li className="items-center">
-                <Collapse ghost className="text-sm uppercase font-bold block text-gray-700 hover:text-gray-500"
+                <Collapse ghost className="text-sm uppercase font-bold block text-gray-700 hover:text-gray-500 px-0"
                           expandIconPosition="left"
                           expandIcon={({isActive}) => isActive ? <AreaChartOutlined className="text-gray-300 mr-2 text-sm" /> : <LineChartOutlined className="text-gray-300 mr-2 text-sm" /> }>
                     <Collapse.Panel key='explorer' header='Explorer' className="px-0">
@@ -229,26 +128,7 @@ export default function Sidebar() {
                 </Collapse>
 
               </li>
-              <li className="items-center">
-                <Link href="/datasets"
-                      className={
-                          "text-sm uppercase py-3 font-bold block " +
-                          (pathname.indexOf("/datasets") !== -1
-                              ? "text-sky-500 hover:text-sky-600"
-                              : "text-gray-700 hover:text-gray-500")
-                      }
-                >
-                  <i
-                      className={
-                          "fas fa-database mr-2 text-sm " +
-                          (pathname.indexOf("/datasets") !== -1
-                              ? "opacity-75"
-                              : "text-gray-300")
-                      }
-                  ></i>{" "}
-                  Datasets
-                </Link>
-              </li>
+                <NavItem href="/datasets" iconClass="DatabaseOutlined" label="Datasets" size='text-sm' />
             </ul>
 
             {/* Divider */}
