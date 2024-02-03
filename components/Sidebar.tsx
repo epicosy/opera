@@ -6,7 +6,7 @@ import Logo from "./Sidebar/Logo";
 import { usePathname } from "next/navigation";
 import { Collapse } from 'antd';
 import {BugOutlined, FolderOutlined, BranchesOutlined, SlidersOutlined, FileOutlined, AreaChartOutlined, ShopOutlined,
-    LineChartOutlined, ProjectOutlined, DatabaseOutlined, DashboardOutlined} from "@ant-design/icons";
+    LineChartOutlined, ProjectOutlined, DatabaseOutlined, DashboardOutlined, ProfileOutlined} from "@ant-design/icons";
 
 
 interface NavItemProps {
@@ -36,6 +36,8 @@ const getIconComponent = (iconClass : string) => {
             return <DatabaseOutlined />;
         case 'DashboardOutlined':
             return <DashboardOutlined />;
+        case 'ProfileOutlined':
+            return <ProfileOutlined />;
         // Add other cases as needed
         default:
             return null;
@@ -117,15 +119,18 @@ export default function Sidebar() {
             <ul className="md:flex-col md:min-w-full flex flex-col list-none">
                 <NavItem href="/" iconClass="DashboardOutlined" label="Dashboard" size='text-sm' />
               <li className="items-center">
-                <Collapse ghost className="text-sm uppercase font-bold block text-gray-700 hover:text-gray-500 px-0"
-                          expandIconPosition="left"
+                <Collapse ghost
+                          expandIconPosition="start"
                           expandIcon={({isActive}) => isActive ? <AreaChartOutlined className="text-gray-300 mr-2 text-sm" /> : <LineChartOutlined className="text-gray-300 mr-2 text-sm" /> }>
-                    <Collapse.Panel key='explorer' header='Explorer' className="px-0">
+                    <Collapse.Panel key='explorer' header='Explorer'
+                                    className="custom-antd-collapse-header-padding text-sm uppercase font-bold
+                                    block text-blueGray-500 hover:text-blueGray-700">
                         <Explorer />
                     </Collapse.Panel>
                 </Collapse>
 
               </li>
+                <NavItem href="/profiler" iconClass="ProfileOutlined" label="Profiler" size='text-sm' />
                 <NavItem href="/datasets" iconClass="DatabaseOutlined" label="Datasets" size='text-sm' />
             </ul>
 

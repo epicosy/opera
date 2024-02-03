@@ -121,3 +121,42 @@ export const VULNS_CHARTS_DATA = gql`
         }
     }
 `;
+
+export const VULNS_BY_CWE = gql`
+    query vulnsByCwe{
+        cweCounts{
+            key
+            value
+        }
+    }
+`;
+
+export const VULNS_BY_EXPLOITABILITY = gql`
+    query vulnsByExploitability{
+        vulnsExploitability{
+            key
+            value
+        }
+    }
+`;
+
+export const GET_PROFILE = gql`
+    query getProfile($startYear: Int, $endYear: Int, $cweIds: [Int], $startScore: Float, $endScore: Float){
+        profileCount(startYear: $startYear, endYear: $endYear, cweIds: $cweIds, startScore: $startScore, 
+            endScore: $endScore){
+            year{
+                key
+                value
+            }
+            cwe{
+                key
+                value
+            }
+            score{
+                key
+                value
+            }
+            total
+        }
+    }
+`;

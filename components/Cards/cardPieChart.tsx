@@ -1,24 +1,26 @@
 'use client'
 
-import React from "react";
-import { Chart } from "react-google-charts";
+import React, { useState, useEffect } from "react";
+import {Chart, GoogleChartControlProp} from "react-google-charts";
 
 export const options = {
     pieHole: 0.40,
-    is3D: false,
+    is3D: false
 };
+
 
 interface CardPieChartProps {
     data: any;
     fields: Array<string>;
     title: string;
     height?: number;
+    controls?: GoogleChartControlProp[];
 }
 
-export default function CardPieChart({ data, fields, title, height = 350 } : CardPieChartProps) {
-    const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
 
-    const counts = [fields, ...(data?.map(({ key, value } : {key: string, value: number}) => [key, value]) || [])];
+export default function CardPieChart({ data, fields, title, height = 350, controls = undefined } : CardPieChartProps) {
+    const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
+    const newData: (string | any[])[] = [fields, ...(data ? data.map((dictionary: any) => Object.values(dictionary)) : [])];
 
     return (
         <>
@@ -38,7 +40,19 @@ export default function CardPieChart({ data, fields, title, height = 350 } : Car
                 <div className="p-4 flex-auto">
                     {/* Chart */}
                     <div className="relative" style={{ height: `${chartHeight}px` }}>
-                        <Chart chartType="PieChart" width="100%" height="100%" data={counts} options={options} />
+                        {controls ?
+                            ((<Chart chartType="PieChart" width="95%" height="95%" data={newData} options={options}
+                                     chartPackages={['corechart', 'controls']}
+                                     chartWrapperParams={{ view: { columns: [0, 1] } }}
+                                     controls={controls.map((control) => ({
+                                         'controlType': control.controlType,
+                                         'options': control.options,
+                                         'controlEvents': control.controlEvents
+                                     }))}
+                            />))
+                            :
+                            (<Chart chartType="PieChart" width="100%" height="100%" data={newData} options={options} />)
+                        }
                     </div>
                 </div>
             </div>

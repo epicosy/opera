@@ -4201,3 +4201,12 @@ select {
   color:black;
   margin-top:-1.25rem;
 }
+
+.custom-antd-collapse-header-padding .ant-collapse-header {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}
+
+.custom-antd-collapse-header-padding .ant-collapse-expand-icon {
+  padding-inline-end: 0 !important;
+}
