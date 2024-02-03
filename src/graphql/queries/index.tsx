@@ -29,7 +29,7 @@ export const VULNS_BY_YEAR_QUERY = gql`
 
 export const LATEST_VULNS_QUERY = gql`
     query getLatestVulns{
-        vulnerabilities(first: 10) {
+        vulnerabilities(first: 7) {
             id
             severity
             exploitability
@@ -141,9 +141,10 @@ export const VULNS_BY_EXPLOITABILITY = gql`
 `;
 
 export const GET_PROFILE = gql`
-    query getProfile($startYear: Int, $endYear: Int, $cweIds: [Int], $startScore: Float, $endScore: Float){
+    query getProfile($startYear: Int, $endYear: Int, $cweIds: [Int], $startScore: Float, $endScore: Float, 
+        $hasCode: Boolean, $hasExploit: Boolean, $hasAdvisory: Boolean){
         profileCount(startYear: $startYear, endYear: $endYear, cweIds: $cweIds, startScore: $startScore, 
-            endScore: $endScore){
+            endScore: $endScore, hasCode: $hasCode, hasExploit: $hasExploit, hasAdvisory: $hasAdvisory){
             year{
                 key
                 value

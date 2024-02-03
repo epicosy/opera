@@ -21,6 +21,7 @@
     "@radix-ui/react-select": "^1.2.1",
     "antd": "^5.13.1",
     "chart.js": "^4.1.1",
+    "chroma-js": "^2.4.2",
     "gulp": "^3.9.1",
     "gulp-append-prepend": "^1.0.9",
     "lodash.debounce": "^4.0.8",
@@ -34,6 +35,7 @@
     "react-google-charts": "^4.0.0"
   },
   "devDependencies": {
+    "@types/chroma-js": "^2.4.3",
     "@types/lodash": "^4.14.202",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "18.11.3",

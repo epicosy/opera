@@ -1,12 +1,23 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
-import {Chart, GoogleChartControlProp} from "react-google-charts";
+import React from "react";
+import {Chart, GoogleChartControlProp, GoogleChartOptions} from "react-google-charts";
+import chroma from "chroma-js";
 
-export const options = {
+export const options : GoogleChartOptions = {
+    backgroundColor: 'transparent',
     pieHole: 0.40,
     is3D: false
 };
+
+
+function generateColorGradient(startColor: string, endColor: string, steps: number): string[] {
+    return chroma.scale([startColor, endColor]).colors(steps);
+}
+
+// Example usage
+const startColor = '#f0fdfa';
+const endColor = '#042f2e';
 
 
 interface CardPieChartProps {
@@ -21,6 +32,8 @@ interface CardPieChartProps {
 export default function CardPieChart({ data, fields, title, height = 350, controls = undefined } : CardPieChartProps) {
     const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
     const newData: (string | any[])[] = [fields, ...(data ? data.map((dictionary: any) => Object.values(dictionary)) : [])];
+
+    options.colors = generateColorGradient(startColor, endColor, newData.length - 1);
 
     return (
         <>

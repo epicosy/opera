@@ -55,12 +55,12 @@ const NavItem = ({ href, iconClass, label, size='text-xs'} : NavItemProps) => {
                 href={href}
                 className={
                     "text-xs uppercase py-3 font-bold block " +
-                    (isActive ? "text-sky-500 hover:text-sky-600" : "text-gray-700 hover:text-gray-500")
+                    (isActive ? "text-teal-500 hover:text-teal-400" : "text-teal-50 hover:text-teal-200")
                 }
             >
                 {iconComponent && (
                     <span className={`${iconComponent.props.className} mr-2 ` + size +
-                        (isActive ? "opacity-75" : "text-gray-300")}>
+                        (isActive ? "opacity-75" : "text-teal-300")}>
             {iconComponent}
           </span>
                 )}
@@ -99,8 +99,11 @@ export default function Sidebar() {
 
   return (
     <>
-      <nav className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
-        <div className="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center justify-between w-full mx-auto">
+      <nav className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap
+                      md:overflow-hidden shadow-xl bg-teal-950 flex flex-wrap items-center justify-between relative
+                      md:w-64 z-10 py-4 px-6">
+        <div className="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center
+                        justify-between w-full mx-auto">
           {/* Brand */}
           <Logo/>
           {/* Collapse */}
@@ -119,12 +122,12 @@ export default function Sidebar() {
             <ul className="md:flex-col md:min-w-full flex flex-col list-none">
                 <NavItem href="/" iconClass="DashboardOutlined" label="Dashboard" size='text-sm' />
               <li className="items-center">
-                <Collapse ghost
+                <Collapse ghost className="custom-antd-collapse-header-color"
                           expandIconPosition="start"
-                          expandIcon={({isActive}) => isActive ? <AreaChartOutlined className="text-gray-300 mr-2 text-sm" /> : <LineChartOutlined className="text-gray-300 mr-2 text-sm" /> }>
+                          expandIcon={({isActive}) => isActive ? <AreaChartOutlined className="text-teal-300 mr-2 text-sm" /> : <LineChartOutlined className="text-teal-300 mr-2 text-sm" /> }>
                     <Collapse.Panel key='explorer' header='Explorer'
                                     className="custom-antd-collapse-header-padding text-sm uppercase font-bold
-                                    block text-blueGray-500 hover:text-blueGray-700">
+                                    block text-teal-500 hover:text-teal-700">
                         <Explorer />
                     </Collapse.Panel>
                 </Collapse>

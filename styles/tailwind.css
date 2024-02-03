@@ -4210,3 +4210,11 @@ select {
 .custom-antd-collapse-header-padding .ant-collapse-expand-icon {
   padding-inline-end: 0 !important;
 }
+
+.custom-antd-collapse-header-color .ant-collapse-header {
+  color: rgba(240, 253, 250) !important;
+}
+
+.custom-antd-collapse-header-color:hover .ant-collapse-header {
+  color: rgba(153, 246, 228) !important;
+}
