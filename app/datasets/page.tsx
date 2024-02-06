@@ -1,14 +1,28 @@
 'use client';
-import React, {useEffect} from "react";
-import { Form, Input, Button, Table, notification } from 'antd';
+import React, {useEffect, useState} from "react";
+import {Form, Input, Button, Table, notification, Select, Modal} from 'antd';
 import "styles/tailwind.css";
 import {useMutation, useQuery} from "@apollo/client";
 import Link from "next/link";
 import {CREATE_DATASET, FETCH_DATASETS, REMOVE_DATASET} from "../../src/graphql/queries/datasets";
 import {GraphQLProvider} from "../../context/graphql";
+import {PlusOutlined} from "@ant-design/icons";
+import FloatingAddButton from "../../components/FloatingAddButton";
 
 
-const DatasetForm = () => {
+const items = [
+    {value: '1', label: 'cwe 79'},
+    {value: '2', label: 'top 10'},
+    {value: '3', label: 'recent'},
+];
+
+const handleChange = (value: string) => {
+    console.log(`selected ${value}`);
+};
+
+
+
+const DatasetForm = ({ onSuccess }: { onSuccess: () => void }) => {
     const [form] = Form.useForm();
     const [createDataset, { loading, error }] = useMutation(CREATE_DATASET, {
         refetchQueries: [{ query: FETCH_DATASETS }]});
@@ -24,6 +38,7 @@ const DatasetForm = () => {
                     message: 'Success',
                     description: `Dataset "${values.name}" created successfully`
                 });
+                onSuccess(); // Invoke the callback function passed from the parent component
             })
             .catch((error) => {
                 notification.error({
@@ -34,28 +49,74 @@ const DatasetForm = () => {
     };
 
     return (
-        <Form form={form} onFinish={handleSubmit}>
-            <Form.Item
-                label="Name"
-                name="name"
-                rules={[{ required: true, message: 'Please enter the name of the dataset' }]}
+        <div className="flex flex-row">
+            <Form form={form} onFinish={handleSubmit} className="flex-col w-full">
+                <Form.Item className="mb-2"
+                    label="Name"
+                    name="name"
+                    rules={[{ required: true, message: 'Please enter the name of the dataset' }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item className="mb-2"
+                    label="Description"
+                    name="description"
+                    rules={[{ required: true, message: 'Please enter a description of the dataset' }]}
+                >
+                    <Input.TextArea className="h-2"/>
+                </Form.Item>
+                <Form.Item label="Profile" name="profile" className="mb-0">
+                    <Select style={{ width: 120 }} onChange={handleChange} options={items}
+                            placeholder="Select profile" />
+                </Form.Item>
+                <Form.Item className="float-right mb-0" >
+                    <Button type="primary" htmlType="submit" className="inline-flex items-center rounded-md bg-green-50 px-2
+                    py-1 text-lg font-medium text-green-700 ring-1 ring-inset ring-green-600/20" size="large" >
+                        Create
+                    </Button>
+                </Form.Item>
+            </Form>
+        </div>
+    );
+};
+
+
+const AddModalForm: React.FC = () => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleSuccess = () => {
+        // Handle the user's input (e.g., submit it to the server)
+        console.log('User input:', inputValue);
+
+        // Close the modal
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        // Close the modal without taking any action
+        setIsModalVisible(false);
+    };
+
+    return (
+        <>
+            <FloatingAddButton onClick={showModal} />
+            <Modal
+                title="Enter Profile Name"
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                cancelButtonProps={{disabled: true, style: { display: 'none' }}}
+                okButtonProps={{disabled: true, style: { display: 'none' }}}
+                width={500}
+                style={{top: '60vh', right: '9vh', position: 'fixed'}}
             >
-                <Input />
-            </Form.Item>
-            <Form.Item
-                label="Description"
-                name="description"
-                rules={[{ required: true, message: 'Please enter a description of the dataset' }]}
-            >
-                <Input.TextArea />
-            </Form.Item>
-            <Form.Item>
-                <Button type="primary" htmlType="submit" className="inline-flex items-center rounded-md bg-green-50 px-2
-                py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                    Create
-                </Button>
-            </Form.Item>
-        </Form>
+                <DatasetForm onSuccess={handleSuccess} />
+            </Modal>
+        </>
     );
 };
 
@@ -134,10 +195,16 @@ export default function Datasets() {
         'client-version': process.env.npm_package_version || ''
     };
 
-    return <div>
-        <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
-            <DatasetForm />
-            <DatasetsTable />
-        </GraphQLProvider>
-    </div>
+    return (
+        <div className="flex flex-wrap mt-4">
+            <div className="flex flex-row h-full w-full mb-12 px-4">
+                <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+                    <div className="flex flex-row w-full justify-center items-center mt-40">
+                        <DatasetsTable />
+                    </div>
+                    <AddModalForm />
+                </GraphQLProvider>
+            </div>
+        </div>
+    )
 }

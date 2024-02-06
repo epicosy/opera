@@ -4,14 +4,14 @@ import React, {useState} from "react";
 import "styles/tailwind.css";
 import {GraphQLProvider} from "../../context/graphql";
 import CardPieChart from "../../components/Cards/cardPieChart";
-import {VULNS_BY_CWE, VULNS_BY_YEAR_QUERY, VULNS_BY_EXPLOITABILITY, GET_PROFILE} from "../../src/graphql/queries";
+import {GET_PROFILE} from "../../src/graphql/queries";
 import {useQuery} from "@apollo/client";
 import { Checkbox } from 'antd';
 import type { GetProp } from 'antd';
 import {SearchOutlined} from "@ant-design/icons";
 import CardStats from "../../components/Cards/CardStats";
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Modal, Input } from 'antd';
+import { Modal, Input } from 'antd';
+import FloatingAddButton from "../../components/FloatingAddButton";
 
 interface GrapheneCount {
     key: string;
@@ -31,15 +31,8 @@ type CheckboxOptions = {
 }
 
 
-const buttonStyle: React.CSSProperties = {
-    position: 'fixed',
-    bottom: '10vh',
-    right: '5vh',
-    zIndex: 1000
-};
 
-
-const FloatingAddButton: React.FC = () => {
+const AddModal: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [inputValue, setInputValue] = useState('');
 
@@ -62,10 +55,7 @@ const FloatingAddButton: React.FC = () => {
 
     return (
         <>
-            <Button type="primary" shape="circle" size="large" style={buttonStyle} onClick={showModal}
-                    className="bg-teal-950 hover:bg-teal-500">
-                <PlusOutlined className="text-blueGray-100" style={{fontWeight: 800}} />
-            </Button>
+            <FloatingAddButton onClick={showModal} />
             <Modal
                 title="Enter Profile Name"
                 visible={isModalVisible}
@@ -309,7 +299,7 @@ export default function Profiler() {
                         <ProfilerBody/>
                     </GraphQLProvider>
                 </div>
-                <FloatingAddButton/>
+                <AddModal/>
             </div>
         </>
     )
