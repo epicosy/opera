@@ -10,6 +10,8 @@ import { Checkbox } from 'antd';
 import type { GetProp } from 'antd';
 import {SearchOutlined} from "@ant-design/icons";
 import CardStats from "../../components/Cards/CardStats";
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Modal, Input } from 'antd';
 
 interface GrapheneCount {
     key: string;
@@ -27,6 +29,64 @@ type CheckboxOptions = {
     hasExploit: boolean;
     hasAdvisory: boolean;
 }
+
+
+const buttonStyle: React.CSSProperties = {
+    position: 'fixed',
+    bottom: '10vh',
+    right: '5vh',
+    zIndex: 1000
+};
+
+
+const FloatingAddButton: React.FC = () => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        // Handle the user's input (e.g., submit it to the server)
+        console.log('User input:', inputValue);
+
+        // Close the modal
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        // Close the modal without taking any action
+        setIsModalVisible(false);
+    };
+
+    return (
+        <>
+            <Button type="primary" shape="circle" size="large" style={buttonStyle} onClick={showModal}
+                    className="bg-teal-950 hover:bg-teal-500">
+                <PlusOutlined className="text-blueGray-100" style={{fontWeight: 800}} />
+            </Button>
+            <Modal
+                title="Enter Profile Name"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                cancelButtonProps={{disabled: true, style: { display: 'none' }}}
+                okButtonProps={{ style: { backgroundColor: '#042F2E'} }}
+                okText="Create"
+                width={300}
+                style={{top: '70vh', right: '9vh', position: 'fixed',}}
+            >
+                <Input
+                    placeholder="Profile Name"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                />
+            </Modal>
+        </>
+    );
+};
+
 
 
 function ProfilerBody() {
@@ -249,6 +309,7 @@ export default function Profiler() {
                         <ProfilerBody/>
                     </GraphQLProvider>
                 </div>
+                <FloatingAddButton/>
             </div>
         </>
     )
