@@ -25,7 +25,7 @@ function VulnerabilityTable() {
 }
 
 function VulnerabilitiesCharts(){
-    const { cweCounts, vulnsSeverity, vulnsExploitability, cweMultiplicity, vulnsCountBySofDevView } = useVulnerabilitiesCharts();
+    let { cweCounts, vulnsSeverity, vulnsExploitability, cweMultiplicity, vulnsCountBySofDevView } = useVulnerabilitiesCharts();
 
     return (
         <div>

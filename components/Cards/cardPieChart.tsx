@@ -12,12 +12,13 @@ export const options : GoogleChartOptions = {
 
 
 function generateColorGradient(startColor: string, endColor: string, steps: number): string[] {
+
     return chroma.scale([startColor, endColor]).colors(steps);
 }
 
 // Example usage
-const startColor = '#f0fdfa';
-const endColor = '#042f2e';
+const startColor = '#042f2e';
+const endColor = '#f0fdfa';
 
 
 interface CardPieChartProps {
@@ -26,14 +27,18 @@ interface CardPieChartProps {
     title: string;
     height?: number;
     controls?: GoogleChartControlProp[];
+    gradient?: boolean;
 }
 
 
-export default function CardPieChart({ data, fields, title, height = 350, controls = undefined } : CardPieChartProps) {
+export default function CardPieChart({ data, fields, title, height = 350, controls = undefined,
+                                         gradient = true } : CardPieChartProps) {
     const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
     const newData: (string | any[])[] = [fields, ...(data ? data.map((dictionary: any) => Object.values(dictionary)) : [])];
+    // sort the data by the second column in descending order
+    newData.sort((a, b) => b[1] - a[1]);
 
-    options.colors = generateColorGradient(startColor, endColor, newData.length - 1);
+    if (gradient) options.colors = generateColorGradient(startColor, endColor, newData.length - 1);
 
     return (
         <>
