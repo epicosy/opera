@@ -1,10 +1,12 @@
 'use client'
 
 import React from "react";
-import { Chart } from "react-google-charts";
+import {Chart, GoogleChartControlProp, GoogleChartOptions} from "react-google-charts";
+import chroma from "chroma-js";
 
 
-export const options = {
+export const options : GoogleChartOptions = {
+    backgroundColor: 'transparent',
     bar: { groupWidth: "100%" },
     legend: { position: "none" },
     isStacked: true
@@ -16,10 +18,21 @@ interface CardBarChartProps {
     fields: Array<string>;
     title: string;
     filterCounts?: number;
+    controls?: GoogleChartControlProp[];
+    gradient?: boolean;
 }
 
+function generateColorGradient(startColor: string, endColor: string, steps: number): string[] {
 
-export default function CardBarChart({data, fields, title, filterCounts} : CardBarChartProps) {
+    return chroma.scale([startColor, endColor]).colors(steps);
+}
+
+const startColor = '#042f2e';
+const endColor = '#f0fdfa';
+
+
+export default function CardBarChart({data, fields, title, filterCounts, controls = undefined,
+                                         gradient = true} : CardBarChartProps) {
     let counts;
 
     if (filterCounts) {
@@ -29,6 +42,8 @@ export default function CardBarChart({data, fields, title, filterCounts} : CardB
     }
 
     counts.unshift(fields);
+
+    if (gradient) options.colors = generateColorGradient(startColor, endColor, counts.length - 1);
 
     return (
          <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
@@ -47,7 +62,18 @@ export default function CardBarChart({data, fields, title, filterCounts} : CardB
                 <div className="p-4 flex-auto">
                     {/* Chart */}
                     <div className="relative h-350-px">
-                        <Chart chartType="Bar" width="100%" height="100%" data={counts} options={options}/>
+                        {controls ?
+                            ((<Chart chartType="Bar" width="100%" height="95%" data={counts} options={options}
+                                     chartPackages={['corechart', 'controls']}
+                                     controls={controls.map((control) => ({
+                                         'controlType': control.controlType,
+                                         'options': control.options,
+                                         'controlEvents': control.controlEvents
+                                     }))}
+                            />))
+                            :
+                            (<Chart chartType="Bar" width="100%" height="100%" data={counts} options={options}/>)
+                        }
                     </div>
                 </div>
          </div>

@@ -1,5 +1,5 @@
 'use client';
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 
 import "styles/tailwind.css";
 import {GraphQLProvider} from "../../context/graphql";
@@ -12,6 +12,7 @@ import {SearchOutlined} from "@ant-design/icons";
 import CardStats from "../../components/Cards/CardStats";
 import { Modal, Input } from 'antd';
 import FloatingAddButton from "../../components/FloatingAddButton";
+import CardBarChart from "../../components/Cards/CardBarChart";
 
 interface GrapheneCount {
     key: string;
@@ -24,12 +25,36 @@ interface YearFilter {
     endYear?: number;
 }
 
+interface ChangesFilter {
+    minChanges?: number;
+    maxChanges?: number;
+}
+
+interface FilesFilter {
+    minFiles?: number;
+    maxFiles?: number;
+}
+
+
 type CheckboxOptions = {
     hasCode: boolean;
     hasExploit: boolean;
     hasAdvisory: boolean;
 }
 
+interface FilterOptions {
+    cweIds?: number[];
+    startYear?: number;
+    endYear?: number;
+    hasCode?: boolean;
+    hasExploit?: boolean;
+    hasAdvisory?: boolean;
+    minChanges?: number;
+    maxChanges?: number;
+    minFiles?: number;
+    maxFiles?: number;
+    extensions?: string[];
+}
 
 
 const AddModal: React.FC = () => {
@@ -82,6 +107,9 @@ const AddModal: React.FC = () => {
 function ProfilerBody() {
     const [yearFilter, setYearFilter] = useState<YearFilter>();
     const [cweFilter, setCweFilter] = useState<Array<number>>([]);
+    const [extensionsFilter, setExtensionsFilter] = useState<Array<string>>([]);
+    const [changesFilter, setChangesFilter] = useState<ChangesFilter>();
+    const [filesFilter, setFilesFilter] = useState<FilesFilter>();
     const [checkboxOptions, setCheckboxOptions] = useState<CheckboxOptions>({
         hasCode: false,
         hasExploit: false,
@@ -94,15 +122,20 @@ function ProfilerBody() {
             endYear: yearFilter?.endYear,
             hasCode: checkboxOptions.hasCode,
             hasExploit: checkboxOptions.hasExploit,
-            hasAdvisory: checkboxOptions.hasAdvisory
+            hasAdvisory: checkboxOptions.hasAdvisory,
+            minChanges: changesFilter?.minChanges,
+            maxChanges: changesFilter?.maxChanges,
+            minFiles: filesFilter?.minFiles,
+            maxFiles: filesFilter?.maxFiles,
+            extensions: extensionsFilter
         }
     });
 
-    if (loading) return <p>Loading...</p>;
-
-    if (error){
-        console.log("Error fetching profile : ", error);
-    }
+    useEffect(() => {
+        if (error) {
+            console.log("Error fetching profile: ", error);
+        }
+    }, [error]);
 
     const vulnsByYearDate = data?.profileCount.year.map((gc: GrapheneCount) => {
         return {
@@ -127,49 +160,87 @@ function ProfilerBody() {
         }
     }) || [];
 
+    const changesCount = (data?.profileCount.changes || []).map((gc: GrapheneCount) => {
+        const key = Number(gc.key);
+        const value = gc.value;
+        if (key <= 100) {
+            return { key, value };
+        }
+        return null; // Skip this entry
+    }).filter(Boolean);
+
+    const filesCount = (data?.profileCount.files || []).map((gc: GrapheneCount) => {
+        const key = Number(gc.key);
+        const value = gc.value;
+        if (key <= 20) {
+            return { key, value };
+        }
+        return null; // Skip this entry
+    }).filter(Boolean);
+
+    const extensionsCount = (data?.profileCount.extensions || []).map((gc: GrapheneCount) => {
+        return {
+            key: gc.key,
+            value: gc.value
+        }
+    }) || [];
+
+    // find the minimum and maximum number of changes in changesCount, by the key value
+    const minChanges = Math.min(...changesCount.map((gc: GrapheneCount) => gc.key)) || 0;
+    const maxChanges = Math.max(...changesCount.map((gc: GrapheneCount) => gc.key)) || 0;
+
+    const minFiles = Math.min(...filesCount.map((gc: GrapheneCount) => gc.key)) || 0;
+    const maxFiles = Math.max(...filesCount.map((gc: GrapheneCount) => gc.key)) || 0;
+
+    const handleFilterChange = useCallback(
+        (newFilter: Partial<FilterOptions>) => {
+            refetch(newFilter)
+                .then((result) => {
+                    console.log('Refetch successful', result);
+                })
+                .catch((error) => {
+                    console.error('Refetch error', error);
+                });
+        },
+        [refetch]
+    );
+
     const handleCweFilterChange = (newFilter: Array<number>) => {
         setCweFilter(newFilter);
-
-        refetch({ cweIds: newFilter })
-            .then((result) => {
-                // Handle successful refetch
-                console.log('Refetch successful', result);
-            })
-            .catch((error) => {
-                // Handle refetch error
-                console.error('Refetch error', error);
-            });
+        handleFilterChange({ cweIds: newFilter });
     };
 
     const handleYearFilterChange = (startYear: number, endYear: number) => {
-        setYearFilter({ startYear: startYear, endYear: endYear });
+        setYearFilter({ startYear, endYear });
+        handleFilterChange({ startYear, endYear });
+    };
 
-        refetch({ startYear: startYear, endYear: endYear })
-            .then((result) => {
-                // Handle successful refetch
-                console.log('Refetch successful', result);
-            })
-            .catch((error) => {
-                // Handle refetch error
-                console.error('Refetch error', error);
-            });
+    const handleChangesFilterChange = (minChanges: number, maxChanges: number) => {
+        setChangesFilter({ minChanges, maxChanges });
+        handleFilterChange({ minChanges, maxChanges });
     }
 
-    const handleHasOptionsChange: GetProp<typeof Checkbox.Group, 'onChange'> = (checkedValues) => {
+    const handleFilesFilterChange = (minFiles: number, maxFiles: number) => {
+        setFilesFilter({ minFiles, maxFiles });
+        handleFilterChange({ minFiles, maxFiles });
+    }
+
+    const handleExtensionsFilterChange = (newFilter: Array<string>) => {
+        setExtensionsFilter(newFilter);
+        handleFilterChange({ extensions: newFilter });
+    }
+
+    const handleHasOptionsChange = (checkedValues: Array<string>) => {
         setCheckboxOptions({
             hasCode: checkedValues.includes('hasCode'),
             hasExploit: checkedValues.includes('hasExploit'),
             hasAdvisory: checkedValues.includes('hasAdvisory')
         });
-
-        refetch({ hasCode: checkboxOptions.hasCode,  hasExploit: checkboxOptions.hasExploit,
-            hasAdvisory: checkboxOptions.hasExploit })
-            .then((result) => {
-                console.log('Refetch successful', result);
-            })
-            .catch((error) => {
-                console.error('Refetch error', error);
-            });
+        handleFilterChange({
+            hasCode: checkboxOptions.hasCode,
+            hasExploit: checkboxOptions.hasExploit,
+            hasAdvisory: checkboxOptions.hasExploit
+        });
     };
 
     return (
@@ -269,7 +340,8 @@ function ProfilerBody() {
                                                 {
                                                     eventName: "statechange",
                                                     callback: ({ chartWrapper, controlWrapper , google}) => {
-                                                        console.log("State changed to", controlWrapper?.getState().getSelection());
+                                                        console.log("State changed to", controlWrapper?.getState().lowValue);
+                                                        console.log("State changed to", controlWrapper?.getState().highValue);
                                                     }
                                                 }
                                             ]
@@ -277,7 +349,88 @@ function ProfilerBody() {
                                   ]}
                     />
                 </div>
+            </div>
+            <div className="flex flex-row">
+                <div className="flex-col w-2/6 mr-2">
+                    <CardBarChart data={changesCount} fields={['Changes', 'Count']}
+                                  title="Distribution of number of changes per commit (<100)"
+                                  controls={[
+                                      {
+                                          controlType: "NumberRangeFilter",
+                                          options: {
+                                              filterColumnLabel: "Changes",
+                                              minValue: minChanges,
+                                              maxValue: maxChanges,
+                                          },
+                                          controlEvents: [
+                                              {
+                                                  eventName: "statechange",
+                                                  callback: ({ chartWrapper, controlWrapper , google}) => {
+                                                      const lowValue = controlWrapper?.getState().lowValue;
+                                                      const highValue = controlWrapper?.getState().highValue;
+                                                      handleChangesFilterChange(lowValue, highValue);
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  ]}
+                    />
                 </div>
+                <div className="flex-col w-2/6 mr-2">
+                    <CardBarChart data={filesCount} fields={['Files', 'Count']}
+                                  title="Distribution of number of files per commit (<20)"
+                                  controls={[
+                                      {
+                                          controlType: "NumberRangeFilter",
+                                          options: {
+                                              filterColumnLabel: "Files",
+                                              minValue: minFiles,
+                                              maxValue: maxFiles,
+                                          },
+                                          controlEvents: [
+                                              {
+                                                  eventName: "statechange",
+                                                  callback: ({ chartWrapper, controlWrapper , google}) => {
+                                                      const lowValue = controlWrapper?.getState().lowValue;
+                                                      const highValue = controlWrapper?.getState().highValue;
+                                                      handleFilesFilterChange(lowValue, highValue);
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  ]}
+                    />
+                </div>
+                <div className="flex-col w-2/6 mr-2">
+                    <CardPieChart data={extensionsCount} fields={["Extension", "Count"]}
+                                  title="Distribution of files by extension"
+                                  controls={[
+                                      {
+                                          controlEvents: [
+                                              {
+                                                  eventName: "statechange",
+                                                  callback: ({ chartWrapper, controlWrapper }) => {
+                                                      // convert selected values to array of numbers
+                                                      const selectedValues = controlWrapper?.getState().selectedValues;
+                                                      handleExtensionsFilterChange(selectedValues);
+                                                  }
+                                              }
+                                          ],
+                                          controlType: "CategoryFilter",
+                                          options: {
+                                              filterColumnLabel: "Extension",
+                                              ui: {
+                                                  labelStacking: "horizontal",
+                                                  label: "Extension Selection:",
+                                                  allowTyping: false,
+                                                  allowMultiple: true,
+                                              },
+                                          },
+                                      },
+                                  ]}
+                    />
+                </div>
+            </div>
         </div>
     );
 }
