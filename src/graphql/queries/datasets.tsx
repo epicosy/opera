@@ -1,8 +1,8 @@
 import {gql} from "@apollo/client";
 
 export const CREATE_DATASET = gql`
-    mutation CreateDataset($name: String!, $description: String!) {
-        createDataset(name: $name, description: $description) {
+    mutation CreateDataset($name: String!, $description: String!, $profileId: Int) {
+        createDataset(name: $name, description: $description, profileId: $profileId) {
             dataset{
                 id
                 name

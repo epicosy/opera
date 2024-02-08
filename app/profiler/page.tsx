@@ -4,15 +4,15 @@ import React, {useCallback, useEffect, useState} from "react";
 import "styles/tailwind.css";
 import {GraphQLProvider} from "../../context/graphql";
 import CardPieChart from "../../components/Cards/cardPieChart";
-import {GET_PROFILE} from "../../src/graphql/queries";
-import {useQuery} from "@apollo/client";
-import { Checkbox } from 'antd';
+import {useMutation, useQuery} from "@apollo/client";
+import {Checkbox, notification} from 'antd';
 import type { GetProp } from 'antd';
 import {SearchOutlined} from "@ant-design/icons";
 import CardStats from "../../components/Cards/CardStats";
 import { Modal, Input } from 'antd';
 import FloatingAddButton from "../../components/FloatingAddButton";
 import CardBarChart from "../../components/Cards/CardBarChart";
+import {CREATE_PROFILE, GET_PROFILE} from "../../src/graphql/queries/profile";
 
 interface GrapheneCount {
     key: string;
@@ -56,21 +56,39 @@ interface FilterOptions {
     extensions?: string[];
 }
 
+interface AddModalProps {
+    profileOptions: FilterOptions;
+}
 
-const AddModal: React.FC = () => {
+
+const AddModal: React.FC<AddModalProps> = ({ profileOptions }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [inputValue, setInputValue] = useState('');
+    const [createProfile, { loading, error }] = useMutation(CREATE_PROFILE);
+
+    if (error){
+        console.log("Error creating profile: ", error);
+    }
+
+    const handleOk = () => {
+        createProfile({ variables: { name: inputValue, ...profileOptions} })
+            .then(() => {
+                notification.success({
+                    message: 'Success',
+                    description: `Profile "${inputValue}" created successfully`
+                });
+                setIsModalVisible(false);
+            })
+            .catch((error) => {
+                notification.error({
+                    message: 'Error',
+                    description: error.message
+                });
+            });
+    };
 
     const showModal = () => {
         setIsModalVisible(true);
-    };
-
-    const handleOk = () => {
-        // Handle the user's input (e.g., submit it to the server)
-        console.log('User input:', inputValue);
-
-        // Close the modal
-        setIsModalVisible(false);
     };
 
     const handleCancel = () => {
@@ -93,7 +111,7 @@ const AddModal: React.FC = () => {
                 style={{top: '70vh', right: '9vh', position: 'fixed',}}
             >
                 <Input
-                    placeholder="Profile Name"
+                    placeholder="Profile Name" required={true}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                 />
@@ -431,6 +449,11 @@ function ProfilerBody() {
                     />
                 </div>
             </div>
+            <AddModal profileOptions={{startYear: yearFilter?.startYear, endYear: yearFilter?.endYear,
+                cweIds: cweFilter, hasCode: checkboxOptions.hasCode, hasExploit: checkboxOptions.hasExploit,
+                hasAdvisory: checkboxOptions.hasAdvisory, minChanges: changesFilter?.minChanges, extensions: extensionsFilter,
+                maxChanges: changesFilter?.maxChanges, minFiles: filesFilter?.minFiles, maxFiles: filesFilter?.maxFiles,
+            }} />
         </div>
     );
 }
@@ -452,7 +475,6 @@ export default function Profiler() {
                         <ProfilerBody/>
                     </GraphQLProvider>
                 </div>
-                <AddModal/>
             </div>
         </>
     )

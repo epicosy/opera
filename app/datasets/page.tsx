@@ -8,6 +8,7 @@ import {CREATE_DATASET, FETCH_DATASETS, REMOVE_DATASET} from "../../src/graphql/
 import {GraphQLProvider} from "../../context/graphql";
 import {PlusOutlined} from "@ant-design/icons";
 import FloatingAddButton from "../../components/FloatingAddButton";
+import {FETCH_PROFILES} from "../../src/graphql/queries/profile";
 
 
 const items = [
@@ -16,23 +17,25 @@ const items = [
     {value: '3', label: 'recent'},
 ];
 
-const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-};
-
-
 
 const DatasetForm = ({ onSuccess }: { onSuccess: () => void }) => {
     const [form] = Form.useForm();
     const [createDataset, { loading, error }] = useMutation(CREATE_DATASET, {
         refetchQueries: [{ query: FETCH_DATASETS }]});
 
+    const profilesQuery = useQuery(FETCH_PROFILES);
+    const profiles = profilesQuery.data?.profiles.map((profile: { id: string, name: string }) => ({
+        value: profile.id,
+        label: profile.name
+    })) || [];
+
     if (error){
         console.log("Error creating dataset: ", error);
     }
 
-    const handleSubmit = (values: { name: string, description: string}) => {
-        createDataset({ variables: { name: values.name, description: values.description } })
+    const handleSubmit = (values: { name: string, description: string, profile: string}) => {
+        createDataset({ variables: { name: values.name, description: values.description,
+                profileId: values.profile } })
             .then(() => {
                 notification.success({
                     message: 'Success',
@@ -66,8 +69,12 @@ const DatasetForm = ({ onSuccess }: { onSuccess: () => void }) => {
                     <Input.TextArea className="h-2"/>
                 </Form.Item>
                 <Form.Item label="Profile" name="profile" className="mb-0">
-                    <Select style={{ width: 120 }} onChange={handleChange} options={items}
-                            placeholder="Select profile" />
+                    {profiles.length > 0 ? (
+                        <Select style={{ width: 120 }} options={profiles}
+                                placeholder="Select profile"/>
+                    ) : (
+                        <p>No profiles available</p>
+                    )}
                 </Form.Item>
                 <Form.Item className="float-right mb-0" >
                     <Button type="primary" htmlType="submit" className="inline-flex items-center rounded-md bg-green-50 px-2
