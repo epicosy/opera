@@ -31,6 +31,32 @@ const columns = [
         render: (cweIds: Array<{ id: string }>) => cweIds.map((cwe: any) => cwe.id).join(", ")
     },
     {
+        title: 'Root Weakness',
+        dataIndex: 'rootWeakness',
+        key: 'rootWeakness',
+        render: (rootWeakness: string) => {
+            if (!rootWeakness) return;
+            // remove parenthesis from the string
+            rootWeakness = rootWeakness.replace(/[()]/g, '');
+            // split string by comma and take the first element of the array as index for the element to be bolded on the array and put it in bold
+            const split = rootWeakness.split(',');
+            const index = Number(split[0]);
+
+            return <span>{split.map((item, i) => {
+                if (i === 0) return;
+                if (i === 1) item = `Operation: ${item} | `;
+                if (i >= 2)  item = `Operand ${i}: ${item} `;
+
+                if (i === index) {
+                    return <b key={i}>{item}</b>
+                } else {
+                    return item
+                }
+            })}
+            </span>
+        }
+    },
+    {
         title: 'Action',
         key: 'action',
         render: (text: string, record: any) => (

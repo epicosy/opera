@@ -45,6 +45,7 @@ export const FETCH_DATASET = gql`
                 cweIds{
                     id
                 }
+                rootWeakness
             }
         }
     }
