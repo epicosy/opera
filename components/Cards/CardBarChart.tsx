@@ -3,6 +3,7 @@
 import React from "react";
 import {Chart, GoogleChartControlProp, GoogleChartOptions} from "react-google-charts";
 import chroma from "chroma-js";
+import {Spin} from "antd";
 
 
 export const options : GoogleChartOptions = {
@@ -20,6 +21,7 @@ interface CardBarChartProps {
     filterCounts?: number;
     controls?: GoogleChartControlProp[];
     gradient?: boolean;
+    loading?: boolean;
 }
 
 function generateColorGradient(startColor: string, endColor: string, steps: number): string[] {
@@ -31,8 +33,8 @@ const startColor = '#042f2e';
 const endColor = '#f0fdfa';
 
 
-export default function CardBarChart({data, fields, title, filterCounts, controls = undefined,
-                                         gradient = true} : CardBarChartProps) {
+export default function CardBarChart({data, fields, title, filterCounts, controls = undefined, gradient = true,
+                                         loading = false} : CardBarChartProps) {
     let counts;
 
     if (filterCounts) {
@@ -61,19 +63,20 @@ export default function CardBarChart({data, fields, title, filterCounts, control
                 </div>
                 <div className="p-4 flex-auto">
                     {/* Chart */}
-                    <div className="relative h-350-px">
-                        {controls ?
-                            ((<Chart chartType="Bar" width="100%" height="95%" data={counts} options={options}
-                                     chartPackages={['corechart', 'controls']}
-                                     controls={controls.map((control) => ({
-                                         'controlType': control.controlType,
-                                         'options': control.options,
-                                         'controlEvents': control.controlEvents
-                                     }))}
-                            />))
-                            :
-                            (<Chart chartType="Bar" width="100%" height="100%" data={counts} options={options}/>)
-                        }
+                    <div className="flex relative justify-center items-center h-350-px">
+                        {loading ? (<Spin tip="Loading" size="large"/>)
+                            : (
+                                controls ? (
+                                    (<Chart chartType="Bar" width="100%" height="95%" data={counts} options={options}
+                                            chartPackages={['corechart', 'controls']}
+                                            controls={controls.map((control) => ({
+                                                'controlType': control.controlType,
+                                                'options': control.options,
+                                                'controlEvents': control.controlEvents
+                                            }))}
+                                    />))
+                            : (<Chart chartType="Bar" width="100%" height="100%" data={counts} options={options}/>)
+                        )}
                     </div>
                 </div>
          </div>

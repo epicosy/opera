@@ -13,6 +13,7 @@ import { Modal, Input } from 'antd';
 import FloatingAddButton from "../../components/FloatingAddButton";
 import CardBarChart from "../../components/Cards/CardBarChart";
 import {CREATE_PROFILE, GET_PROFILE} from "../../src/graphql/queries/profile";
+import {GoogleChartWrapper} from "react-google-charts";
 
 interface GrapheneCount {
     key: string;
@@ -293,7 +294,7 @@ function ProfilerBody() {
             <div className="flex flex-row">
                 <div className="flex-col w-2/6 mr-2">
                     <CardPieChart data={vulnsByYearDate} title="Vulnerability Distribution by Year"
-                                  fields={["Year", "Count", "Date"]}
+                                  fields={["Year", "Count", "Date"]} loading={loading}
                                   controls={[
                                       {
                                           controlType: "DateRangeFilter",
@@ -318,6 +319,7 @@ function ProfilerBody() {
                 </div>
                 <div className="flex-col w-2/6 mr-2">
                     <CardPieChart data={vulnsByCWE} fields={["CWE", "Count"]} title="Vulnerability Distribution by CWE"
+                                  loading={loading}
                                   controls={[
                                       {
                                           controlEvents: [
@@ -345,7 +347,8 @@ function ProfilerBody() {
                     />
                 </div>
                 <div className="flex-col w-2/6">
-                    <CardPieChart data={vulnsByExploitabilityData} fields={["Score", "Count", "Num"]} title="Vulnerability Distribution by Exploitability"
+                    <CardPieChart data={vulnsByExploitabilityData} fields={["Score", "Count", "Num"]}
+                                  title="Vulnerability Distribution by Exploitability" loading={loading}
                                   controls={[
                                       {
                                           controlType: "NumberRangeFilter",
@@ -368,9 +371,10 @@ function ProfilerBody() {
                     />
                 </div>
             </div>
+            {checkboxOptions.hasCode  ? (
             <div className="flex flex-row">
                 <div className="flex-col w-2/6 mr-2">
-                    <CardBarChart data={changesCount} fields={['Changes', 'Count']}
+                    <CardBarChart data={changesCount} fields={['Changes', 'Count']} loading={loading}
                                   title="Distribution of number of changes per commit (<100)"
                                   controls={[
                                       {
@@ -395,7 +399,7 @@ function ProfilerBody() {
                     />
                 </div>
                 <div className="flex-col w-2/6 mr-2">
-                    <CardBarChart data={filesCount} fields={['Files', 'Count']}
+                    <CardBarChart data={filesCount} fields={['Files', 'Count']} loading={loading}
                                   title="Distribution of number of files per commit (<20)"
                                   controls={[
                                       {
@@ -420,7 +424,7 @@ function ProfilerBody() {
                     />
                 </div>
                 <div className="flex-col w-2/6 mr-2">
-                    <CardPieChart data={extensionsCount} fields={["Extension", "Count"]}
+                    <CardPieChart data={extensionsCount} fields={["Extension", "Count"]} loading={loading}
                                   title="Distribution of files by extension"
                                   controls={[
                                       {
@@ -448,7 +452,8 @@ function ProfilerBody() {
                                   ]}
                     />
                 </div>
-            </div>
+            </div>)
+            : null}
             <AddModal profileOptions={{startYear: yearFilter?.startYear, endYear: yearFilter?.endYear,
                 cweIds: cweFilter, hasCode: checkboxOptions.hasCode, hasExploit: checkboxOptions.hasExploit,
                 hasAdvisory: checkboxOptions.hasAdvisory, minChanges: changesFilter?.minChanges, extensions: extensionsFilter,

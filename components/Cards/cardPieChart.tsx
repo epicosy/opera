@@ -3,6 +3,7 @@
 import React from "react";
 import {Chart, GoogleChartControlProp, GoogleChartOptions} from "react-google-charts";
 import chroma from "chroma-js";
+import {Spin} from "antd";
 
 export const options : GoogleChartOptions = {
     backgroundColor: 'transparent',
@@ -28,11 +29,12 @@ interface CardPieChartProps {
     height?: number;
     controls?: GoogleChartControlProp[];
     gradient?: boolean;
+    loading?: boolean;
 }
 
 
 export default function CardPieChart({ data, fields, title, height = 350, controls = undefined,
-                                         gradient = true } : CardPieChartProps) {
+                                         gradient = true, loading = false } : CardPieChartProps) {
     const chartHeight = height || 350; // Set a default height of 350 if height prop is not provided
     const newData: (string | any[])[] = [fields, ...(data ? data.map((dictionary: any) => Object.values(dictionary)) : [])];
     // sort the data by the second column in descending order
@@ -57,20 +59,21 @@ export default function CardPieChart({ data, fields, title, height = 350, contro
                 </div>
                 <div className="p-4 flex-auto">
                     {/* Chart */}
-                    <div className="relative" style={{ height: `${chartHeight}px` }}>
-                        {controls ?
-                            ((<Chart chartType="PieChart" width="95%" height="95%" data={newData} options={options}
-                                     chartPackages={['corechart', 'controls']}
-                                     chartWrapperParams={{ view: { columns: [0, 1] } }}
-                                     controls={controls.map((control) => ({
-                                         'controlType': control.controlType,
-                                         'options': control.options,
-                                         'controlEvents': control.controlEvents
-                                     }))}
-                            />))
-                            :
-                            (<Chart chartType="PieChart" width="100%" height="100%" data={newData} options={options} />)
-                        }
+                    <div className="flex relative justify-center items-center" style={{ height: `${chartHeight}px` }}>
+                        {loading ? ( <Spin tip="Loading" size="large"/>)
+                            : (
+                                controls ? (
+                                    <Chart chartType="PieChart" width="95%" height="95%" data={newData} options={options}
+                                           chartPackages={['corechart', 'controls']}
+                                           chartWrapperParams={{ view: { columns: [0, 1] } }}
+                                           controls={controls.map((control) => ({
+                                               'controlType': control.controlType,
+                                               'options': control.options,
+                                               'controlEvents': control.controlEvents
+                                           }))}
+                                    />)
+                            : (<Chart chartType="PieChart" width="100%" height="100%" data={newData} options={options} />)
+                        )}
                     </div>
                 </div>
             </div>
