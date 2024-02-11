@@ -14,6 +14,9 @@ import FloatingAddButton from "../../components/FloatingAddButton";
 import CardBarChart from "../../components/Cards/CardBarChart";
 import {CREATE_PROFILE, GET_PROFILE} from "../../src/graphql/queries/profile";
 import {GoogleChartWrapper} from "react-google-charts";
+import _ from 'lodash';
+
+
 
 interface GrapheneCount {
     key: string;
@@ -134,6 +137,8 @@ function ProfilerBody() {
         hasExploit: false,
         hasAdvisory: false
     });
+
+    // Apollo automatically handles re-fetching the query when variables change.
     const { data, loading, error, refetch } = useQuery(GET_PROFILE, {
         variables: {
             cweIds: cweFilter,
@@ -208,45 +213,28 @@ function ProfilerBody() {
     const minChanges = Math.min(...changesCount.map((gc: GrapheneCount) => gc.key)) || 0;
     const maxChanges = Math.max(...changesCount.map((gc: GrapheneCount) => gc.key)) || 0;
 
+
     const minFiles = Math.min(...filesCount.map((gc: GrapheneCount) => gc.key)) || 0;
     const maxFiles = Math.max(...filesCount.map((gc: GrapheneCount) => gc.key)) || 0;
 
-    const handleFilterChange = useCallback(
-        (newFilter: Partial<FilterOptions>) => {
-            refetch(newFilter)
-                .then((result) => {
-                    console.log('Refetch successful', result);
-                })
-                .catch((error) => {
-                    console.error('Refetch error', error);
-                });
-        },
-        [refetch]
-    );
-
     const handleCweFilterChange = (newFilter: Array<number>) => {
         setCweFilter(newFilter);
-        handleFilterChange({ cweIds: newFilter });
     };
 
     const handleYearFilterChange = (startYear: number, endYear: number) => {
         setYearFilter({ startYear, endYear });
-        handleFilterChange({ startYear, endYear });
     };
 
     const handleChangesFilterChange = (minChanges: number, maxChanges: number) => {
         setChangesFilter({ minChanges, maxChanges });
-        handleFilterChange({ minChanges, maxChanges });
     }
 
     const handleFilesFilterChange = (minFiles: number, maxFiles: number) => {
         setFilesFilter({ minFiles, maxFiles });
-        handleFilterChange({ minFiles, maxFiles });
     }
 
     const handleExtensionsFilterChange = (newFilter: Array<string>) => {
         setExtensionsFilter(newFilter);
-        handleFilterChange({ extensions: newFilter });
     }
 
     const handleHasOptionsChange = (checkedValues: Array<string>) => {
@@ -254,11 +242,6 @@ function ProfilerBody() {
             hasCode: checkedValues.includes('hasCode'),
             hasExploit: checkedValues.includes('hasExploit'),
             hasAdvisory: checkedValues.includes('hasAdvisory')
-        });
-        handleFilterChange({
-            hasCode: checkboxOptions.hasCode,
-            hasExploit: checkboxOptions.hasExploit,
-            hasAdvisory: checkboxOptions.hasExploit
         });
     };
 
