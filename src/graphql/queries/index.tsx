@@ -2,7 +2,7 @@ import {gql} from "@apollo/client";
 
 export const ASSIGNERS_COUNTS_QUERY = gql`
     query getAssignersCount{
-        assigners(company: true) {
+        assignersCount(company: true) {
             key
             value
         }
@@ -11,7 +11,7 @@ export const ASSIGNERS_COUNTS_QUERY = gql`
 
 export const TAGS_COUNTS_QUERY = gql`
     query getTagsCount{
-        tags {
+        tagsCount {
             key
             value
         }

@@ -22,7 +22,7 @@ export default function Panel(){
                         <CardVulnerabilitiesByYearLineChart data={vulns_by_year_query.data?.vulnsByYear}/>
                     </div>
                     <div className="w-full xl:w-4/12 px-4">
-                        <CardPieChart data={assigners_counts_query.data?.assigners} title="Assigners Distribution"
+                        <CardPieChart data={assigners_counts_query.data?.assignersCount} title="Assigners Distribution"
                                       fields={["Assigner", "Count"]}/>
                     </div>
                 </div>
@@ -31,7 +31,7 @@ export default function Panel(){
                         <CardLatestVulnerabilities/>
                     </div>
                     <div className="w-full xl:w-4/12 px-4">
-                        <CardPieChart data={tags_counts_query.data?.tags} title="Tags Distribution"
+                        <CardPieChart data={tags_counts_query.data?.tagsCount} title="Tags Distribution"
                                       fields={["Tag", "Count"]}/>
                     </div>
                 </div>
