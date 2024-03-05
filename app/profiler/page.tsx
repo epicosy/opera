@@ -6,16 +6,12 @@ import {GraphQLProvider} from "../../context/graphql";
 import CardPieChart from "../../components/Cards/cardPieChart";
 import {useMutation, useQuery} from "@apollo/client";
 import {Checkbox, notification} from 'antd';
-import type { GetProp } from 'antd';
 import {SearchOutlined} from "@ant-design/icons";
 import CardStats from "../../components/Cards/CardStats";
 import { Modal, Input } from 'antd';
 import FloatingAddButton from "../../components/FloatingAddButton";
 import CardBarChart from "../../components/Cards/CardBarChart";
 import {CREATE_PROFILE, GET_PROFILE} from "../../src/graphql/queries/profile";
-import {GoogleChartWrapper} from "react-google-charts";
-import _ from 'lodash';
-
 
 
 interface GrapheneCount {

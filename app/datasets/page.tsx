@@ -203,15 +203,11 @@ export default function Datasets() {
     };
 
     return (
-        <div className="flex flex-wrap mt-4">
-            <div className="flex flex-row h-full w-full mb-12 px-4">
-                <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
-                    <div className="flex flex-row w-full justify-center items-center mt-40">
-                        <DatasetsTable />
-                    </div>
-                    <AddModalForm />
-                </GraphQLProvider>
+        <GraphQLProvider uri={graphqlUri} headers={defaultHeaders}>
+            <div className="flex flex-row w-full justify-center items-center mt-40">
+                <DatasetsTable />
             </div>
-        </div>
+            <AddModalForm />
+        </GraphQLProvider>
     )
 }

@@ -1,7 +1,7 @@
 'use client';
 import React from "react";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
-import {Commit} from "../../../typings";
+import {Commit} from "../../../../typings";
 import {Card, Tag} from "antd";
 import Link from "next/link";
 

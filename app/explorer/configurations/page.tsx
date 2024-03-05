@@ -2,12 +2,12 @@
 import React from "react";
 
 import "styles/tailwind.css";
-import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {ConfigurationsPageProvider, useConfigurationsPage} from "../../context/configurations";
-import CardNestedPieChart from "../../components/Cards/cardNestedPieChart";
-import {ConfigsChartsProvider, useConfigsCharts} from "../../context/configurationsCharts";
-import CardBarChart from "../../components/Cards/CardBarChart";
-import {GraphQLProvider} from "../../context/graphql";
+import CardFilterPaginationTable from "../../../components/Cards/CardFilterPaginationTable";
+import {ConfigurationsPageProvider, useConfigurationsPage} from "../../../context/configurations";
+import CardNestedPieChart from "../../../components/Cards/cardNestedPieChart";
+import {ConfigsChartsProvider, useConfigsCharts} from "../../../context/configurationsCharts";
+import CardBarChart from "../../../components/Cards/CardBarChart";
+import {GraphQLProvider} from "../../../context/graphql";
 
 function CommitTable() {
     const { headers, rows, currentPage, setPage, pagination} = useConfigurationsPage();

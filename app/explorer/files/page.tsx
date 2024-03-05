@@ -2,13 +2,13 @@
 import React from "react";
 
 import "styles/tailwind.css";
-import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {FilesPageProvider, useFilesPage} from "../../context/files";
-import {FilesChartsProvider, useFilesChartsContext} from "../../context/filesCharts";
-import CardPieChart from "../../components/Cards/cardPieChart";
-import CardBarChart from "../../components/Cards/CardBarChart";
-import CardSankeyChart from "../../components/Cards/CardSankeyChart";
-import {GraphQLProvider} from "../../context/graphql";
+import CardFilterPaginationTable from "../../../components/Cards/CardFilterPaginationTable";
+import {FilesPageProvider, useFilesPage} from "../../../context/files";
+import {FilesChartsProvider, useFilesChartsContext} from "../../../context/filesCharts";
+import CardPieChart from "../../../components/Cards/cardPieChart";
+import CardBarChart from "../../../components/Cards/CardBarChart";
+import CardSankeyChart from "../../../components/Cards/CardSankeyChart";
+import {GraphQLProvider} from "../../../context/graphql";
 
 function FilesTable() {
     const { headers, rows, currentPage, setPage, pagination } = useFilesPage();

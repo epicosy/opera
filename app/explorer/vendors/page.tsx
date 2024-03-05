@@ -2,12 +2,12 @@
 import React from "react";
 
 import "styles/tailwind.css";
-import {VendorsPageProvider, useVendorsPage} from "../../context/vendors";
-import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {useVendorsCharts, VendorsChartsProvider} from "../../context/vendorsCharts";
-import CardPieChart from "../../components/Cards/cardPieChart";
-import CardBarChart from "../../components/Cards/CardBarChart";
-import {GraphQLProvider} from "../../context/graphql";
+import {VendorsPageProvider, useVendorsPage} from "../../../context/vendors";
+import CardFilterPaginationTable from "../../../components/Cards/CardFilterPaginationTable";
+import {useVendorsCharts, VendorsChartsProvider} from "../../../context/vendorsCharts";
+import CardPieChart from "../../../components/Cards/cardPieChart";
+import CardBarChart from "../../../components/Cards/CardBarChart";
+import {GraphQLProvider} from "../../../context/graphql";
 
 function VendorsTable() {
     const { headers, rows, currentPage, setPage, pagination } = useVendorsPage();

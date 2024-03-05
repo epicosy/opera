@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@ant-design/nextjs-registry": "^1.0.0",
     "@apollo/client": "^3.7.7",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@popperjs/core": "^2.9.1",

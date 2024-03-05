@@ -2,12 +2,12 @@
 import React from "react";
 
 import "styles/tailwind.css";
-import {ProductsPageProvider, useProductsPage} from "../../context/products";
-import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {ProductsChartsProvider, useProductsCharts} from "../../context/productsCharts";
-import CardBarChart from "../../components/Cards/CardBarChart";
-import CardPieChart from "../../components/Cards/cardPieChart";
-import {GraphQLProvider} from "../../context/graphql";
+import {ProductsPageProvider, useProductsPage} from "../../../context/products";
+import CardFilterPaginationTable from "../../../components/Cards/CardFilterPaginationTable";
+import {ProductsChartsProvider, useProductsCharts} from "../../../context/productsCharts";
+import CardBarChart from "../../../components/Cards/CardBarChart";
+import CardPieChart from "../../../components/Cards/cardPieChart";
+import {GraphQLProvider} from "../../../context/graphql";
 
 function ProductsTable() {
     const { headers, rows, currentPage, setPage, pagination } = useProductsPage();

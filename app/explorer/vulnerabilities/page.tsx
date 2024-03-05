@@ -3,11 +3,11 @@ import React from "react";
 
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "styles/tailwind.css";
-import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {useVulnerabilityPage, VulnerabilityPageProvider} from "../../context/vulnerabilities";
-import {useVulnerabilitiesCharts, VulnerabilitiesChartsProvider} from "../../context/vulnerabilitiesCharts";
-import CardPieChart from "../../components/Cards/cardPieChart";
-import {GraphQLProvider} from "../../context/graphql";
+import CardFilterPaginationTable from "../../../components/Cards/CardFilterPaginationTable";
+import {useVulnerabilityPage, VulnerabilityPageProvider} from "../../../context/vulnerabilities";
+import {useVulnerabilitiesCharts, VulnerabilitiesChartsProvider} from "../../../context/vulnerabilitiesCharts";
+import CardPieChart from "../../../components/Cards/cardPieChart";
+import {GraphQLProvider} from "../../../context/graphql";
 
 
 function VulnerabilityTable() {

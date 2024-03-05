@@ -1,10 +1,10 @@
 'use client';
 import React, {useState} from "react";
-import {Repository} from "../../../typings";
+import {Repository} from "../../../../typings";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 import Link from "next/link";
-import CardPieChart from "../../../components/Cards/cardPieChart";
-import SoftwareTypeComponent from "../../../components/Dropdowns/EditRepoSoftwareType";
+import CardPieChart from "../../../../components/Cards/cardPieChart";
+import SoftwareTypeComponent from "../../../../components/Dropdowns/EditRepoSoftwareType";
 
 type PageProps = {
     params: {

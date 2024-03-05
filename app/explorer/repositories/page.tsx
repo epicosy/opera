@@ -2,13 +2,13 @@
 import React from "react";
 
 import "styles/tailwind.css";
-import {RepositoriesPageProvider, useRepositoriesPage} from "../../context/repositories";
-import CardFilterPaginationTable from "../../components/Cards/CardFilterPaginationTable";
-import {RepositoriesChartsProvider, useRepositoriesCharts} from "../../context/repositoriesCharts";
-import CardBarChart from "../../components/Cards/CardBarChart";
-import CardPieChart from "../../components/Cards/cardPieChart";
-import CardSankeyChart from "../../components/Cards/CardSankeyChart";
-import {GraphQLProvider} from "../../context/graphql";
+import {RepositoriesPageProvider, useRepositoriesPage} from "../../../context/repositories";
+import CardFilterPaginationTable from "../../../components/Cards/CardFilterPaginationTable";
+import {RepositoriesChartsProvider, useRepositoriesCharts} from "../../../context/repositoriesCharts";
+import CardBarChart from "../../../components/Cards/CardBarChart";
+import CardPieChart from "../../../components/Cards/cardPieChart";
+import CardSankeyChart from "../../../components/Cards/CardSankeyChart";
+import {GraphQLProvider} from "../../../context/graphql";
 
 function RepositoriesTable() {
     const { headers, rows, currentPage, setPage, pagination } = useRepositoriesPage();
