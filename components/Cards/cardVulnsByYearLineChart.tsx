@@ -2,6 +2,7 @@
 
 import React from "react";
 import {Chart} from "react-google-charts";
+import {Spin} from "antd";
 
 export const options = {
     title: "Vulnerabilities by year",
@@ -11,10 +12,11 @@ export const options = {
 
 interface VulnsByYearProps {
     data: { key: string, value: number }[];
+    loading?: boolean;
 }
 
 
-export default function CardVulnerabilitiesByYearLineChart({data} : VulnsByYearProps) {
+export default function CardVulnerabilitiesByYearLineChart({data, loading = false} : VulnsByYearProps) {
     const vulns_year = [["Year", "Count"], ...(data?.map(({ key, value }) => [key, value]) || [])];
 
     return (
@@ -28,17 +30,13 @@ export default function CardVulnerabilitiesByYearLineChart({data} : VulnsByYearP
                 </div>
             </div>
             <div className="p-4 flex-auto">
-                {data ? (
-                    // Chart
-                    <div className="relative h-350-px">
-                        <Chart chartType="LineChart" width="100%" height="100%" data={vulns_year} options={options} />
-                    </div>
-                ) : (
-                    // No Data Widget
-                    <div className="flex items-center justify-center h-350-px text-center text-gray-500">
-                        No Data Available
-                    </div>
-                )}
+                <div className="relative h-350-px">
+                    {loading ? (<Spin tip="Loading" size="large"/>)
+                        : (
+                            <Chart chartType="LineChart" width="100%" height="100%" data={vulns_year} options={options} />
+                        )
+                    }
+                </div>
             </div>
         </div>
     );

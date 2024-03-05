@@ -1,9 +1,8 @@
 import React from "react";
 
-import {ApolloError, useQuery} from "@apollo/client";
 import {Vulnerability} from "../../typings";
 import Link from "next/link";
-import {LATEST_VULNS_QUERY} from "../../src/graphql/queries";
+import {Spin} from "antd";
 
 
 const CardHeader = () => (
@@ -64,25 +63,23 @@ const LoadingState = () => (
     <tr>
         <td className="px-6 py-4 text-center" colSpan={4}>
             <div className="animate-spin">
-                Loading...
+                <Spin tip="Loading" size="large"/>
             </div>
         </td>
     </tr>
 );
 
 // Error component
-const ErrorState = ({ error } : {error : ApolloError }) => (
+const ErrorState = () => (
     <tr>
         <td className="px-6 py-4 text-center text-blueGray-500" colSpan={4}>
-            Error: {JSON.stringify(error)}
+
         </td>
     </tr>
 );
 
-export default function CardLatestVulnerabilities() {
-  const {data, loading, error } = useQuery(LATEST_VULNS_QUERY);
-
-  const latest_vulns: Array<Vulnerability> = data?.vulnerabilities;
+export default function CardLatestVulnerabilities({vulnerabilities, loading, error} : {vulnerabilities: Array<Vulnerability>,
+    loading: boolean, error: boolean}) {
   const headers = ['ID', 'Description', 'Impact', 'Published'];
 
   return (
@@ -93,9 +90,9 @@ export default function CardLatestVulnerabilities() {
                   <TableHeader headers={headers} />
                   <tbody>
                   {loading && <LoadingState />}
-                  {error && <ErrorState error={error} />}
-                  {latest_vulns ? (
-                      latest_vulns.map((vulnerability) => (
+                  {error && <ErrorState/>}
+                  {vulnerabilities ? (
+                      vulnerabilities.map((vulnerability) => (
                           <VulnerabilityTableRow key={vulnerability.id} vulnerability={vulnerability}/>
                       ))
                   ) : !loading && (

@@ -6,6 +6,7 @@ import "styles/tailwind.css";
 
 import Panel from "../components/Panel";
 import {GraphQLProvider} from "../context/graphql";
+import {PanelPageProvider} from "../context/panel";
 
 export default function Dashboard(){
     const graphqlUri = process.env.GRAPHQL_API || 'http://localhost:4000/graphql';
@@ -17,7 +18,9 @@ export default function Dashboard(){
 
     return (
         <GraphQLProvider uri={graphqlUri} headers={defaultHeaders} >
-            <Panel/>
+            <PanelPageProvider>
+                <Panel/>
+            </PanelPageProvider>
         </GraphQLProvider>
     );
 }

@@ -2,8 +2,6 @@
 
 import React from "react";
 import CardStats from "./Cards/CardStats";
-import {useQuery} from "@apollo/client";
-import {STATS_QUERY} from "../src/graphql/queries";
 import {TagOutlined, ExclamationCircleOutlined, DatabaseOutlined, LinkOutlined, BranchesOutlined} from "@ant-design/icons";
 
 const cards = [
@@ -14,13 +12,7 @@ const cards = [
 ];
 
 
-export default function Stats() {
-    const stats_query = useQuery(STATS_QUERY);
-
-    if (stats_query.loading) return <p>Loading Stats...</p>;
-
-    const stats = stats_query.data?.stats;
-
+export default function Stats({stats, error}: {stats: any, error: boolean}) {
     return (
         <>
             {/* Header */}
@@ -29,7 +21,7 @@ export default function Stats() {
                     <div>
                         {/* Card stats */}
                         <div className="flex flex-wrap">
-                            {stats_query.error ? (
+                            {error ? (
                                 // Render each card with an error state
                                 cards.map(({ subtitle, icon, color, key }) => (
                                     <div key={key} className="w-full lg:w-6/12 xl:w-3/12 px-4">

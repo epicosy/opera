@@ -52,7 +52,7 @@ export const FETCH_DATASET = gql`
 `;
 
 export const ADD_VULNERABILITIES_TO_DATASET = gql`
-    mutation AddVulnerabilitiesToDataset($datasetId: Int!, $vulnerabilityIds: [String]! ) {
+    mutation AddVulnerabilitiesToDataset($datasetId: ID!, $vulnerabilityIds: [String]! ) {
         addVulnerabilitiesToDataset(datasetId: $datasetId, vulnerabilityIds: $vulnerabilityIds) {
             dataset {
                 id

@@ -83,7 +83,7 @@ export interface VulnerabilityValue {
 
 export const fetchVulnerability = async (keyword: string) => {
     const client = new ApolloClient({
-        uri: `http://localhost:3001/graphql`,
+        uri: `http://localhost:3002/graphql`,
         cache: new InMemoryCache()
     });
 
