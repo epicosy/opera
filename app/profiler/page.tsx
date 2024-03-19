@@ -42,6 +42,12 @@ type CheckboxOptions = {
     hasAdvisory: boolean;
 }
 
+type CommitOptions = {
+    singleCommit: boolean;
+    singleFile: boolean;
+
+}
+
 interface FilterOptions {
     cweIds?: number[];
     startYear?: number;
@@ -133,6 +139,10 @@ function ProfilerBody() {
         hasExploit: false,
         hasAdvisory: false
     });
+    const [commitOptions, setCommitOptions] = useState<CommitOptions>({
+        singleCommit: false,
+        singleFile: false
+    });
 
     // Apollo automatically handles re-fetching the query when variables change.
     const { data, loading, error, refetch } = useQuery(GET_PROFILE, {
@@ -143,6 +153,7 @@ function ProfilerBody() {
             hasCode: checkboxOptions.hasCode,
             hasExploit: checkboxOptions.hasExploit,
             hasAdvisory: checkboxOptions.hasAdvisory,
+            singleCommit: commitOptions.singleCommit,
             minChanges: changesFilter?.minChanges,
             maxChanges: changesFilter?.maxChanges,
             minFiles: filesFilter?.minFiles,
@@ -241,11 +252,23 @@ function ProfilerBody() {
         });
     };
 
+    const handleHasCommitOptionsChange = (checkedValues: Array<string>) => {
+        setCommitOptions({
+            singleCommit: checkedValues.includes('singleCommit'),
+            singleFile: checkedValues.includes('singleFile')
+        });
+        if (checkedValues.includes('singleFile')) {
+            setFilesFilter({ minFiles: 1, maxFiles: 1 });
+        } else {
+            setFilesFilter({ minFiles: minFiles, maxFiles: maxFiles });
+        }
+    }
+
     return (
         <div>
             <div className="flex flex-row mb-3">
-                <div className="flex-col w-2/6">
-                    <div className="flex flex-row">
+                <div className="flex-col w-2/6 mr-2">
+                    <div className="flex flex-row mr-2">
                         <div key='total' className="flex w-6/12">
                             <CardStats
                                 statSubtitle='Total'
@@ -254,8 +277,8 @@ function ProfilerBody() {
                                 statIconColor='bg-teal-500'
                             />
                         </div>
-                        <div key='checkbox' className="flex w-full bg-white shadow-lg items-center">
-                            <Checkbox.Group onChange={handleHasOptionsChange} className="pl-2 inline-block">
+                        <div key='checkbox' className="flex w-full bg-white shadow-lg items-center px-2">
+                            <Checkbox.Group onChange={handleHasOptionsChange} className="inline-block">
                                 <Checkbox value="hasCode" className="text-base font-semibold text-blueGray-700">
                                     Has Code
                                 </Checkbox>
@@ -269,6 +292,20 @@ function ProfilerBody() {
                         </div>
                     </div>
                 </div>
+                {checkboxOptions.hasCode ? (
+                    <div className="flex-col w-2/6">
+                        <div key='checkbox' className="flex w-full h-full bg-white shadow-lg items-center px-2">
+                            <Checkbox.Group onChange={handleHasCommitOptionsChange} className="inline-block">
+                                <Checkbox value="singleCommit" className="text-base font-semibold text-blueGray-700">
+                                    Single Commit
+                                </Checkbox>
+                                <Checkbox value="singleFile" className="text-base font-semibold text-blueGray-700">
+                                    Single File
+                                </Checkbox>
+                            </Checkbox.Group>
+                        </div>
+                    </div>
+                ) : null}
             </div>
             <div className="flex flex-row">
                 <div className="flex-col w-2/6 mr-2">

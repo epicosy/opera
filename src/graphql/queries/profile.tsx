@@ -17,12 +17,12 @@ export const CREATE_PROFILE = gql`
 
 export const GET_PROFILE = gql`
     query getProfile($startYear: Int, $endYear: Int, $cweIds: [Int], $startScore: Float, $endScore: Float,
-        $hasCode: Boolean, $hasExploit: Boolean, $hasAdvisory: Boolean, $minChanges: Int, $maxChanges: Int,
-        $minFiles: Int, $maxFiles: Int, $extensions: [String]){
+        $hasCode: Boolean, $hasExploit: Boolean, $hasAdvisory: Boolean, $singleCommit: Boolean, $minChanges: Int, 
+        $maxChanges: Int, $minFiles: Int, $maxFiles: Int, $extensions: [String]){
         profileCount(startYear: $startYear, endYear: $endYear, cweIds: $cweIds, startScore: $startScore,
             endScore: $endScore, hasCode: $hasCode, hasExploit: $hasExploit, hasAdvisory: $hasAdvisory,
-            minChanges: $minChanges, maxChanges: $maxChanges, minFiles: $minFiles, maxFiles: $maxFiles,
-            extensions: $extensions){
+            singleCommit: $singleCommit, minChanges: $minChanges, maxChanges: $maxChanges, minFiles: $minFiles, 
+            maxFiles: $maxFiles, extensions: $extensions){
             year{
                 key
                 value
