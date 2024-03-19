@@ -55,6 +55,7 @@ interface FilterOptions {
     hasCode?: boolean;
     hasExploit?: boolean;
     hasAdvisory?: boolean;
+    singleCommit?: boolean;
     minChanges?: number;
     maxChanges?: number;
     minFiles?: number;
@@ -472,7 +473,8 @@ function ProfilerBody() {
             : null}
             <AddModal profileOptions={{startYear: yearFilter?.startYear, endYear: yearFilter?.endYear,
                 cweIds: cweFilter, hasCode: checkboxOptions.hasCode, hasExploit: checkboxOptions.hasExploit,
-                hasAdvisory: checkboxOptions.hasAdvisory, minChanges: changesFilter?.minChanges, extensions: extensionsFilter,
+                hasAdvisory: checkboxOptions.hasAdvisory, singleCommit: commitOptions.singleCommit ,
+                minChanges: changesFilter?.minChanges, extensions: extensionsFilter,
                 maxChanges: changesFilter?.maxChanges, minFiles: filesFilter?.minFiles, maxFiles: filesFilter?.maxFiles,
             }} />
         </div>

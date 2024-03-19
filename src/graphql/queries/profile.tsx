@@ -2,12 +2,12 @@ import { gql } from '@apollo/client';
 
 export const CREATE_PROFILE = gql`
     mutation CreateProfile($name: String!, $startYear: Int, $endYear: Int, $cweIds: [Int], $startScore: Float, $endScore: Float,
-        $hasCode: Boolean, $hasExploit: Boolean, $hasAdvisory: Boolean, $minChanges: Int, $maxChanges: Int,
-        $minFiles: Int, $maxFiles: Int, $extensions: [String]) {
+        $hasCode: Boolean, $hasExploit: Boolean, $hasAdvisory: Boolean, $singleCommit: Boolean, $minChanges: Int, 
+        $maxChanges: Int, $minFiles: Int, $maxFiles: Int, $extensions: [String]) {
         createProfile(name: $name, startYear: $startYear, endYear: $endYear, cweIds: $cweIds, startScore: $startScore,
-            endScore: $endScore, hasCode: $hasCode, hasExploit: $hasExploit, hasAdvisory: $hasAdvisory,
-            minChanges: $minChanges, maxChanges: $maxChanges, minFiles: $minFiles, maxFiles: $maxFiles,
-            extensions: $extensions) {
+            endScore: $endScore, hasCode: $hasCode, hasExploit: $hasExploit, hasAdvisory: $hasAdvisory, 
+            singleCommit: $singleCommit, minChanges: $minChanges, maxChanges: $maxChanges, minFiles: $minFiles, 
+            maxFiles: $maxFiles, extensions: $extensions) {
             profile{
                 id
             }
