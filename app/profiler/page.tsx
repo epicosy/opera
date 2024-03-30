@@ -1,17 +1,23 @@
 'use client';
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 
 import "styles/tailwind.css";
 import {GraphQLProvider} from "../../context/graphql";
-import CardPieChart from "../../components/Cards/cardPieChart";
 import {useMutation, useQuery} from "@apollo/client";
 import {Checkbox, notification} from 'antd';
 import {SearchOutlined} from "@ant-design/icons";
 import CardStats from "../../components/Cards/CardStats";
 import { Modal, Input } from 'antd';
 import FloatingAddButton from "../../components/FloatingAddButton";
-import CardBarChart from "../../components/Cards/CardBarChart";
 import {CREATE_PROFILE, GET_PROFILE} from "../../src/graphql/queries/profile";
+import VulnerabilityCWEFilter from "./filters/vulnCWEDist";
+import BFClassSelect from "./filters/bfClassSelect";
+import RepositoryLanguageSelect from "./filters/repoLangSelect";
+import CommitChangesRangeFilter from "./filters/commitChangesRange";
+import VulnerabilityCommitCountSelect from "./filters/vulnCommitCount";
+import CommitFilesRangeFilter from "./filters/commitFilesRange";
+import CommitFileExtensionRangeFilter from "./filters/commitFileExtRange";
+import CommitFileDiffBlockCountSelect from "./filters/commitFileDiffBlockCount";
 
 
 interface GrapheneCount {
@@ -37,25 +43,16 @@ interface FilesFilter {
 
 
 type CheckboxOptions = {
-    hasCode: boolean;
     hasExploit: boolean;
     hasAdvisory: boolean;
 }
 
-type CommitOptions = {
-    singleCommit: boolean;
-    singleFile: boolean;
-
-}
-
 interface FilterOptions {
     cweIds?: number[];
-    startYear?: number;
-    endYear?: number;
-    hasCode?: boolean;
+    bfClass?: string;
     hasExploit?: boolean;
     hasAdvisory?: boolean;
-    singleCommit?: boolean;
+    patchCount?: number;
     minChanges?: number;
     maxChanges?: number;
     minFiles?: number;
@@ -130,31 +127,28 @@ const AddModal: React.FC<AddModalProps> = ({ profileOptions }) => {
 
 
 function ProfilerBody() {
-    const [yearFilter, setYearFilter] = useState<YearFilter>();
+    const [bfClassFilter, setBFClassFilter] = useState<string>();
+    const [patchCountFilter, setPatchCountFilter] = useState<number>();
+    const [singleFile, setSingleFile] = useState<boolean>();
+    const [repoLangFilter, setrepoLangFilter] = useState<string>();
     const [cweFilter, setCweFilter] = useState<Array<number>>([]);
     const [extensionsFilter, setExtensionsFilter] = useState<Array<string>>([]);
     const [changesFilter, setChangesFilter] = useState<ChangesFilter>();
     const [filesFilter, setFilesFilter] = useState<FilesFilter>();
     const [checkboxOptions, setCheckboxOptions] = useState<CheckboxOptions>({
-        hasCode: false,
         hasExploit: false,
         hasAdvisory: false
-    });
-    const [commitOptions, setCommitOptions] = useState<CommitOptions>({
-        singleCommit: false,
-        singleFile: false
     });
 
     // Apollo automatically handles re-fetching the query when variables change.
     const { data, loading, error, refetch } = useQuery(GET_PROFILE, {
         variables: {
+            bfClass: bfClassFilter,
             cweIds: cweFilter,
-            startYear: yearFilter?.startYear,
-            endYear: yearFilter?.endYear,
-            hasCode: checkboxOptions.hasCode,
+            language: repoLangFilter,
             hasExploit: checkboxOptions.hasExploit,
             hasAdvisory: checkboxOptions.hasAdvisory,
-            singleCommit: commitOptions.singleCommit,
+            patchCount: patchCountFilter,
             minChanges: changesFilter?.minChanges,
             maxChanges: changesFilter?.maxChanges,
             minFiles: filesFilter?.minFiles,
@@ -169,11 +163,10 @@ function ProfilerBody() {
         }
     }, [error]);
 
-    const vulnsByYearDate = data?.profileCount.year.map((gc: GrapheneCount) => {
+    const vulnsByBFClass = data?.profileCount.classes.map((gc: GrapheneCount) => {
         return {
             key: gc.key,
-            value: gc.value,
-            Date: new Date(gc.key)
+            value: gc.value
         }
     }) || [];
 
@@ -184,11 +177,18 @@ function ProfilerBody() {
         }
     }) || [];
 
-    const vulnsByExploitabilityData = data?.profileCount.score.map((gc: GrapheneCount) => {
+
+    const repoLangs = data?.profileCount.languages.map((gc: GrapheneCount) => {
         return {
             key: gc.key,
-            value: gc.value,
-            score: Number(gc.key)
+            value: gc.value
+        }
+    }) || [];
+
+    const patchCount = (data?.profileCount.patches || []).map((gc: GrapheneCount) => {
+        return {
+            key: gc.key,
+            value: gc.value
         }
     }) || [];
 
@@ -217,10 +217,16 @@ function ProfilerBody() {
         }
     }) || [];
 
+    const diffBlocksCount = (data?.profileCount.diffBlocks || []).map((gc: GrapheneCount) => {
+        return {
+            key: gc.key,
+            value: gc.value
+        }
+    }) || [];
+
     // find the minimum and maximum number of changes in changesCount, by the key value
     const minChanges = Math.min(...changesCount.map((gc: GrapheneCount) => gc.key)) || 0;
     const maxChanges = Math.max(...changesCount.map((gc: GrapheneCount) => gc.key)) || 0;
-
 
     const minFiles = Math.min(...filesCount.map((gc: GrapheneCount) => gc.key)) || 0;
     const maxFiles = Math.max(...filesCount.map((gc: GrapheneCount) => gc.key)) || 0;
@@ -229,9 +235,17 @@ function ProfilerBody() {
         setCweFilter(newFilter);
     };
 
-    const handleYearFilterChange = (startYear: number, endYear: number) => {
-        setYearFilter({ startYear, endYear });
-    };
+    const handleBFClassFilterChange = (select: string) => {
+        setBFClassFilter(select);
+    }
+
+    const handlePatchCountChange = (select: number) => {
+        setPatchCountFilter(select);
+    }
+
+    const handleRepoLangFilterChange = (select: string) => {
+        setrepoLangFilter(select);
+    }
 
     const handleChangesFilterChange = (minChanges: number, maxChanges: number) => {
         setChangesFilter({ minChanges, maxChanges });
@@ -247,17 +261,13 @@ function ProfilerBody() {
 
     const handleHasOptionsChange = (checkedValues: Array<string>) => {
         setCheckboxOptions({
-            hasCode: checkedValues.includes('hasCode'),
             hasExploit: checkedValues.includes('hasExploit'),
             hasAdvisory: checkedValues.includes('hasAdvisory')
         });
     };
 
     const handleHasCommitOptionsChange = (checkedValues: Array<string>) => {
-        setCommitOptions({
-            singleCommit: checkedValues.includes('singleCommit'),
-            singleFile: checkedValues.includes('singleFile')
-        });
+        setSingleFile(checkedValues.includes('singleFile'));
         if (checkedValues.includes('singleFile')) {
             setFilesFilter({ minFiles: 1, maxFiles: 1 });
         } else {
@@ -280,9 +290,6 @@ function ProfilerBody() {
                         </div>
                         <div key='checkbox' className="flex w-full bg-white shadow-lg items-center px-2">
                             <Checkbox.Group onChange={handleHasOptionsChange} className="inline-block">
-                                <Checkbox value="hasCode" className="text-base font-semibold text-blueGray-700">
-                                    Has Code
-                                </Checkbox>
                                 <Checkbox value="hasExploit" className="text-base font-semibold text-blueGray-700">
                                     Has Exploit
                                 </Checkbox>
@@ -293,189 +300,42 @@ function ProfilerBody() {
                         </div>
                     </div>
                 </div>
-                {checkboxOptions.hasCode ? (
-                    <div className="flex-col w-2/6">
-                        <div key='checkbox' className="flex w-full h-full bg-white shadow-lg items-center px-2">
-                            <Checkbox.Group onChange={handleHasCommitOptionsChange} className="inline-block">
-                                <Checkbox value="singleCommit" className="text-base font-semibold text-blueGray-700">
-                                    Single Commit
-                                </Checkbox>
-                                <Checkbox value="singleFile" className="text-base font-semibold text-blueGray-700">
-                                    Single File
-                                </Checkbox>
-                            </Checkbox.Group>
-                        </div>
-                    </div>
-                ) : null}
-            </div>
-            <div className="flex flex-row">
-                <div className="flex-col w-2/6 mr-2">
-                    <CardPieChart data={vulnsByYearDate} title="Vulnerability Distribution by Year"
-                                  fields={["Year", "Count", "Date"]} loading={loading}
-                                  controls={[
-                                      {
-                                          controlType: "DateRangeFilter",
-                                          options: {
-                                              filterColumnLabel: "Date",
-                                              ui: { format: { pattern: "yyyy" } },
-                                          },
-                                            controlEvents: [
-                                                {
-                                                    eventName: "statechange",
-                                                    callback: ({ chartWrapper, controlWrapper }) => {
-                                                        // extract the year from the dates
-                                                        const startYear = controlWrapper?.getState().lowValue.getFullYear();
-                                                        const endYear = controlWrapper?.getState().highValue.getFullYear();
-                                                        handleYearFilterChange(startYear, endYear);
-                                                    }
-                                                }
-                                            ]
-                                      },
-                                  ]}
-                    />
-                </div>
-                <div className="flex-col w-2/6 mr-2">
-                    <CardPieChart data={vulnsByCWE} fields={["CWE", "Count"]} title="Vulnerability Distribution by CWE"
-                                  loading={loading}
-                                  controls={[
-                                      {
-                                          controlEvents: [
-                                              {
-                                                  eventName: "statechange",
-                                                  callback: ({ chartWrapper, controlWrapper }) => {
-                                                      // convert selected values to array of numbers
-                                                      const selectedValues = controlWrapper?.getState().selectedValues.map((v: string) => parseInt(v));
-                                                      handleCweFilterChange(selectedValues);
-                                                  }
-                                              }
-                                          ],
-                                          controlType: "CategoryFilter",
-                                          options: {
-                                              filterColumnLabel: "CWE",
-                                              ui: {
-                                                  labelStacking: "horizontal",
-                                                  label: "CWE Selection:",
-                                                  allowTyping: false,
-                                                  allowMultiple: true,
-                                              },
-                                          },
-                                      },
-                                  ]}
-                    />
-                </div>
                 <div className="flex-col w-2/6">
-                    <CardPieChart data={vulnsByExploitabilityData} fields={["Score", "Count", "Num"]}
-                                  title="Vulnerability Distribution by Exploitability" loading={loading}
-                                  controls={[
-                                      {
-                                          controlType: "NumberRangeFilter",
-                                          options: {
-                                              filterColumnLabel: "Num",
-                                              minValue: 0,
-                                              maxValue: 10,
-                                          },
-                                          controlEvents: [
-                                                {
-                                                    eventName: "statechange",
-                                                    callback: ({ chartWrapper, controlWrapper , google}) => {
-                                                        console.log("State changed to", controlWrapper?.getState().lowValue);
-                                                        console.log("State changed to", controlWrapper?.getState().highValue);
-                                                    }
-                                                }
-                                            ]
-                                      },
-                                  ]}
-                    />
+                    <div key='checkbox' className="flex w-full h-full bg-white shadow-lg items-center px-2">
+                        <Checkbox.Group onChange={handleHasCommitOptionsChange} className="inline-block">
+                            <Checkbox value="singleFile" className="text-base font-semibold text-blueGray-700">
+                                Single File
+                            </Checkbox>
+                        </Checkbox.Group>
+                    </div>
                 </div>
             </div>
-            {checkboxOptions.hasCode  ? (
             <div className="flex flex-row">
-                <div className="flex-col w-2/6 mr-2">
-                    <CardBarChart data={changesCount} fields={['Changes', 'Count']} loading={loading}
-                                  title="Distribution of number of changes per commit (<100)"
-                                  controls={[
-                                      {
-                                          controlType: "NumberRangeFilter",
-                                          options: {
-                                              filterColumnLabel: "Changes",
-                                              minValue: minChanges,
-                                              maxValue: maxChanges,
-                                          },
-                                          controlEvents: [
-                                              {
-                                                  eventName: "statechange",
-                                                  callback: ({ chartWrapper, controlWrapper , google}) => {
-                                                      const lowValue = controlWrapper?.getState().lowValue;
-                                                      const highValue = controlWrapper?.getState().highValue;
-                                                      handleChangesFilterChange(lowValue, highValue);
-                                                  }
-                                              }
-                                          ]
-                                      }
-                                  ]}
-                    />
-                </div>
-                <div className="flex-col w-2/6 mr-2">
-                    <CardBarChart data={filesCount} fields={['Files', 'Count']} loading={loading}
-                                  title="Distribution of number of files per commit (<20)"
-                                  controls={[
-                                      {
-                                          controlType: "NumberRangeFilter",
-                                          options: {
-                                              filterColumnLabel: "Files",
-                                              minValue: minFiles,
-                                              maxValue: maxFiles,
-                                          },
-                                          controlEvents: [
-                                              {
-                                                  eventName: "statechange",
-                                                  callback: ({ chartWrapper, controlWrapper , google}) => {
-                                                      const lowValue = controlWrapper?.getState().lowValue;
-                                                      const highValue = controlWrapper?.getState().highValue;
-                                                      handleFilesFilterChange(lowValue, highValue);
-                                                  }
-                                              }
-                                          ]
-                                      }
-                                  ]}
-                    />
-                </div>
-                <div className="flex-col w-2/6 mr-2">
-                    <CardPieChart data={extensionsCount} fields={["Extension", "Count"]} loading={loading}
-                                  title="Distribution of files by extension"
-                                  controls={[
-                                      {
-                                          controlEvents: [
-                                              {
-                                                  eventName: "statechange",
-                                                  callback: ({ chartWrapper, controlWrapper }) => {
-                                                      // convert selected values to array of numbers
-                                                      const selectedValues = controlWrapper?.getState().selectedValues;
-                                                      handleExtensionsFilterChange(selectedValues);
-                                                  }
-                                              }
-                                          ],
-                                          controlType: "CategoryFilter",
-                                          options: {
-                                              filterColumnLabel: "Extension",
-                                              ui: {
-                                                  labelStacking: "horizontal",
-                                                  label: "Extension Selection:",
-                                                  allowTyping: false,
-                                                  allowMultiple: true,
-                                              },
-                                          },
-                                      },
-                                  ]}
-                    />
-                </div>
-            </div>)
-            : null}
-            <AddModal profileOptions={{startYear: yearFilter?.startYear, endYear: yearFilter?.endYear,
-                cweIds: cweFilter, hasCode: checkboxOptions.hasCode, hasExploit: checkboxOptions.hasExploit,
-                hasAdvisory: checkboxOptions.hasAdvisory, singleCommit: commitOptions.singleCommit ,
-                minChanges: changesFilter?.minChanges, extensions: extensionsFilter,
-                maxChanges: changesFilter?.maxChanges, minFiles: filesFilter?.minFiles, maxFiles: filesFilter?.maxFiles,
+                <BFClassSelect loading={loading} data={vulnsByBFClass} handleFilterChange={handleBFClassFilterChange} />
+                <VulnerabilityCWEFilter data={vulnsByCWE} loading={loading}
+                                        handleCweFilterChange={handleCweFilterChange} />
+                <RepositoryLanguageSelect data={repoLangs} loading={loading}
+                                         handleFilterChange={handleRepoLangFilterChange} />
+            </div>
+            <div className="flex flex-row">
+                <VulnerabilityCommitCountSelect data={patchCount} loading={loading}
+                                                handleFilterChange={handlePatchCountChange} />
+                <CommitChangesRangeFilter loading={loading} data={changesCount} minChanges={minChanges}
+                                            maxChanges={maxChanges} handleFilterChange={handleChangesFilterChange} />
+                <CommitFilesRangeFilter loading={loading} data={filesCount} minFiles={minFiles}
+                                        maxFiles={maxFiles} handleFilesFilterChange={handleFilesFilterChange} />
+            </div>
+            <div className="flex flex-row">
+                    <CommitFileExtensionRangeFilter data={extensionsCount} loading={loading}
+                                                    handleExtensionsFilterChange={handleExtensionsFilterChange} />
+                    <CommitFileDiffBlockCountSelect data={diffBlocksCount} loading={loading}
+                                                    handleFilterChange={() => {}} />
+            </div>
+
+            <AddModal profileOptions={{bfClass: bfClassFilter, cweIds: cweFilter, hasExploit: checkboxOptions.hasExploit,
+                hasAdvisory: checkboxOptions.hasAdvisory, patchCount: patchCount, minChanges: changesFilter?.minChanges,
+                extensions: extensionsFilter, maxChanges: changesFilter?.maxChanges, minFiles: filesFilter?.minFiles,
+                maxFiles: filesFilter?.maxFiles,
             }} />
         </div>
     );

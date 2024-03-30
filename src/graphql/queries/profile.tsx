@@ -16,26 +16,28 @@ export const CREATE_PROFILE = gql`
 `;
 
 export const GET_PROFILE = gql`
-    query getProfile($startYear: Int, $endYear: Int, $cweIds: [Int], $startScore: Float, $endScore: Float,
-        $hasCode: Boolean, $hasExploit: Boolean, $hasAdvisory: Boolean, $singleCommit: Boolean, $minChanges: Int, 
-        $maxChanges: Int, $minFiles: Int, $maxFiles: Int, $extensions: [String]){
-        profileCount(startYear: $startYear, endYear: $endYear, cweIds: $cweIds, startScore: $startScore,
-            endScore: $endScore, hasCode: $hasCode, hasExploit: $hasExploit, hasAdvisory: $hasAdvisory,
-            singleCommit: $singleCommit, minChanges: $minChanges, maxChanges: $maxChanges, minFiles: $minFiles, 
-            maxFiles: $maxFiles, extensions: $extensions){
-            year{
-                key
-                value
-            }
+    query getProfile($bfClass: String, $cweIds: [Int], $language: String, $hasExploit: Boolean, $hasAdvisory: Boolean, 
+        $patchCount: Int, $minChanges: Int,  $maxChanges: Int, $minFiles: Int, $maxFiles: Int, $extensions: [String]){
+        profileCount(bfClass: $bfClass,  cweIds: $cweIds, language: $language, hasExploit: $hasExploit, 
+            hasAdvisory: $hasAdvisory, patchCount: $patchCount, minChanges: $minChanges, maxChanges: $maxChanges, 
+            minFiles: $minFiles, maxFiles: $maxFiles, extensions: $extensions){
             cwe{
                 key
                 value
             }
-            score{
+            changes{
                 key
                 value
             }
-            changes{
+            classes{
+                key
+                value
+            }
+            languages{
+                key
+                value
+            }
+            patches{
                 key
                 value
             }
@@ -44,6 +46,10 @@ export const GET_PROFILE = gql`
                 value
             }
             extensions{
+                key
+                value
+            }
+            diffBlocks{
                 key
                 value
             }
