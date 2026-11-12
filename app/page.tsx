@@ -379,10 +379,11 @@ function CandidateCard({
         </a></div>
         <div><label>Candidate line</label><b>{candidate.line}</b></div>
         <div><label>Proposed by</label><b>Reviewer {candidate.proposed_by}</b></div>
+        <div><label>Function artifact revision</label><code>{candidate.artifact_revision}</code></div>
       </div>
       <details className="candidate-source">
         <summary>Inspect source at candidate line</summary>
-        <HighlightedCode artifact={artifact} projectId={candidate.project_id} linkRevision={candidate.revision_id} highlightLines={[candidate.line]} />
+        <HighlightedCode artifact={artifact} projectId={candidate.project_id} linkRevision={candidate.artifact_revision} highlightLines={[candidate.line]} />
       </details>
       {candidate.review_status !== "pending" && !editing ? (
         <ReviewSummary status={candidate.review_status} note={candidate.review_note} label="Candidate" onEdit={() => setEditing(true)} />
