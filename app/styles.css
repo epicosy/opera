@@ -50,7 +50,7 @@
 .review-box>div:first-child b{font-size:12px}
 .review-box>div:first-child p{font-size:10px;color:#8fa0aa;margin:5px 0}
 .review-form{display:grid;gap:8px}
-.review-form textarea{width:100%;min-height:55px;resize:vertical;background:#091117;border:1px solid #34434e;color:#e8eef3;padding:9px;font:11px/1.4 inherit}
+.review-form textarea{width:100%;min-height:55px;resize:vertical;background:#091117;border:1px solid #34434e;color:#e8eef3;padding:9px;font:inherit;font-size:11px;line-height:1.4}
 .actions{display:flex;gap:8px;align-items:center}
 .actions button,.edit-button,.error-card button{border:1px solid #42515c;background:transparent;color:#d8e0e6;padding:7px 10px;font-size:10px;cursor:pointer}
 .actions .accept{background:#188b7c;color:white;border-color:#188b7c}
