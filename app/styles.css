@@ -44,7 +44,7 @@
 .candidate-heading>div{display:grid;gap:3px}
 .candidate-heading b{font-size:12px}
 .candidate-heading small{font-size:9px;letter-spacing:0;color:#788996;overflow-wrap:anywhere}
-.candidate-facts{grid-template-columns:minmax(0,2.3fr) repeat(2,minmax(0,1fr));margin:6px 0 4px}
+.candidate-facts{grid-template-columns:minmax(0,2.3fr) repeat(3,minmax(0,1fr));margin:6px 0 4px}
 .candidate-source{margin-top:9px}
 .review-box{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:12px;border:1px solid #30434b;background:#101b21;padding:13px;margin-top:12px}
 .review-box>div:first-child b{font-size:12px}
