@@ -25,6 +25,7 @@
 .source-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 11px;border-bottom:1px solid #27333e}
 .source-heading b{font-size:11px}
 .source-heading a,.candidate-facts a{font-size:10px;color:#69cfc0;text-decoration:none;overflow-wrap:anywhere}
+.source-heading a{display:inline-block;border:1px solid #2c5e58;padding:4px 6px;}
 .code-scroll{max-height:470px;overflow:auto}
 .source-code{margin:0;padding:7px 0;white-space:pre;min-width:max-content;font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
 .source-line{display:flex;min-height:17px;padding:0 10px 0 0}
