@@ -448,6 +448,12 @@ function ReproductionCheckpoint({
   async function save(status: "accepted" | "rejected") {
     setBusy(true);
     setError("");
+
+    if (!reproduction?.reproduction_id) {
+      setError("No reproduction selected.");
+      return;
+    }
+    
     try {
       const response = await fetch(`${API}/api/reproductions/${reproduction.reproduction_id}/review`, {
         method: "PUT",
