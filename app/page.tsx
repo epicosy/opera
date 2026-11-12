@@ -285,7 +285,7 @@ function TargetCheckpoint({
         <div><b>Target</b><small>Immutable task input and artifact associations</small></div>
       </div>
       {target.review_status !== "pending" && !editing ? (
-        <ReviewSummary status="accepted" note={target.review_note} label="Target" onEdit={() => setEditing(true)} />
+        <ReviewSummary status={target.review_status} note={target.review_note} label="Target" onEdit={() => setEditing(true)} />
       ) : (
         <div className="checkpoint-content">
           <div className="target-facts">
