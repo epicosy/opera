@@ -4,10 +4,17 @@ Next.js frontend for the UnRAR examination vertical slice.
 
 ## Run
 
+Create the shared network once if it does not already exist:
+
 ```sh
-docker build -t findthemall-opera .
-docker run -d --name findthemall-web --network findthemall -p 3000:3000 \
-  -e NEXT_PUBLIC_API_URL=http://localhost:8000 findthemall-opera
+docker network create findthemall
+```
+
+The API URL is compiled into the Next.js browser bundle at build time:
+
+```sh
+docker build --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 -t findthemall-opera .
+docker run -d --name findthemall-web --network findthemall -p 3000:3000 findthemall-opera
 ```
 
 Start PostgreSQL (`arepo`), then FastAPI (`rotas`), then this UI. The API must be published on host port 8000 for the browser to reach it. Local development: `npm install && npm run dev`.
