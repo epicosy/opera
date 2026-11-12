@@ -248,7 +248,7 @@ function TargetCheckpoint({
   target: Target;
   onSaved: () => Promise<void>;
 }) {
-  const [editing, setEditing] = useState(target.review_status !== "accepted");
+  const [editing, setEditing] = useState(target.review_status === "pending");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [note, setNote] = useState(target.review_note ?? "");
   const [busy, setBusy] = useState(false);
@@ -256,7 +256,7 @@ function TargetCheckpoint({
 
   useEffect(() => {
     setNote(target.review_note ?? "");
-    setEditing(target.review_status !== "accepted");
+    setEditing(target.review_status === "pending");
   }, [target.review_status, target.review_note]);
 
   async function save(status: "accepted" | "rejected") {
@@ -269,7 +269,7 @@ function TargetCheckpoint({
         body: JSON.stringify({ status, reviewer_id: REVIEWER_ID, note }),
       });
       if (!response.ok) throw new Error(`API returned ${response.status}: ${await response.text()}`);
-      if (status === "accepted") setEditing(false);
+      setEditing(false);
       await onSaved();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to save target review");
@@ -284,7 +284,7 @@ function TargetCheckpoint({
         <span className="step-number">1</span>
         <div><b>Target</b><small>Immutable task input and artifact associations</small></div>
       </div>
-      {target.review_status === "accepted" && !editing ? (
+      {target.review_status !== "pending" && !editing ? (
         <ReviewSummary status="accepted" note={target.review_note} label="Target" onEdit={() => setEditing(true)} />
       ) : (
         <div className="checkpoint-content">
@@ -325,14 +325,14 @@ function CandidateCard({
   candidate: Candidate;
   onSaved: () => Promise<void>;
 }) {
-  const [editing, setEditing] = useState(candidate.review_status !== "accepted");
+  const [editing, setEditing] = useState(candidate.review_status === "pending");
   const [note, setNote] = useState(candidate.review_note ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setNote(candidate.review_note ?? "");
-    setEditing(candidate.review_status !== "accepted");
+    setEditing(candidate.review_status === "pending");
   }, [candidate.review_status, candidate.review_note]);
 
   async function save(status: "accepted" | "rejected") {
@@ -345,7 +345,7 @@ function CandidateCard({
         body: JSON.stringify({ status, reviewer_id: REVIEWER_ID, note }),
       });
       if (!response.ok) throw new Error(`API returned ${response.status}: ${await response.text()}`);
-      if (status === "accepted") setEditing(false);
+      setEditing(false);
       await onSaved();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to save candidate review");
@@ -384,17 +384,14 @@ function CandidateCard({
         <summary>Inspect source at candidate line</summary>
         <HighlightedCode artifact={artifact} projectId={candidate.project_id} linkRevision={candidate.revision_id} highlightLines={[candidate.line]} />
       </details>
-      {candidate.review_status === "accepted" && !editing ? (
-        <ReviewSummary status="accepted" note={candidate.review_note} label="Candidate" onEdit={() => setEditing(true)} />
+      {candidate.review_status !== "pending" && !editing ? (
+        <ReviewSummary status={candidate.review_status} note={candidate.review_note} label="Candidate" onEdit={() => setEditing(true)} />
       ) : (
         <ReviewForm
           note={note} setNote={setNote} busy={busy} error={error}
           onSubmit={() => save("accepted")} onReject={() => save("rejected")}
           acceptLabel="Accept candidate"
         />
-      )}
-      {candidate.review_status === "rejected" && !editing && (
-        <ReviewSummary status="rejected" note={candidate.review_note} label="Candidate" onEdit={() => setEditing(true)} />
       )}
     </article>
   );
@@ -433,14 +430,14 @@ function ReproductionCheckpoint({
   reproduction: Reproduction | null | undefined;
   onSaved: () => Promise<void>;
 }) {
-  const [editing, setEditing] = useState(reproduction?.review_status !== "accepted");
+  const [editing, setEditing] = useState(reproduction?.review_status === "pending");
   const [note, setNote] = useState(reproduction?.review_note ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setNote(reproduction?.review_note ?? "");
-    setEditing(reproduction?.review_status !== "accepted");
+    setEditing(reproduction?.review_status === "pending");
   }, [reproduction?.review_status, reproduction?.review_note]);
 
   if (!reproduction) {
@@ -457,7 +454,7 @@ function ReproductionCheckpoint({
         body: JSON.stringify({ status, reviewer_id: REVIEWER_ID, note }),
       });
       if (!response.ok) throw new Error(`API returned ${response.status}: ${await response.text()}`);
-      if (status === "accepted") setEditing(false);
+      setEditing(false);
       await onSaved();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to save reproduction review");
@@ -484,8 +481,8 @@ function ReproductionCheckpoint({
             <ArtifactCard key={artifact.artifact_id} artifact={artifact} projectId={target.project_id} />
           ))}
         </div>
-        {reproduction.review_status === "accepted" && !editing ? (
-          <ReviewSummary status="accepted" note={reproduction.review_note} label="Reproduction evidence" onEdit={() => setEditing(true)} />
+        {reproduction.review_status !== "pending" && !editing ? (
+          <ReviewSummary status={reproduction.review_status} note={reproduction.review_note} label="Reproduction evidence" onEdit={() => setEditing(true)} />
         ) : (
           <div className="review-box">
             <div><b>Review reproduction evidence</b><p>Confirm that the preserved execution context and runner log support the reported manifestation.</p></div>
@@ -495,9 +492,6 @@ function ReproductionCheckpoint({
               acceptLabel="Confirm reproduction"
             />
           </div>
-        )}
-        {reproduction.review_status === "rejected" && !editing && (
-          <ReviewSummary status="rejected" note={reproduction.review_note} label="Reproduction evidence" onEdit={() => setEditing(true)} />
         )}
       </div>
     </section>
