@@ -1,8 +1,12 @@
-FROM node:19.6
-
-RUN apt update && apt -y upgrade
-RUN git clone https://github.com/epicosy/opera
-WORKDIR /opera
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json ./
 RUN npm install
-
-ENTRYPOINT ["/usr/local/bin/npm", "run", "dev"]
+COPY . .
+RUN npm run build
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app ./
+EXPOSE 3000
+CMD ["npm","run","start"]
