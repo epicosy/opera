@@ -574,8 +574,8 @@ export default function Page() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
 
-  async function load(): Promise<void> {
-    setBusy(true);
+  async function load(showLoading = true): Promise<void> {
+    if (showLoading) setBusy(true);
     try {
       const response = await fetch(`${API}/api/examinations/examination-unrar-osv-2017-104`, { cache: "no-store" });
       if (!response.ok) throw new Error(`API returned ${response.status}`);
@@ -584,7 +584,7 @@ export default function Page() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "API unavailable");
     } finally {
-      setBusy(false);
+      if (showLoading) setBusy(false);
     }
   }
 
@@ -627,8 +627,8 @@ export default function Page() {
         <div><div className="eyebrow">INDEPENDENT REVIEW THREADS</div><h2>Examination workspace</h2></div>
         <span>2 targets · 7 checkpoints</span>
       </div>
-      <Thread target={root} onSaved={load} />
-      <Thread target={manifestation} onSaved={load} />
+      <Thread target={root} onSaved={() => load(false)} />
+      <Thread target={manifestation} onSaved={() => load(false)} />
       <footer>Targets, candidate locations and reproductions remain independent records. A vulnerability is not created until both threads have completed end-to-end validation and promotion.</footer>
     </main>
   );
