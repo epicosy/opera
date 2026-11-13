@@ -18,6 +18,20 @@ type Artifact = {
   media_type?: string | null;
   content: string;
 };
+type Annotation = {
+  annotation_id: string;
+  field: string;
+  taxonomy: string;
+  value: string;
+  confidence: number;
+  notes: string[];
+  created_at: string;
+  updated_at: string;
+  submitted_at?: string | null;
+  submitted_by?: string | null;
+  review_note?: string | null;
+};
+
 type Candidate = {
   candidate_id: string;
   project_id: string;
@@ -27,6 +41,8 @@ type Candidate = {
   line: number;
   proposed_by: string;
   notes: string[];
+  created_at: string;
+  updated_at: string;
   review_status: ReviewStatus;
   reviewed_by?: string | null;
   review_note?: string | null;
@@ -37,6 +53,23 @@ type Candidate = {
   start_line: number;
   end_line: number;
   media_type: string;
+  content: string;
+  annotations: Annotation[];
+};
+
+type FunctionDiff = {
+  function_name: string;
+  file_path: string;
+  old_artifact_id: string;
+  new_artifact_id: string;
+  old_revision: string;
+  new_revision: string;
+  old_start_line: number;
+  old_end_line: number;
+  new_start_line: number;
+  new_end_line: number;
+  old_source_url: string;
+  new_source_url: string;
   content: string;
 };
 type Reproduction = {
@@ -58,6 +91,7 @@ type Target = {
   review_note?: string | null;
   reviewer_id?: string | null;
   artifacts: Artifact[];
+  function_diff?: FunctionDiff | null;
   candidate_locations?: Candidate[];
   reproduction?: Reproduction | null;
 };
@@ -136,6 +170,39 @@ function HighlightedCode({
         </code></pre>
       </div>
     </div>
+  );
+}
+
+function FunctionDiffCard({ diff }: { diff: FunctionDiff }) {
+  return (
+    <article className="artifact function-diff-artifact">
+      <div className="artifact-top">
+        <b>Function Diff: {diff.function_name}</b>
+        <code>{diff.file_path}</code>
+      </div>
+      <div className="diff-revisions">
+        <a href={diff.old_source_url} target="_blank" rel="noreferrer">
+          Old · patch base · {diff.old_revision} · L{diff.old_start_line}–L{diff.old_end_line} ↗
+        </a>
+        <a href={diff.new_source_url} target="_blank" rel="noreferrer">
+          New · fix · {diff.new_revision} · L{diff.new_start_line}–L{diff.new_end_line} ↗
+        </a>
+      </div>
+      <pre className="diff-content"><code>
+        {diff.content.split("\n").map((line, index) => {
+          const style = line.startsWith("+++") || line.startsWith("---")
+            ? "diff-file"
+            : line.startsWith("+")
+              ? "diff-add"
+              : line.startsWith("-")
+                ? "diff-remove"
+                : line.startsWith("@@")
+                  ? "diff-hunk"
+                  : "diff-context";
+          return <span className={"diff-line " + style} key={index}>{line || " "}</span>;
+        })}
+      </code></pre>
+    </article>
   );
 }
 
@@ -241,6 +308,12 @@ function ReviewSummary({
   );
 }
 
+function formatTimestamp(value?: string | null): string {
+  if (!value) return "Not recorded";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+}
+
 function TargetCheckpoint({
   target,
   onSaved,
@@ -249,7 +322,7 @@ function TargetCheckpoint({
   onSaved: () => Promise<void>;
 }) {
   const [editing, setEditing] = useState(target.review_status === "pending");
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [artifactsOpen, setArtifactsOpen] = useState(false);
   const [note, setNote] = useState(target.review_note ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -263,12 +336,12 @@ function TargetCheckpoint({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch(`${API}/api/targets/${target.target_id}/review`, {
+      const response = await fetch(API + "/api/targets/" + target.target_id + "/review", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, reviewer_id: REVIEWER_ID, note }),
       });
-      if (!response.ok) throw new Error(`API returned ${response.status}: ${await response.text()}`);
+      if (!response.ok) throw new Error("API returned " + response.status + ": " + await response.text());
       setEditing(false);
       await onSaved();
     } catch (reason) {
@@ -282,38 +355,53 @@ function TargetCheckpoint({
     <section className="checkpoint-section">
       <div className="checkpoint-title">
         <span className="step-number">1</span>
-        <div><b>Target</b><small>Immutable task input and artifact associations</small></div>
+        <div><b>Target</b><small>Task definition and associated evidence</small></div>
       </div>
-      {target.review_status !== "pending" && !editing ? (
-        <ReviewSummary status={target.review_status} note={target.review_note} label="Target" onEdit={() => setEditing(true)} />
-      ) : (
-        <div className="checkpoint-content">
-          <div className="target-facts">
-            <div><label>Project</label><b>{target.project_id}</b></div>
-            <div><label>Target ID</label><code>{target.target_id}</code></div>
-            <div><label>Strategy</label><b>{target.strategy}</b></div>
-            <div><label>Anchor revision</label><code>{target.anchor_revision}</code></div>
+
+      <div className="target-facts">
+        <div><label>Project</label><b>{target.project_id}</b></div>
+        <div><label>Target ID</label><code>{target.target_id}</code></div>
+        <div><label>Anchor revision</label><code>{target.anchor_revision}</code></div>
+      </div>
+
+      <section className="target-artifact-panel">
+        <button className="text-toggle" onClick={() => setArtifactsOpen(!artifactsOpen)} aria-expanded={artifactsOpen}>
+          {artifactsOpen ? "Hide target artifacts" : "Inspect target artifacts"} ({target.function_diff ? 1 : target.artifacts.length})
+        </button>
+        {artifactsOpen && (
+          <div className="artifact-list">
+            {target.function_diff ? (
+              <FunctionDiffCard diff={target.function_diff} />
+            ) : (
+              target.artifacts.map(artifact => (
+                <ArtifactCard key={artifact.artifact_id} artifact={artifact} projectId={target.project_id} />
+              ))
+            )}
           </div>
-          <button className="text-toggle" onClick={() => setDetailsOpen(!detailsOpen)}>
-            {detailsOpen ? "Hide target artifacts" : `Inspect target artifacts (${target.artifacts.length})`}
-          </button>
-          {detailsOpen && <div className="artifact-list">
-            {target.artifacts.map(artifact => (
-              <ArtifactCard key={artifact.artifact_id} artifact={artifact} projectId={target.project_id} />
-            ))}
-          </div>}
+        )}
+      </section>
+
+      <section className="target-review-panel">
+        {target.review_status !== "pending" && !editing ? (
+          <ReviewSummary status={target.review_status} note={target.review_note} label="Target" onEdit={() => setEditing(true)} />
+        ) : (
           <div className="review-box">
-            <div><b>{target.review_status === "rejected" ? "Revise target review" : "Validate this target"}</b>
-              <p>Confirm the project, strategy, revisions and artifact associations.</p>
+            <div>
+              <b>{target.review_status === "rejected" ? "Revise target review" : "Validate this target"}</b>
+              <p>Confirm the project, revision references and associated artifacts.</p>
             </div>
             <ReviewForm
-              note={note} setNote={setNote} busy={busy} error={error}
-              onSubmit={() => save("accepted")} onReject={() => save("rejected")}
+              note={note}
+              setNote={setNote}
+              busy={busy}
+              error={error}
+              onSubmit={() => save("accepted")}
+              onReject={() => save("rejected")}
               acceptLabel="Validate target"
             />
           </div>
-        </div>
-      )}
+        )}
+      </section>
     </section>
   );
 }
@@ -339,12 +427,12 @@ function CandidateCard({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch(`${API}/api/candidates/${candidate.candidate_id}/review`, {
+      const response = await fetch(API + "/api/candidates/" + candidate.candidate_id + "/review", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, reviewer_id: REVIEWER_ID, note }),
       });
-      if (!response.ok) throw new Error(`API returned ${response.status}: ${await response.text()}`);
+      if (!response.ok) throw new Error("API returned " + response.status + ": " + await response.text());
       setEditing(false);
       await onSaved();
     } catch (reason) {
@@ -357,7 +445,7 @@ function CandidateCard({
   const artifact: Artifact = {
     artifact_id: candidate.artifact_id,
     role: "candidate_source",
-    revision: candidate.revision_id,
+    revision: candidate.artifact_revision,
     artifact_type: candidate.artifact_type,
     file_path: candidate.file_path,
     function_name: candidate.function_name,
@@ -367,30 +455,49 @@ function CandidateCard({
     content: candidate.content,
   };
 
+  const sourceUrl = "https://github.com/" + candidate.project_id + "/blob/" +
+    candidate.revision_id + "/" + candidate.file_path + "#L" + candidate.line;
+
   return (
     <article className="candidate-card">
       <div className="candidate-heading">
-        <div><b>Candidate location</b><small>{candidate.candidate_id}</small></div>
+        <div className="candidate-heading-main">
+          <b>Candidate location</b>
+          <small>{candidate.candidate_id}</small>
+          <a className="candidate-source-link" href={sourceUrl} target="_blank" rel="noreferrer">
+            Source revision · {candidate.project_id}/{candidate.revision_id}/{candidate.file_path}#L{candidate.line} ↗
+          </a>
+        </div>
         <span className={"pill " + candidate.review_status}>{candidate.review_status}</span>
       </div>
+
       <div className="candidate-facts">
-        <div><label>Source revision</label><a href={`https://github.com/${candidate.project_id}/blob/${candidate.revision_id}/${candidate.file_path}#L${candidate.line}`} target="_blank" rel="noreferrer">
-          {candidate.project_id}/{candidate.revision_id}/{candidate.file_path}#L{candidate.line} ↗
-        </a></div>
         <div><label>Candidate line</label><b>{candidate.line}</b></div>
         <div><label>Proposed by</label><b>Reviewer {candidate.proposed_by}</b></div>
-        <div><label>Function artifact revision</label><code>{candidate.artifact_revision}</code></div>
+        <div><label>Created at</label><b>{formatTimestamp(candidate.created_at)}</b></div>
+        <div><label>Last edited at</label><b>{formatTimestamp(candidate.updated_at)}</b></div>
       </div>
+
       <details className="candidate-source">
         <summary>Inspect source at candidate line</summary>
-        <HighlightedCode artifact={artifact} projectId={candidate.project_id} linkRevision={candidate.artifact_revision} highlightLines={[candidate.line]} />
+        <HighlightedCode
+          artifact={artifact}
+          projectId={candidate.project_id}
+          linkRevision={candidate.revision_id}
+          highlightLines={[candidate.line]}
+        />
       </details>
+
       {candidate.review_status !== "pending" && !editing ? (
         <ReviewSummary status={candidate.review_status} note={candidate.review_note} label="Candidate" onEdit={() => setEditing(true)} />
       ) : (
         <ReviewForm
-          note={note} setNote={setNote} busy={busy} error={error}
-          onSubmit={() => save("accepted")} onReject={() => save("rejected")}
+          note={note}
+          setNote={setNote}
+          busy={busy}
+          error={error}
+          onSubmit={() => save("accepted")}
+          onReject={() => save("rejected")}
           acceptLabel="Accept candidate"
         />
       )}
@@ -406,17 +513,153 @@ function CandidateCheckpoint({
   onSaved: () => Promise<void>;
 }) {
   const candidates = target.candidate_locations ?? [];
+  const candidateAccepted = candidates.some(candidate => candidate.review_status === "accepted");
   const resolved = candidates.length > 0 && candidates.every(candidate => candidate.review_status !== "pending");
+
   return (
     <section className="checkpoint-section active-checkpoint">
       <div className="checkpoint-title">
         <span className="step-number">2</span>
-        <div><b>Candidate location</b><small>{candidates.length} source-location proposals for the root-cause target</small></div>
-        <span className={"pill " + (resolved ? "accepted" : "pending")}>{resolved ? "reviewed" : `${candidates.filter(c => c.review_status !== "pending").length}/${candidates.length} reviewed`}</span>
+        <div><b>Candidate location</b><small>Patch-base source location for the root-cause target</small></div>
+        <span className={"pill " + (candidateAccepted ? "accepted" : "pending")}>
+          {candidateAccepted ? "accepted" : resolved ? "review needed" : "pending"}
+        </span>
       </div>
       <div className="checkpoint-content">
-        {candidates.map(candidate => <CandidateCard key={candidate.candidate_id} candidate={candidate} onSaved={onSaved} />)}
-        {candidates.length === 0 && <p className="empty-state">No candidate locations are associated with this target.</p>}
+        {candidates.map(candidate => (
+          <CandidateCard key={candidate.candidate_id} candidate={candidate} onSaved={onSaved} />
+        ))}
+        {candidates.length === 0 && <p className="empty-state">No candidate location is associated with the patch-base revision.</p>}
+      </div>
+    </section>
+  );
+}
+
+function AnnotationCard({
+  annotation,
+  onSaved,
+}: {
+  annotation: Annotation;
+  onSaved: () => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(!annotation.submitted_at);
+  const [confidence, setConfidence] = useState(Number(annotation.confidence));
+  const [reviewNote, setReviewNote] = useState(annotation.review_note ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setConfidence(Number(annotation.confidence));
+    setReviewNote(annotation.review_note ?? "");
+    setEditing(!annotation.submitted_at);
+  }, [annotation.confidence, annotation.review_note, annotation.submitted_at]);
+
+  async function submit() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(API + "/api/annotations/" + annotation.annotation_id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          confidence,
+          reviewer_id: REVIEWER_ID,
+          review_note: reviewNote,
+        }),
+      });
+      if (!response.ok) throw new Error("API returned " + response.status + ": " + await response.text());
+      setEditing(false);
+      await onSaved();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to submit annotation");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <article className="annotation-card">
+      <div className="annotation-heading">
+        <div>
+          <b>{annotation.field.replaceAll("_", " ")}</b>
+          <small>{annotation.annotation_id}</small>
+        </div>
+        <span className="annotation-value">{annotation.value}</span>
+      </div>
+      <div className="annotation-taxonomy">Taxonomy · {annotation.taxonomy}</div>
+      {annotation.notes.length > 0 && (
+        <p className="annotation-context">{annotation.notes.join("\n")}</p>
+      )}
+      <div className="annotation-timestamps">
+        <span>Created at {formatTimestamp(annotation.created_at)}</span>
+        {annotation.submitted_at && <span>Last edited at {formatTimestamp(annotation.updated_at)}</span>}
+      </div>
+
+      {annotation.submitted_at && !editing ? (
+        <div className="annotation-summary">
+          <div>
+            <b>✓ Annotation submitted</b>
+            <p>Confidence · {Number(annotation.confidence).toFixed(2)}</p>
+            {annotation.review_note && <p>{annotation.review_note}</p>}
+          </div>
+          <button className="edit-button" onClick={() => setEditing(true)}>Edit</button>
+        </div>
+      ) : (
+        <div className="annotation-editor">
+          <label htmlFor={"confidence-" + annotation.annotation_id}>Confidence</label>
+          <div className="confidence-row">
+            <input
+              id={"confidence-" + annotation.annotation_id}
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={confidence}
+              onChange={event => setConfidence(Number(event.target.value))}
+            />
+            <output>{confidence.toFixed(2)}</output>
+          </div>
+          <textarea
+            value={reviewNote}
+            onChange={event => setReviewNote(event.target.value)}
+            placeholder="Reviewer note (optional)"
+          />
+          {error && <p className="error">{error}</p>}
+          <div className="actions">
+            <button className="accept" disabled={busy} onClick={submit}>
+              {busy ? "Submitting…" : "Submit annotation"}
+            </button>
+          </div>
+        </div>
+      )}
+    </article>
+  );
+}
+
+function AnnotationCheckpoint({
+  candidate,
+  onSaved,
+}: {
+  candidate: Candidate | undefined;
+  onSaved: () => Promise<void>;
+}) {
+  const annotations = candidate?.annotations ?? [];
+  const submitted = annotations.length > 0 && annotations.every(annotation => Boolean(annotation.submitted_at));
+
+  return (
+    <section className="checkpoint-section active-checkpoint">
+      <div className="checkpoint-title">
+        <span className="step-number">3</span>
+        <div><b>Annotations</b><small>Root-cause annotations linked to the accepted candidate location</small></div>
+        <span className={"pill " + (submitted ? "accepted" : "pending")}>
+          {annotations.length === 0 ? "none" : annotations.filter(annotation => annotation.submitted_at).length + "/" + annotations.length + " submitted"}
+        </span>
+      </div>
+      <div className="checkpoint-content annotation-list">
+        {annotations.map(annotation => (
+          <AnnotationCard key={annotation.annotation_id} annotation={annotation} onSaved={onSaved} />
+        ))}
+        {annotations.length === 0 && <p className="empty-state">No annotations are associated with this candidate location.</p>}
       </div>
     </section>
   );
@@ -520,12 +763,14 @@ function LaterCheckpoint({ number, title, description }: { number: number; title
 function Thread({ target, onSaved }: { target: Target; onSaved: () => Promise<void> }) {
   const root = target.thread === "root_cause";
   const candidates = target.candidate_locations ?? [];
-  const candidateResolved = candidates.length > 0 && candidates.every(candidate => candidate.review_status !== "pending");
+  const candidateAccepted = candidates.some(candidate => candidate.review_status === "accepted");
+  const annotations = candidates.flatMap(candidate => candidate.annotations ?? []);
+  const annotationsSubmitted = annotations.length > 0 && annotations.every(annotation => Boolean(annotation.submitted_at));
   const reproductionAccepted = target.reproduction?.review_status === "accepted";
   const activeStep = target.review_status !== "accepted"
     ? 0
     : root
-      ? (candidateResolved ? 2 : 1)
+      ? (candidateAccepted ? (annotationsSubmitted ? 3 : 2) : 1)
       : (reproductionAccepted ? 2 : 1);
   const [expanded, setExpanded] = useState(true);
 
@@ -553,7 +798,11 @@ function Thread({ target, onSaved }: { target: Target; onSaved: () => Promise<vo
           root ? (
             <>
               <CandidateCheckpoint target={target} onSaved={onSaved} />
-              <LaterCheckpoint number={3} title="Annotations" description="Annotate the accepted root-cause location(s)" />
+              {candidateAccepted ? (
+                <AnnotationCheckpoint candidate={candidates.find(candidate => candidate.review_status === "accepted")} onSaved={onSaved} />
+              ) : (
+                <LaterCheckpoint number={3} title="Annotations" description="Available after accepting the patch-base candidate location" />
+              )}
             </>
           ) : (
             <>
