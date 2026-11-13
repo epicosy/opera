@@ -972,7 +972,7 @@ function ManifestationAnnotation({target,sourceArtifact,onSaved}:{
           <span>Line <b>{location.line}</b></span><span>Columns <b>{location.start_column??"?"}–{location.end_column??"?"}</b></span>
           <span>Object <b>{location.name}</b></span><span>Type <b>{location.type}</b></span>
         </div>
-        <a className="candidate-source-link" href={`https://github.com/${location.project_id}/blob/${location.revision_id}/unpackinline.cpp#L${location.line}-L${location.line}`} target="_blank" rel="noreferrer">Open crash-site revision ↗</a>
+        <a className="candidate-source-link" href={`https://github.com/${location.project_id}/blob/${location.revision_id}/${sourceArtifact?.file_path ?? "unpackinline.cpp"}#L${location.line}-L${location.line}`} target="_blank" rel="noreferrer">Open crash-site revision ↗</a>
       </div>
       <div className="annotation-pane">
         <h3>Final chain weakness</h3>
