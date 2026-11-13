@@ -100,6 +100,8 @@ type Target = {
   review_status: ReviewStatus;
   review_note?: string | null;
   reviewer_id?: string | null;
+  patch_review_status: ReviewStatus;
+  patch_review_note?: string | null;
   artifacts: Artifact[];
   function_diff?: FunctionDiff | null;
   candidate_locations?: Candidate[];
@@ -865,9 +867,9 @@ function ReproductionAnalysis({target,onSaved}:{target:Target;onSaved:()=>Promis
 function PatchAnalysis({target,onSaved}:{target:Target;onSaved:()=>Promise<void>}){
   return <section className="checkpoint-section workflow-checkpoint">
     <div className="workflow-checkpoint-heading">
-      <span className={target.review_status==="accepted"?"step-number completed":"step-number"}>1</span>
+      <span className={target.patch_review_status==="accepted"?"step-number completed":"step-number"}>1</span>
       <div><b>Patch Analysis</b><small>Review the patch and verify the patched build no longer reproduces the crash</small></div>
-      <span className={"pill "+target.review_status}>{target.review_status}</span>
+      <span className={"pill "+target.patch_review_status}>{target.patch_review_status}</span>
     </div>
     <div className="analysis-stack">
       <div><h3>Patch-base to fix</h3>{target.function_diff?<FunctionDiffCard diff={target.function_diff}/>:<p className="empty-state">No patch-base/fix function diff is available.</p>}</div>
@@ -875,8 +877,8 @@ function PatchAnalysis({target,onSaved}:{target:Target;onSaved:()=>Promise<void>
         <div><b>Patched reproduction log</b><span className="future-label">Awaiting supplied log</span></div>
         <p>The patched-run output will be added here. It should show <code>unrar_fuzzer</code> completing without a crash or sanitizer report.</p>
       </div>
-      <AnalysisReviewBox entityId={target.target_id} endpoint="/api/targets/{id}/review"
-        status={target.review_status} note={target.review_note} label="Patch review"
+      <AnalysisReviewBox entityId={target.target_id} endpoint="/api/targets/{id}/patch-review"
+        status={target.patch_review_status} note={target.patch_review_note} label="Patch review"
         prompt="Confirm the patch review" acceptLabel="Confirm patch" onSaved={onSaved}/>
     </div>
   </section>;
@@ -996,7 +998,7 @@ function ThreadOverviewCard({target,examinationId}:{target:Target;examinationId:
   const rootAnnotations=candidate?.annotations??[];
   const manifestAnnotations=(target.object_locations??[]).flatMap(l=>l.annotations??[]);
   const stages=root?[
-    {label:"Patch Analysis",complete:target.review_status==="accepted"},
+    {label:"Patch Analysis",complete:target.patch_review_status==="accepted"},
     {label:"Root-Cause Annotation",complete:candidate?.review_status==="accepted"&&rootAnnotations.length>0&&rootAnnotations.every(a=>Boolean(a.submitted_at))}
   ]:[
     {label:"Reproduction Analysis",complete:target.reproduction?.review_status==="accepted"},
@@ -1063,7 +1065,7 @@ export function ExaminationWorkspace({mode,examinationId}:{
       <div className="identifiers">{data.examination.external_identifiers.map(i=><a href={i.uri} target="_blank" rel="noreferrer" key={i.value}>{i.value} ↗</a>)}</div>
       <div className="overview">
         <div><small>PROJECT</small><b>{data.examination.project_id}</b></div>
-        <div><small>ROOT-CAUSE PATCH REVIEW</small><b>{root.review_status}</b></div>
+        <div><small>ROOT-CAUSE PATCH REVIEW</small><b>{root.patch_review_status}</b></div>
         <div><small>REPRODUCTION REVIEW</small><b>{manifestation.reproduction?.review_status??"unavailable"}</b></div>
       </div>
     </section>
