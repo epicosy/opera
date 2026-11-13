@@ -1,5 +1,10 @@
 import { ExaminationWorkspace } from "../../../examination-workspace";
 
-export default function RootCausePage({ params }: { params: { examination_id: string } }) {
-  return <ExaminationWorkspace mode="root_cause" examinationId={params.examination_id} />;
+export default async function RootCausePage({
+  params,
+}: {
+  params: Promise<{ examination_id: string }>;
+}) {
+  const { examination_id } = await params;
+  return <ExaminationWorkspace mode="root_cause" examinationId={examination_id} />;
 }
