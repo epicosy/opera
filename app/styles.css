@@ -157,3 +157,76 @@
  .diff-revisions{flex-direction:column}
  .candidate-heading{flex-direction:column}
 }
+
+
+/* Examination overview and dedicated thread pages */
+.thread{border-radius:0}
+.case-head{padding:26px 0 19px;border-bottom:1px solid #29343f}
+.case-head .eyebrow{font-size:9px;letter-spacing:.12em;color:#8294a1}
+.case-head h1{font-size:24px;line-height:1.25;margin:8px 0 13px}
+.identifiers{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.identifiers a{display:inline-block;border:1px solid #2c5e58;padding:5px 7px;color:#69cfc0;font-size:10px;text-decoration:none;border-radius:0;overflow-wrap:anywhere}
+.identifiers a:hover,.diff-revisions a:hover,.candidate-source-link:hover{background:#132a2a;border-color:#3d8579}
+.overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px;padding-top:15px;border-top:1px solid #29343f}
+.overview>div{display:grid;gap:4px;min-width:0}
+.overview small{font-size:9px;letter-spacing:.1em;color:#8294a1}
+.overview b{font-size:11px;overflow-wrap:anywhere}
+.overview-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:24px 0 12px}
+.overview-heading h2,.thread-page-intro h2{font-size:18px;margin:0}
+.overview-heading p,.thread-page-intro p{font-size:11px;color:#8b9ba7;margin:4px 0 0}
+.overview-heading>span{font-size:10px;color:#8797a3;white-space:nowrap}
+.thread-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.thread-overview-card{display:flex;flex-direction:column;gap:17px;min-width:0;background:#111922;border:1px solid #2b3944;padding:17px}
+.thread-overview-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.thread-overview-heading>div{min-width:0}
+.thread-kind{font-size:9px;letter-spacing:.12em;color:#59c5b4}
+.thread-overview-heading h2{font-size:15px;margin:4px 0 5px}
+.thread-overview-heading p{font-size:10px;line-height:1.5;color:#91a1ad;margin:0;max-width:440px}
+.overview-stepper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.overview-step{display:flex;flex-direction:column;gap:7px;min-width:0;border-top:2px solid #394652;padding:7px 3px 0}
+.overview-step>span{width:21px;height:21px;display:grid;place-items:center;border:1px solid #60717d;border-radius:50%;font-size:10px;color:#aebbc5}
+.overview-step small{font-size:9px;line-height:1.35;letter-spacing:0;color:#81919e;overflow-wrap:anywhere}
+.overview-step.completed{border-color:#286e60}
+.overview-step.completed>span{background:#1a8e80;border-color:#1a8e80;color:#fff}
+.overview-step.completed small{color:#70cdbb}
+.thread-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:12px;border-top:1px solid #293641}
+.thread-card-footer>span{font-size:9px;color:#82939f}
+.thread-card-footer a,.thread-page-intro>a{font-size:10px;color:#69cfc0;text-decoration:none}
+.thread-card-footer a{border:1px solid #2c5e58;padding:6px 9px;white-space:nowrap}
+.thread-card-footer a:hover{background:#132a2a;border-color:#3d8579}
+.thread-page-intro{display:flex;flex-direction:column;gap:13px;margin:22px 0 12px}
+.thread-page-intro>a{align-self:flex-start}
+.thread-page-intro h2{font-size:18px}
+.thread-page-intro p{max-width:750px}
+
+/* Checkpoints are individually collapsible; only validated checkpoints receive teal numbers. */
+.checkpoint-disclosure>summary{display:flex;list-style:none;cursor:pointer;margin-bottom:0}
+.checkpoint-disclosure>summary::-webkit-details-marker{display:none}
+.checkpoint-disclosure>summary::after{content:"+";font-size:17px;line-height:1;color:#8ea0ad;margin-left:8px}
+.checkpoint-disclosure[open]>summary::after{content:"−"}
+.checkpoint-disclosure[open]>summary{margin-bottom:12px}
+.step-number.completed{background:#1a8e80;border-color:#1a8e80;color:#fff}
+.active-checkpoint .step-number:not(.completed){background:transparent;border-color:#60707d;color:#c4d0d8}
+.target-id-inline{display:flex!important;align-items:center;gap:8px}
+.target-id-inline label{white-space:nowrap}
+.target-id-inline code{min-width:0;overflow-wrap:anywhere}
+.annotation-location{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid #2b3944;background:#101a22;min-width:0}
+.annotation-location label{white-space:nowrap}
+.annotation-location code{font-size:10px;color:#b8c8d2;overflow-wrap:anywhere}
+
+/* The step cells have breathing room from the stepper container edges. */
+.stepper .step{margin:10px 0 10px 10px;padding:5px}
+@media(max-width:760px){
+ .thread-board{grid-template-columns:1fr}
+ .overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .overview-stepper{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+ .overview-heading{align-items:flex-start;flex-direction:column}
+ .overview{grid-template-columns:1fr 1fr;gap:12px}
+ .thread-overview-heading{flex-direction:column}
+ .thread-card-footer{align-items:flex-start;flex-direction:column}
+ .thread-card-footer a{align-self:flex-start}
+ .target-facts{grid-template-columns:1fr}
+ .stepper .step{margin-left:10px}
+}
