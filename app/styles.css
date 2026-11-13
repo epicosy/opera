@@ -232,3 +232,58 @@
 }
 
 .thread-heading{border-radius:0}
+
+/* Paired analysis and annotation workspaces */
+.pair-stepper{grid-template-columns:repeat(2,minmax(0,1fr))}
+.workflow-checkpoint{padding:16px}
+.workflow-checkpoint-heading{display:flex;align-items:center;gap:11px;margin:0 0 14px}
+.workflow-checkpoint-heading>div{display:grid;gap:2px;flex:1;min-width:0}
+.workflow-checkpoint-heading b{font-size:13px}
+.workflow-checkpoint-heading small{font-size:10px;letter-spacing:0;color:#8494a1}
+.analysis-stack{display:grid;gap:17px;min-width:0}
+.analysis-stack h3,.annotation-pane h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#a9b7c1;margin:0 0 8px}
+.analysis-review-box{margin-top:2px}
+.analysis-review-box .review-summary{margin-top:0}
+.analysis-review-box .review-box{margin-top:0}
+.analysis-review-box>div:first-child p{font-size:10px;color:#8fa0aa;margin:5px 0}
+.report-strip{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:10px 11px;background:#0c141b;border:1px solid #2b3944}
+.report-item{display:inline-flex;align-items:center;gap:10px;font-size:10px;color:#a8b6c0;white-space:nowrap}
+.report-item a{font-size:10px;color:#69cfc0;text-decoration:none}
+.report-separator{color:#566571}
+.patched-log-placeholder{border:1px dashed #52616c;background:#0c141b;padding:13px}
+.patched-log-placeholder>div{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.patched-log-placeholder b{font-size:11px}
+.patched-log-placeholder p{font-size:10px;line-height:1.6;color:#92a2ae;margin:8px 0 0}
+.patched-log-placeholder code{color:#c6d7e2}
+.annotation-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.annotation-pane{min-width:0;display:flex;flex-direction:column;gap:10px}
+.annotation-pane .source-card{margin-top:0}
+.annotation-pane .annotation-list{margin-top:0}
+.source-location-facts{display:flex;flex-wrap:wrap;gap:8px 14px;padding:8px 10px;border:1px solid #2b3944;background:#0c141b}
+.source-location-facts span{font-size:10px;color:#8495a2}
+.source-location-facts b{color:#dce5eb;font-weight:600}
+.source-location-facts code{font-size:10px;color:#b9c8d2;overflow-wrap:anywhere}
+.candidate-validation-box{display:grid;gap:9px;border:1px solid #30434b;background:#101b21;padding:12px}
+.candidate-validation-box>div:first-child b{font-size:11px}
+.candidate-validation-box>div:first-child p{font-size:10px;color:#8fa0aa;margin:5px 0}
+.candidate-validation-box .review-form{display:grid;gap:8px}
+.chain-weakness-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px;background:#101b21;border:1px solid #30434b}
+.chain-weakness-summary>div:not(.chain-cwe){display:grid;gap:3px;min-width:0}
+.chain-weakness-summary label{font-size:9px;color:#8494a1;letter-spacing:.08em}
+.chain-weakness-summary b,.chain-weakness-summary code{font-size:10px;overflow-wrap:anywhere;color:#d5e0e7}
+.chain-cwe{grid-column:1/-1;font-size:12px;font-weight:700;color:#e4d6ae;border-left:3px solid #c8a75d;padding:2px 0 2px 9px}
+.placeholder-thread-card{border-style:dashed;background:#0d151c}
+.placeholder-thread-card .thread-card-footer{border-top-style:dashed}
+@media(max-width:760px){
+ .annotation-split{grid-template-columns:1fr}
+ .report-strip{align-items:flex-start;flex-direction:column}
+ .report-item{white-space:normal}
+ .report-separator{display:none}
+}
+@media(max-width:520px){
+ .workflow-checkpoint{padding:12px}
+ .workflow-checkpoint-heading{align-items:flex-start}
+ .chain-weakness-summary{grid-template-columns:1fr}
+ .chain-cwe{grid-column:1}
+ .patched-log-placeholder>div{align-items:flex-start;flex-direction:column}
+}
