@@ -19,12 +19,10 @@ docker run -d --name findthemall-web --network findthemall -p 3000:3000 findthem
 
 Start PostgreSQL (`arepo`), then FastAPI (`rotas`), then this UI. The API must be published on host port 8000 for the browser to reach it. Local development: `npm install && npm run dev`.
 
-## Examination routes and threads
+## Examination routes and analysis/annotation pairs
 
-- `/examination/{examination_id}` is the overview. It presents root-cause and manifestation workstreams as separate Kanban-style cards, each with a checkpoint progress summary and a link to continue.
-- `/examination/{examination_id}/root_cause` opens only the root-cause thread: Target → Candidate location validation → Annotations.
-- `/examination/{examination_id}/manifestation` opens only the manifestation thread: Target → Reproduction → Object locations → Annotations.
+- `/examination/{examination_id}` is the overview. It presents three Kanban-style workstream cards: Reproduction Analysis → Manifestation Annotation; Patch Analysis → Root-Cause Annotation; and a placeholder for Propagation Analysis → Chain Annotation.
+- `/examination/{examination_id}/manifestation` presents Reproduction Analysis (NVD, OSS-Fuzz and OSV reports plus reproduction outputs and confirmation) followed by Manifestation Annotation (crash-site function source at line 65 on the left; final chain weakness, CWE-787, `Dest[2]`, and resource kind/state annotations on the right).
+- `/examination/{examination_id}/root_cause` presents Patch Analysis (patch-base/fix function diff, patched-run log placeholder and confirmation) followed by Root-Cause Annotation (candidate source at line 16 and candidate validation on the left; root-cause annotations on the right).
 
-Each checkpoint can be collapsed independently. Validated checkpoints receive a teal step marker. Target records expose their own creation and last-edited timestamps. The target artifact panel remains independently accessible after target validation and displays the patch-base/fix function diff as one artifact. Candidate location review must be accepted before its annotations are exposed; annotation records include their source location ID, and the operation rationale is prefilled as the reviewer note.
-
-Target validation collapses only the validation form into a saved review summary; target artifact inspection remains independently available. Candidate and reproduction reviews are persisted independently. The registry is not activated, and no vulnerability is created by validating an individual checkpoint.
+The Propagation Analysis → Chain Annotation card is intentionally a placeholder. The patched-run log is also a placeholder until the expected successful `unrar_fuzzer` output is provided. The two dynamic route pages await Next.js 15 `params` Promises before reading `examination_id`. Annotation confidence and reviewer notes are persisted for both candidate-location and object-location annotations. The registry is not activated, and no vulnerability is created by validating an individual checkpoint.
