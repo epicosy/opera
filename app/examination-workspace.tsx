@@ -693,7 +693,20 @@ function ReproductionCheckpoint({
   }, [reproduction?.review_status, reproduction?.review_note]);
 
   if (!reproduction) {
-    return <section className="checkpoint-section active-checkpoint"><p className="empty-state">No reproduction record is associated with this manifestation target.</p></section>;
+    return (
+      <section className="checkpoint-section active-checkpoint">
+        <details className="checkpoint-disclosure" open>
+          <summary className="checkpoint-title">
+            <span className="step-number">2</span>
+            <div><b>Reproduction</b><small>Existing reproduction record and execution outputs</small></div>
+            <span className="future-label">Unavailable</span>
+          </summary>
+          <div className="checkpoint-content">
+            <p className="empty-state">No reproduction record is associated with this manifestation target.</p>
+          </div>
+        </details>
+      </section>
+    );
   }
 
   async function save(status: "accepted" | "rejected") {
@@ -761,11 +774,16 @@ function ReproductionCheckpoint({
 function LaterCheckpoint({ number, title, description }: { number: number; title: string; description: string }) {
   return (
     <section className="checkpoint-section future-checkpoint">
-      <div className="checkpoint-title">
-        <span className="step-number">{number}</span>
-        <div><b>{title}</b><small>{description}</small></div>
-        <span className="future-label">Not implemented</span>
-      </div>
+      <details className="checkpoint-disclosure" open>
+        <summary className="checkpoint-title">
+          <span className="step-number">{number}</span>
+          <div><b>{title}</b><small>{description}</small></div>
+          <span className="future-label">Not implemented</span>
+        </summary>
+        <div className="checkpoint-content">
+          <p className="empty-state">This checkpoint is visible in the thread plan but is not implemented in the current slice.</p>
+        </div>
+      </details>
     </section>
   );
 }
