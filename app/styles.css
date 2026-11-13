@@ -230,3 +230,5 @@
  .target-facts{grid-template-columns:1fr}
  .stepper .step{margin-left:10px}
 }
+
+.thread-heading{border-radius:0}
