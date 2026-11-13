@@ -21,7 +21,7 @@ Start PostgreSQL (`arepo`), then FastAPI (`rotas`), then this UI. The API must b
 
 ## Examination threads
 
-- **Root cause**: Target → Candidate location → Annotations. The two seeded candidate-location proposals can each be accepted/rejected with reviewer notes.
+- **Root cause**: Target → Candidate location → Annotations. The target artifact panel remains independently accessible after target validation and displays the patch-base/fix function diff as one artifact. The single patch-base candidate can be accepted/rejected with reviewer notes and creation/last-edited timestamps. Its qualifier and operation annotations have confidence sliders and independent submission timestamps.
 - **Manifestation**: Target → Reproduction → Object locations → Annotations. The existing reproduction record, execution-context artifact and AddressSanitizer runner log can be reviewed with a persisted decision.
 
-Target validation collapses its details into a saved review summary and moves focus to the next checkpoint in that thread. The review summary exposes the saved note and an Edit action. Candidate and reproduction reviews are persisted independently. The registry is not activated, and no vulnerability is created by validating an individual checkpoint.
+Target validation collapses only the validation form into a saved review summary; target artifact inspection remains independently available. The next checkpoint becomes active. The review summary exposes the saved note and an Edit action. Candidate and reproduction reviews are persisted independently. The registry is not activated, and no vulnerability is created by validating an individual checkpoint.
