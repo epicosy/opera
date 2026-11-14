@@ -40,6 +40,9 @@ type Candidate = {
   target_id: string;
   artifact_id: string;
   line: number;
+  start_column?: number | null;
+  end_column?: number | null;
+  name?: string | null;
   proposed_by: string;
   notes: string[];
   created_at: string;
@@ -84,9 +87,10 @@ type Reproduction = {
 };
 type ObjectLocation = {
   object_location_id: string; target_id: string; project_id: string;
-  revision_id: string; artifact_id: string; chain_id: string; weakness_id: string;
+  revision_id: string; artifact_id: string;
   line: number; start_column?: number | null; end_column?: number | null;
-  name: string; type: string; cwe_id: string; cwe_label: string;
+  name: string; cwe_id: string; cwe_label: string;
+  review_status: ReviewStatus; reviewed_by?: string | null; review_note?: string | null;
   annotations: Annotation[];
 };
 type Target = {
@@ -136,54 +140,37 @@ function tokenClass(token: string): string {
   return "";
 }
 
-function HighlightedCode({
-  artifact,
-  projectId,
-  linkRevision,
-  highlightLines = [],
-}: {
-  artifact: Artifact;
-  projectId: string;
-  linkRevision?: string;
-  highlightLines?: number[];
-}) {
-  const startLine = artifact.start_line ?? 1;
-  const revision = linkRevision ?? artifact.revision;
-  const filePath = artifact.file_path ?? "";
-  const githubUrl = filePath
-    ? `https://github.com/${projectId}/blob/${revision}/${filePath}#L${startLine}-L${artifact.end_line ?? startLine}`
-    : undefined;
-  const functionLabel = artifact.function_name ?? "source";
-  const tokens = /\/\/.*$|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|#\s*[A-Za-z_]+|[A-Za-z_][A-Za-z0-9_]*|\d+|./g;
-
-  return (
-    <div className="source-card">
-      <div className="source-heading">
-        <b>Function Source: {functionLabel}</b>
-        {githubUrl && (
-          <a href={githubUrl} target="_blank" rel="noreferrer">
-            {projectId}/{revision}/{filePath}#L{startLine}-L{artifact.end_line ?? startLine} ↗
-          </a>
-        )}
-      </div>
-      <div className="code-scroll">
-        <pre className="source-code"><code>
-          {artifact.content.replace(/\r\n/g, "\n").replace(/\n$/, "").split("\n").map((line, index) => {
-            const lineNumber = startLine + index;
-            const pieces = line.match(tokens) ?? [line];
-            return (
-              <span className={highlightLines.includes(lineNumber) ? "source-line highlighted" : "source-line"} key={lineNumber}>
-                <span className="line-number">{lineNumber}</span>
-                <span className="line-code">{pieces.map((token, part) => (
-                  <span className={tokenClass(token)} key={part}>{token}</span>
-                ))}</span>
-              </span>
-            );
-          })}
-        </code></pre>
-      </div>
-    </div>
-  );
+function HighlightedCode({artifact,projectId,linkRevision,highlightLines=[],highlightRange}:{
+  artifact:Artifact;projectId:string;linkRevision?:string;highlightLines?:number[];
+  highlightRange?:{line:number;startColumn:number;endColumn:number};
+}){
+  const startLine=artifact.start_line??1;const revision=linkRevision??artifact.revision;
+  const filePath=artifact.file_path??"";
+  const githubUrl=filePath?`https://github.com/${projectId}/blob/${revision}/${filePath}#L${startLine}-L${artifact.end_line??startLine}`:undefined;
+  const functionLabel=artifact.function_name??"source";
+  const tokens=/\/\/.*$|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|#\s*[A-Za-z_]+|[A-Za-z_][A-Za-z0-9_]*|\d+|./g;
+  return <div className="source-card">
+    <div className="source-heading"><b>Function Source: {functionLabel}</b>{githubUrl&&<a href={githubUrl} target="_blank" rel="noreferrer">{projectId}/{revision}/{filePath}#L{startLine}-L{artifact.end_line??startLine} ↗</a>}</div>
+    <div className="code-scroll"><pre className="source-code"><code>
+      {artifact.content.replace(/\r\n/g,"\n").replace(/\n$/,"").split("\n").map((line,index)=>{
+        const lineNumber=startLine+index;const range=highlightRange?.line===lineNumber?highlightRange:undefined;
+        const selected=range?line.slice(Math.max(0,range.startColumn-1),Math.max(0,range.endColumn-1)):"";
+        const isHighlighted=highlightLines.includes(lineNumber)||Boolean(range);
+        if(range){
+          const before=line.slice(0,Math.max(0,range.startColumn-1));const after=line.slice(Math.max(0,range.endColumn-1));
+          return <span className={isHighlighted?"source-line highlighted":"source-line"} key={lineNumber}>
+            <span className="line-number">{lineNumber}</span>
+            <span className="line-code">{before}<span className="source-column-highlight">{selected}</span>{after}</span>
+          </span>;
+        }
+        const pieces=line.match(tokens)??[line];
+        return <span className={isHighlighted?"source-line highlighted":"source-line"} key={lineNumber}>
+          <span className="line-number">{lineNumber}</span>
+          <span className="line-code">{pieces.map((token,part)=><span className={tokenClass(token)} key={part}>{token}</span>)}</span>
+        </span>;
+      })}
+    </code></pre></div>
+  </div>;
 }
 
 function FunctionDiffCard({ diff }: { diff: FunctionDiff }) {
@@ -513,7 +500,7 @@ function CandidateCard({
           error={error}
           onSubmit={() => save("accepted")}
           onReject={() => save("rejected")}
-          acceptLabel="Accept candidate"
+          acceptLabel="Accept Bug Location"
         />
       )}
     </article>
@@ -833,11 +820,21 @@ function AnalysisReviewBox({
 }
 
 function ReportStrip({reports}:{reports:Artifact[]}){
-  return <div className="report-strip" aria-label="Vulnerability reports">
-    {reports.map((report,index)=><span className="report-item" key={report.artifact_id}>
-      {report.source_uri?<a href={report.source_uri} target="_blank" rel="noreferrer">{report.source} · {report.report_id} ↗</a>:<span>{report.source} · {report.report_id}</span>}
-      {index<reports.length-1&&<span className="report-separator">|</span>}
-    </span>)}
+  return <div className="report-evidence">
+    <div className="report-strip" aria-label="Vulnerability reports">
+      {reports.map((report,index)=><span className="report-item" key={report.artifact_id}>
+        {report.source_uri?<a href={report.source_uri} target="_blank" rel="noreferrer">{report.source} · {report.report_id} ↗</a>:<span>{report.source} · {report.report_id}</span>}
+        {index<reports.length-1&&<span className="report-separator">|</span>}
+      </span>)}
+    </div>
+    <div className="report-content-list">
+      {reports.map(report=><article className="report-content-card" key={report.artifact_id}>
+        <div className="report-content-heading"><b>{report.source} · {report.report_id}</b>
+          {report.source_uri&&<a href={report.source_uri} target="_blank" rel="noreferrer">Original report ↗</a>}
+        </div>
+        <pre>{report.content.replace(/\\n/g,"\n")}</pre>
+      </article>)}
+    </div>
   </div>;
 }
 
@@ -898,19 +895,19 @@ function CandidateValidation({candidate,onSaved}:{candidate:Candidate;onSaved:()
       });
       if(!response.ok)throw new Error("API returned "+response.status+": "+await response.text());
       setEditing(false);await onSaved();
-    }catch(reason){setError(reason instanceof Error?reason.message:"Unable to validate candidate location");}
+    }catch(reason){setError(reason instanceof Error?reason.message:"Unable to validate bug location");}
     finally{setBusy(false);}
   }
   return candidate.review_status!=="pending"&&!editing
-    ? <ReviewSummary status={candidate.review_status} note={candidate.review_note} label="Candidate location" onEdit={()=>setEditing(true)}/>
+    ? <ReviewSummary status={candidate.review_status} note={candidate.review_note} label="Bug Location" onEdit={()=>setEditing(true)}/>
     : <div className="candidate-validation-box">
-        <div><b>Validate candidate location</b><p>Confirm this source location captures the root cause before accepting its annotations.</p></div>
+        <div><b>Validate Bug Location</b><p>Confirm that this source range identifies the incorrect evaluation of UnpPtr.</p></div>
         <ReviewForm note={note} setNote={setNote} busy={busy} error={error}
           onSubmit={()=>save("accepted")} onReject={()=>save("rejected")} acceptLabel="Accept candidate"/>
       </div>;
 }
 
-function RootCauseAnnotation({target,onSaved}:{target:Target;onSaved:()=>Promise<void>}){
+function BugAnnotation({target,onSaved}:{target:Target;onSaved:()=>Promise<void>}){
   const candidate=target.candidate_locations?.[0];
   if(!candidate)return <section className="checkpoint-section workflow-checkpoint">
     <div className="workflow-checkpoint-heading"><span className="step-number">2</span><div><b>Root-Cause Annotation</b><small>Candidate source and root-cause annotations</small></div></div>
@@ -927,18 +924,22 @@ function RootCauseAnnotation({target,onSaved}:{target:Target;onSaved:()=>Promise
   return <section className="checkpoint-section workflow-checkpoint">
     <div className="workflow-checkpoint-heading">
       <span className={accepted&&submitted?"step-number completed":"step-number"}>2</span>
-      <div><b>Root-Cause Annotation</b><small>Candidate source location and its cause annotations</small></div>
+      <div><b>Bug Annotation</b><small>Bug location and its root-cause annotations</small></div>
       <span className={"pill "+candidate.review_status}>{candidate.review_status}</span>
     </div>
     <div className="annotation-split">
       <div className="annotation-pane">
-        <h3>Candidate source location</h3>
-        <HighlightedCode artifact={artifact} projectId={candidate.project_id} linkRevision={candidate.revision_id} highlightLines={[candidate.line]}/>
-        <div className="source-location-facts"><span>Line <b>{candidate.line}</b></span><span>Revision <code>{candidate.revision_id}</code></span></div>
+        <h3>Bug Location</h3>
+        <HighlightedCode artifact={artifact} projectId={candidate.project_id} linkRevision={candidate.revision_id}
+          highlightLines={[candidate.line]} highlightRange={candidate.start_column&&candidate.end_column
+            ? {line:candidate.line,startColumn:candidate.start_column,endColumn:candidate.end_column}:undefined}/>
+        <div className="source-location-facts"><span>Line <b>{candidate.line}</b></span>
+          <span>Columns <b>{candidate.start_column??"?"}–{candidate.end_column??"?"}</b></span>
+          <span>Symbol <b>{candidate.name??"UnpPtr"}</b></span><span>Revision <code>{candidate.revision_id}</code></span></div>
         <CandidateValidation candidate={candidate} onSaved={onSaved}/>
       </div>
       <div className="annotation-pane">
-        <h3>Root-cause annotations</h3>
+        <h3>Root Cause</h3>
         {accepted?<div className="annotation-list">
           {annotations.map(a=><AnnotationCard key={a.annotation_id} annotation={a} onSaved={onSaved}/>)}
           {!annotations.length&&<p className="empty-state">No annotations are associated with this candidate location.</p>}
@@ -948,104 +949,91 @@ function RootCauseAnnotation({target,onSaved}:{target:Target;onSaved:()=>Promise
   </section>;
 }
 
-function ManifestationAnnotation({target,sourceArtifact,onSaved}:{
-  target:Target;sourceArtifact?:Artifact;onSaved:()=>Promise<void>;
-}){
+function FailureLocationValidation({location,onSaved}:{location:ObjectLocation;onSaved:()=>Promise<void>}){
+  const [editing,setEditing]=useState(location.review_status==="pending");const [note,setNote]=useState(location.review_note??"");
+  const [busy,setBusy]=useState(false);const [error,setError]=useState("");
+  useEffect(()=>{setNote(location.review_note??"");setEditing(location.review_status==="pending");},[location.review_status,location.review_note]);
+  async function save(status:"accepted"|"rejected"){
+    setBusy(true);setError("");
+    try{
+      const response=await fetch(API+"/api/object-locations/"+encodeURIComponent(location.object_location_id)+"/review",{
+        method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({status,reviewer_id:REVIEWER_ID,note})});
+      if(!response.ok)throw new Error("API returned "+response.status+": "+await response.text());
+      setEditing(false);await onSaved();
+    }catch(reason){setError(reason instanceof Error?reason.message:"Unable to validate failure location");}
+    finally{setBusy(false);}
+  }
+  return location.review_status!=="pending"&&!editing
+    ? <ReviewSummary status={location.review_status} note={location.review_note} label="Failure Location" onEdit={()=>setEditing(true)}/>
+    : <div className="candidate-validation-box">
+        <div><b>Validate Failure Location</b><p>Confirm the sink and exact write range responsible for the observed heap-buffer-overflow.</p></div>
+        <ReviewForm note={note} setNote={setNote} busy={busy} error={error}
+          onSubmit={()=>save("accepted")} onReject={()=>save("rejected")} acceptLabel="Accept Failure Location"/>
+      </div>;
+}
+
+function FailureAnnotation({target,sourceArtifact,onSaved}:{target:Target;sourceArtifact?:Artifact;onSaved:()=>Promise<void>}){
   const location=target.object_locations?.[0];
   if(!location)return <section className="checkpoint-section workflow-checkpoint">
-    <div className="workflow-checkpoint-heading"><span className="step-number">2</span><div><b>Manifestation Annotation</b><small>Crash-site source and final weakness in the manifestation chain</small></div></div>
-    <p className="empty-state">No object location is linked to the final manifestation weakness.</p>
+    <div className="workflow-checkpoint-heading"><span className="step-number">1</span><div><b>Failure Annotation</b><small>Failure location and observable consequence</small></div></div>
+    <p className="empty-state">No failure location is associated with this reproduction.</p>
   </section>;
-  const annotations=location.annotations??[];
-  const submitted=annotations.length>0&&annotations.every(a=>Boolean(a.submitted_at));
+  const annotations=location.annotations??[];const submitted=annotations.length>0&&annotations.every(a=>Boolean(a.submitted_at));
+  const accepted=location.review_status==="accepted";
   return <section className="checkpoint-section workflow-checkpoint">
     <div className="workflow-checkpoint-heading">
-      <span className={submitted?"step-number completed":"step-number"}>2</span>
-      <div><b>Manifestation Annotation</b><small>Crash-site source and final weakness in the manifestation chain</small></div>
-      <span className={"pill "+(submitted?"accepted":"pending")}>{annotations.filter(a=>a.submitted_at).length}/{annotations.length} submitted</span>
+      <span className={accepted&&submitted?"step-number completed":"step-number"}>1</span>
+      <div><b>Failure Annotation</b><small>Validate the failure location, then annotate the observed consequence</small></div>
+      <span className={"pill "+location.review_status}>{location.review_status}</span>
     </div>
     <div className="annotation-split">
       <div className="annotation-pane">
-        <h3>Crash-site source location</h3>
-        {sourceArtifact?<HighlightedCode artifact={sourceArtifact} projectId={location.project_id} linkRevision={location.revision_id} highlightLines={[location.line]}/>:<p className="empty-state">The source artifact is not available in the examination data.</p>}
+        <h3>Failure Location</h3>
+        {sourceArtifact?<HighlightedCode artifact={sourceArtifact} projectId={location.project_id} linkRevision={location.revision_id}
+          highlightLines={[location.line]} highlightRange={location.start_column&&location.end_column
+            ? {line:location.line,startColumn:location.start_column,endColumn:location.end_column}:undefined}/>
+          :<p className="empty-state">The source artifact is not available in the examination data.</p>}
         <div className="source-location-facts">
           <span>Line <b>{location.line}</b></span><span>Columns <b>{location.start_column??"?"}–{location.end_column??"?"}</b></span>
-          <span>Object <b>{location.name}</b></span><span>Type <b>{location.type}</b></span>
+          <span>Sink <b>{location.name}</b></span>
         </div>
-        <a className="candidate-source-link" href={`https://github.com/${location.project_id}/blob/${location.revision_id}/${sourceArtifact?.file_path ?? "unpackinline.cpp"}#L${location.line}-L${location.line}`} target="_blank" rel="noreferrer">Open crash-site revision ↗</a>
+        <a className="candidate-source-link" href={`https://github.com/${location.project_id}/blob/${location.revision_id}/${sourceArtifact?.file_path??"unpackinline.cpp"}#L${location.line}-L${location.line}`} target="_blank" rel="noreferrer">Open failure revision ↗</a>
+        <FailureLocationValidation location={location} onSaved={onSaved}/>
       </div>
       <div className="annotation-pane">
-        <h3>Final chain weakness</h3>
-        <div className="chain-weakness-summary">
+        <h3>Consequence</h3>
+        <div className="chain-weakness-summary consequence-summary">
           <div className="chain-cwe">{location.cwe_id} · {location.cwe_label}</div>
-          <div><label>Affected object</label><b>{location.name}</b></div>
-          <div><label>Object type</label><b>{location.type}</b></div>
-          <div><label>Chain</label><code>{location.chain_id}</code></div>
-          <div><label>Weakness</label><code>{location.weakness_id}</code></div>
+          <div className="consequence-observed">Heap-buffer-overflow</div>
+          <div><label>Write sink</label><b>{location.name}</b></div>
+          <div><label>Source range</label><b>Line {location.line} · Columns {location.start_column}–{location.end_column}</b></div>
         </div>
-        <div className="annotation-list">
+        {accepted?<div className="annotation-list">
           {annotations.map(a=><AnnotationCard key={a.annotation_id} annotation={a} onSaved={onSaved}/>)}
-          {!annotations.length&&<p className="empty-state">No annotations are associated with this object location.</p>}
-        </div>
+          {!annotations.length&&<p className="empty-state">No consequence annotations are associated with this failure location.</p>}
+        </div>:<p className="waiting-note">Accept the Failure Location on the left to unlock its consequence annotations.</p>}
       </div>
     </div>
   </section>;
 }
 
-function ThreadOverviewCard({target,examinationId}:{target:Target;examinationId:string}){
-  const root=target.thread==="root_cause";
-  const candidate=target.candidate_locations?.[0];
-  const rootAnnotations=candidate?.annotations??[];
-  const manifestAnnotations=(target.object_locations??[]).flatMap(l=>l.annotations??[]);
-  const stages=root?[
-    {label:"Patch Analysis",complete:target.patch_review_status==="accepted"},
-    {label:"Root-Cause Annotation",complete:candidate?.review_status==="accepted"&&rootAnnotations.length>0&&rootAnnotations.every(a=>Boolean(a.submitted_at))}
-  ]:[
-    {label:"Reproduction Analysis",complete:target.reproduction?.review_status==="accepted"},
-    {label:"Manifestation Annotation",complete:manifestAnnotations.length>0&&manifestAnnotations.every(a=>Boolean(a.submitted_at))}
-  ];
-  const done=stages.filter(s=>s.complete).length;
-  const href=`/examination/${encodeURIComponent(examinationId)}/${target.thread}`;
-  return <article className="thread-overview-card">
-    <div className="thread-overview-heading"><div>
-      <span className="thread-kind">{root?"PATCH → ROOT CAUSE":"REPRODUCTION → MANIFESTATION"}</span>
-      <h2>{root?"Patch Analysis → Root-Cause Annotation":"Reproduction Analysis → Manifestation Annotation"}</h2>
-      <p>{root?"Validate the patch and annotate the source location responsible for the defect.":"Confirm the crash reproduction and annotate the final weakness at its source location."}</p>
-    </div><span className={"pill "+(done===2?"accepted":"pending")}>{done===2?"complete":"in progress"}</span></div>
-    <div className="overview-stepper pair-stepper">{stages.map((stage,index)=><div className={stage.complete?"overview-step completed":"overview-step"} key={stage.label}>
-      <span>{stage.complete?"✓":index+1}</span><small>{stage.label}</small>
-    </div>)}</div>
-    <div className="thread-card-footer"><span>{done} of 2 stages complete</span><a href={href}>Open workflow <span aria-hidden="true">→</span></a></div>
-  </article>;
-}
-
-function PlaceholderOverviewCard(){
-  return <article className="thread-overview-card placeholder-thread-card">
-    <div className="thread-overview-heading"><div>
-      <span className="thread-kind">EXPLORATORY WORKSTREAM</span>
-      <h2>Propagation Analysis → Chain Annotation</h2>
-      <p>Explore how the fault propagates through the program and annotate the resulting weakness chain.</p>
-    </div><span className="future-label">Planned</span></div>
-    <div className="overview-stepper pair-stepper">
-      <div className="overview-step"><span>1</span><small>Propagation Analysis</small></div>
-      <div className="overview-step"><span>2</span><small>Chain Annotation</small></div>
-    </div>
-    <div className="thread-card-footer"><span>Exploratory · not implemented</span><span className="future-label">Coming later</span></div>
-  </article>;
+function OverviewCard({title,description,href,status,planned=false}:{
+  title:string;description:string;href?:string;status?:ReviewStatus;planned?:boolean;
+}){
+  const content=<><div className="overview-card-top"><div><h3>{title}</h3><p>{description}</p></div>
+    <span className={planned?"future-label":"pill "+(status??"pending")}>{planned?"Planned":status??"pending"}</span></div>
+    <div className="overview-card-footer">{planned?"Exploratory · not implemented":"Open thread →"}</div></>;
+  return href?<a className="workstream-card" href={href}>{content}</a>:<article className="workstream-card placeholder-thread-card">{content}</article>;
 }
 
 export function ExaminationWorkspace({mode,examinationId}:{
-  mode:"overview"|"root_cause"|"manifestation";examinationId:string;
+  mode:"overview"|"root_cause"|"manifestation"|"bug_annotation"|"failure_annotation";examinationId:string;
 }){
-  const [data,setData]=useState<Data|null>(null);
-  const [error,setError]=useState("");
-  const [busy,setBusy]=useState(true);
+  const [data,setData]=useState<Data|null>(null);const [error,setError]=useState("");const [busy,setBusy]=useState(true);
   async function load(showLoading=true):Promise<void>{
     if(showLoading)setBusy(true);
-    try{
-      const response=await fetch(`${API}/api/examinations/${encodeURIComponent(examinationId)}`,{cache:"no-store"});
-      if(!response.ok)throw new Error(`API returned ${response.status}`);
-      setData(await response.json());setError("");
+    try{const response=await fetch(`${API}/api/examinations/${encodeURIComponent(examinationId)}`,{cache:"no-store"});
+      if(!response.ok)throw new Error(`API returned ${response.status}`);setData(await response.json());setError("");
     }catch(reason){setError(reason instanceof Error?reason.message:"API unavailable");}
     finally{if(showLoading)setBusy(false);}
   }
@@ -1053,11 +1041,10 @@ export function ExaminationWorkspace({mode,examinationId}:{
   if(busy)return <main className="shell"><p className="loading">Loading examination…</p></main>;
   if(!data)return <main className="shell"><header><b>FindThemAll <i>/ Examination</i></b></header>
     <div className="error-card"><h1>API unavailable</h1><p>{error}</p><button onClick={()=>void load()}>Retry</button><small>Start arepo, then rotas, then opera.</small></div></main>;
-  const root=data.targets.find(t=>t.thread==="root_cause");
-  const manifestation=data.targets.find(t=>t.thread==="manifestation");
+  const root=data.targets.find(t=>t.thread==="root_cause");const manifestation=data.targets.find(t=>t.thread==="manifestation");
   if(!root||!manifestation)return <main className="shell"><p>Examination target data is incomplete.</p></main>;
-  const selected=mode==="root_cause"?root:mode==="manifestation"?manifestation:null;
   const sourceArtifact=root.artifacts.find(a=>a.artifact_id==="b4914966fec23c73b8ba9336fdaa62ea549a8ea6dba1d8c24ded22b3861d47dc");
+  const candidate=root.candidate_locations?.[0];const failureLocation=manifestation.object_locations?.[0];
   return <main className="shell">
     <header className="topbar"><div className="brand"><span className="brand-mark">F</span><span>FindThemAll <i>/ Examination</i></span></div><span className="reviewer">REVIEWER 01</span></header>
     <section className="case-head">
@@ -1065,30 +1052,40 @@ export function ExaminationWorkspace({mode,examinationId}:{
       <div className="identifiers">{data.examination.external_identifiers.map(i=><a href={i.uri} target="_blank" rel="noreferrer" key={i.value}>{i.value} ↗</a>)}</div>
       <div className="overview">
         <div><small>PROJECT</small><b>{data.examination.project_id}</b></div>
-        <div><small>ROOT-CAUSE PATCH REVIEW</small><b>{root.patch_review_status}</b></div>
+        <div><small>PATCH REVIEW</small><b>{root.patch_review_status}</b></div>
         <div><small>REPRODUCTION REVIEW</small><b>{manifestation.reproduction?.review_status??"unavailable"}</b></div>
       </div>
     </section>
     {mode==="overview"?<>
-      <div className="overview-heading"><div><h2>Examination workstreams</h2><p>Each workstream pairs evidence analysis with annotation.</p></div><span>3 workstreams</span></div>
-      <div className="thread-board">
-        <ThreadOverviewCard target={manifestation} examinationId={data.examination.examination_id}/>
-        <ThreadOverviewCard target={root} examinationId={data.examination.examination_id}/>
-        <PlaceholderOverviewCard/>
+      <div className="overview-heading"><div><h2>Examination threads</h2><p>Analysis validates evidence; annotation records its interpretation.</p></div><span>3 analysis · 3 annotation threads</span></div>
+      <div className="workstream-columns">
+        <section className="workstream-column">
+          <div className="workstream-column-heading"><h2>Analysis Threads</h2><p>Artifacts and outputs to validate</p></div>
+          <div className="workstream-card-list">
+            <OverviewCard title="Reproduction Analysis" description="Review the NVD, OSS-Fuzz and OSV reports, execution context and reproduced crash." href={`/examination/${encodeURIComponent(data.examination.examination_id)}/manifestation`} status={manifestation.reproduction?.review_status??"pending"}/>
+            <OverviewCard title="Patch Analysis" description="Review the patch diff and confirm the patched build no longer reproduces the crash." href={`/examination/${encodeURIComponent(data.examination.examination_id)}/root_cause`} status={root.patch_review_status}/>
+            <OverviewCard title="Propagation Analysis" description="Explore how the fault propagates from its source to the failure location." planned/>
+          </div>
+        </section>
+        <section className="workstream-column">
+          <div className="workstream-column-heading"><h2>Annotation Threads</h2><p>Locations, consequences and structured labels</p></div>
+          <div className="workstream-card-list">
+            <OverviewCard title="Failure Annotation" description="Validate the sink location and annotate the observed heap-buffer-overflow consequence." href={`/examination/${encodeURIComponent(data.examination.examination_id)}/failure_annotation`} status={failureLocation?.review_status??"pending"}/>
+            <OverviewCard title="Bug Annotation" description="Validate the UnpPtr bug location and review its qualifier and operation." href={`/examination/${encodeURIComponent(data.examination.examination_id)}/bug_annotation`} status={candidate?.review_status??"pending"}/>
+            <OverviewCard title="Chain Annotation" description="Annotate the weakness chain after propagation analysis is established." planned/>
+          </div>
+        </section>
       </div>
-    </>:mode==="root_cause"?<>
-      <div className="thread-page-intro"><a href={`/examination/${encodeURIComponent(data.examination.examination_id)}`}>← Examination overview</a>
-        <div><h2>Patch Analysis → Root-Cause Annotation</h2><p>Review the patch evidence first, then annotate the candidate source location and its root cause.</p></div>
-      </div>
-      <PatchAnalysis target={root} onSaved={()=>load(false)}/>
-      <RootCauseAnnotation target={root} onSaved={()=>load(false)}/>
     </>:<>
       <div className="thread-page-intro"><a href={`/examination/${encodeURIComponent(data.examination.examination_id)}`}>← Examination overview</a>
-        <div><h2>Reproduction Analysis → Manifestation Annotation</h2><p>Confirm the original crash, then annotate the final weakness at the affected source object.</p></div>
+        <div><h2>{mode==="root_cause"?"Patch Analysis":mode==="manifestation"?"Reproduction Analysis":mode==="bug_annotation"?"Bug Annotation":"Failure Annotation"}</h2>
+          <p>{mode==="root_cause"?"Validate the patch diff and later patched-run evidence.":mode==="manifestation"?"Validate the original reports and reproduced crash evidence.":mode==="bug_annotation"?"Validate the UnpPtr bug location and review its root-cause annotations.":"Validate the failure sink and annotate the observed consequence."}</p></div>
       </div>
-      <ReproductionAnalysis target={manifestation} onSaved={()=>load(false)}/>
-      <ManifestationAnnotation target={manifestation} sourceArtifact={sourceArtifact} onSaved={()=>load(false)}/>
+      {mode==="manifestation"&&<ReproductionAnalysis target={manifestation} onSaved={()=>load(false)}/>}
+      {mode==="root_cause"&&<PatchAnalysis target={root} onSaved={()=>load(false)}/>}
+      {mode==="bug_annotation"&&<BugAnnotation target={root} onSaved={()=>load(false)}/>}
+      {mode==="failure_annotation"&&<FailureAnnotation target={manifestation} sourceArtifact={sourceArtifact} onSaved={()=>load(false)}/>}
     </>}
-    <footer>Analysis validates evidence. Annotation captures its structured interpretation. Propagation analysis and chain annotation remain exploratory placeholders in this slice.</footer>
+    <footer>Analysis and annotation are separate review threads. Propagation Analysis and Chain Annotation remain exploratory placeholders in this slice.</footer>
   </main>;
 }
